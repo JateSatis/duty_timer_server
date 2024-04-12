@@ -10,6 +10,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { Friend } from "./Friend";
 import { Timer } from "./Timer";
 import { Event } from "./Event";
 import { Settings } from "./Settings";
@@ -17,9 +18,11 @@ import { Chat } from "./Chat";
 import { Message } from "./Message";
 import { Subscription } from "./Subscription";
 import { UserType } from "./utils/Enums";
+import { FriendshipRequest } from "./FriendshipRequest";
 
 //# СУЩНОСТЬ ПОЛЬЗОВАТЕЛЬ (User)
 //# - Идентификатор: GeneratedId
+//# - Логин: String
 //# - Имя: String, nullable = false
 //# - Фамилия: String, nullable = false
 //# - Никнейм: String, nullable = false, unique = true
@@ -27,6 +30,7 @@ import { UserType } from "./utils/Enums";
 //# - Тип пользователя: Enum(“Солдат", "Офицер", "Курсант", "Родственник солдата"), nullable = false, default = “Солдат”
 //# - ХэшКод пароля: String, nullable = false
 //# - Salt пароля: String, nullable = false
+//# - В сети: Boolean
 //# - Таймер: отношение ManyToOne к сущности Timer. Одному таймеру могут соответствовать несколько пользователей
 //# - События: отношение OneToMany к сущности Event
 //# - Друзья: отношение ManyToMany к сущности User. По ней будет создана таблица user_friend
@@ -39,6 +43,9 @@ import { UserType } from "./utils/Enums";
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column()
+  login: string;
 
   @Column({
     length: 20,
@@ -78,6 +85,12 @@ export class User extends BaseEntity {
   })
   password_salt: string;
 
+  @Column({
+    type: "boolean",
+    default: "false",
+  })
+  online: boolean;
+
   @ManyToOne(() => Timer, (timer) => timer.users)
   @JoinColumn({
     name: "timer_id",
@@ -89,16 +102,28 @@ export class User extends BaseEntity {
   })
   events: Event[];
 
-  @OneToMany(() => User, (user) => user.friendOf, {
+  @OneToMany(
+    () => FriendshipRequest,
+    (friendship_request) => friendship_request.sender,
+    {
+      cascade: true,
+    }
+  )
+  sent_friendship_requests: FriendshipRequest[];
+
+  @OneToMany(
+    () => FriendshipRequest,
+    (friendship_request) => friendship_request.reciever,
+    {
+      cascade: true,
+    }
+  )
+  recieved_friendship_requests: FriendshipRequest[];
+
+  @OneToMany(() => Friend, (friend) => friend.user, {
     cascade: true,
   })
-  friends: User[];
-
-  @ManyToOne(() => User, (user) => user.friends)
-  @JoinColumn({
-    name: "friend_id",
-  })
-  friendOf: User;
+  friends: Friend[];
 
   @OneToOne(() => Settings, (settings) => settings.user, {
     cascade: true,
