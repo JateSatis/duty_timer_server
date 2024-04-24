@@ -27,9 +27,7 @@ export class Chat extends BaseEntity {
   })
   last_update_time: Date;
 
-  @Column({
-    nullable: true,
-  })
+  @Column()
   unread_messages_amount: number;
 
   @OneToMany(() => Message, (message) => message.chat, {

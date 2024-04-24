@@ -150,7 +150,7 @@ export class User extends BaseEntity {
   })
   chats: Chat[];
 
-  @OneToMany(() => Message, (message) => message.user, {
+  @OneToMany(() => Message, (message) => message.sender, {
     cascade: true,
   })
   messages: Message[];

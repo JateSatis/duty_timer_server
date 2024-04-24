@@ -64,5 +64,5 @@ export class Message extends BaseEntity {
   @JoinColumn({
     name: "user_id",
   })
-  user: User;
+  sender: User;
 }
