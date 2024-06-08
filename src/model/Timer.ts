@@ -3,6 +3,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  Long,
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -20,14 +21,14 @@ export class Timer extends BaseEntity {
   id: number;
 
   @Column({
-    type: "date",
+    type: "bigint",
   })
-  start_time: Date;
+  start_time: Long;
 
   @Column({
-    type: "date",
+    type: "bigint",
   })
-  end_time: Date;
+  end_time: Long;
 
   @OneToMany(() => User, (user) => user.timer, {
     cascade: true,

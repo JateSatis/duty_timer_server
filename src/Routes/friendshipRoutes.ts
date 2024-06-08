@@ -78,7 +78,6 @@ friendshipRouter.post("/send-request/:recieverId", auth, async (req, res) => {
   await friendshipRequest.save();
 
   return res.status(200).json({
-    success: true,
     friendshipRequest,
   });
 });
@@ -134,7 +133,6 @@ friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
   await chat.save();
 
   return res.status(200).json({
-    success: true,
     chat,
   });
 });
@@ -146,9 +144,7 @@ friendshipRouter.delete("/:friendId", auth, async (req, res) => {
 
   deleteFriendship(userId, friendId);
 
-  return res.status(200).json({
-    success: true,
-  });
+  return res.status(200);
 });
 
 const deleteFriendFrom = async (user: User, friendId: number) => {

@@ -39,6 +39,8 @@ export const configureSockets = (server: Server) => {
         return;
       }
 
+      socket.write("HTTP/1.1 101 Switching Protocols\r\n\r\n");
+
       wss.handleUpgrade(req, socket, head, (ws) => {
         wss.emit("connection", ws, req, user);
       });

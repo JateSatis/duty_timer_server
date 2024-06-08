@@ -9,26 +9,19 @@ import { requestBodyIsComplete } from "./utils/checkRequestBody";
 import { auth } from "../auth/authMiddleware";
 import { dutyTimerDataSource } from "../model/config/initializeConfig";
 import { setStatus } from "./userRoutes";
+import { Timer } from "../model/Timer";
 
 export const authRouter = Router();
 
-authRouter.post("/register", async (req, res) => {
-  if (
-    !requestBodyIsComplete(
-      req,
-      "login",
-      "password",
-      "name",
-      "surname",
-      "nickname"
-    )
-  ) {
+authRouter.post("/sign-up", async (req, res) => {
+  console.log("Hello");
+  if (!requestBodyIsComplete(req, "login", "password", "name", "nickname")) {
     return res.status(400).json({
       message: "Not all properties provided",
     });
   }
 
-  const { login, password, name, surname, nickname } = req.body;
+  const { login, password, name, nickname } = req.body;
 
   const verifyUser = await User.findOneBy({
     login: login,
@@ -42,13 +35,25 @@ authRouter.post("/register", async (req, res) => {
 
   const passwordHash = generatePasswordHash(password);
 
+  const startTime = new Date();
+  const endTime = new Date();
+  endTime.setFullYear(startTime.getFullYear() + 1);
+
+  const timer = Timer.create({
+    start_time: startTime.getTime(),
+    end_time: endTime.getTime(),
+    users: [],
+  });
+
+  await timer.save();
+
   const user = User.create({
     login: login,
     name: name,
-    surname: surname,
     nickname: nickname,
     password_hash: passwordHash.hash,
     password_salt: passwordHash.salt,
+    timer: timer,
   });
 
   await user.save();
@@ -56,14 +61,12 @@ authRouter.post("/register", async (req, res) => {
   const jwt = issueJWT(user);
 
   return res.status(200).json({
-    success: true,
-    user: user,
     token: jwt.token,
     expiresIn: jwt.expires,
   });
 });
 
-authRouter.post("/login", async (req, res) => {
+authRouter.post("/sign-in", async (req, res) => {
   if (!requestBodyIsComplete(req, "password", "login")) {
     return res.status(400).json({
       message: "Not all properties provided",
@@ -97,34 +100,30 @@ authRouter.post("/login", async (req, res) => {
   const jwt = issueJWT(user);
 
   return res.status(200).json({
-    success: true,
-    user: user,
     token: jwt.token,
     expiresIn: jwt.expires,
   });
 });
 
-authRouter.post("/logout", auth, async (req, res) => {
+authRouter.post("/log-out", auth, async (req, res) => {
   const jwt = req.body.jwt;
-
   const userId = jwt.sub;
 
   try {
-    await setStatus(userId, true);
-    return res.status(200).send("Successful");
+    await setStatus(userId, false);
+    return res.status(200);
   } catch (error) {
-    return res.status(400).send(error.message);
+    return res.status(400);
   }
 });
 
 authRouter.delete("/", auth, async (req, res) => {
   const jwt = req.body.jwt;
-
   const userId = jwt.sub;
 
   const userRepository = dutyTimerDataSource.getRepository(User);
 
   await userRepository.delete({ id: userId });
 
-  return res.status(200).send("Successful");
+  return res.status(200);
 });

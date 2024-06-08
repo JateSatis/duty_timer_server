@@ -2,6 +2,7 @@ import { IncomingMessage } from "http";
 import * as jsonwebtoken from "jsonwebtoken";
 import * as path from "path";
 import * as fs from "fs";
+import url from "url";
 
 const pathToPublicKey = path.join(__dirname, "../auth/jwt/public_key.pem");
 const PUB_KEY = fs.readFileSync(pathToPublicKey);
@@ -11,7 +12,7 @@ export const authenticateSocket = (
   req: IncomingMessage,
   next: authSocketListener
 ) => {
-  const authorization = req.headers.authorization;
+  const authorization = url.parse(req.url!!, true).query.token as string;
 
   //# Проверяем есть ли в запросе header под названием authorization
   if (!authorization) {

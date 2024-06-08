@@ -1,6 +1,5 @@
 import * as dotenv from "dotenv";
 import express from "express";
-import { DataSource } from "typeorm";
 
 //# Model import
 import { dutyTimerDataSource } from "./model/config/initializeConfig";
@@ -10,6 +9,8 @@ import { userRouter } from "./Routes/userRoutes";
 import { authRouter } from "./Routes/authRoutes";
 import { friendshipRouter } from "./Routes/friendshipRoutes";
 import { configureSockets } from "./sockets/socketsConfig";
+import { eventsRouter } from "./Routes/eventsRoutes";
+import { timerRouter } from "./Routes/timerRouter";
 
 dotenv.config();
 
@@ -21,6 +22,8 @@ app.use(express.json());
 app.use("/user", userRouter);
 app.use("/auth", authRouter);
 app.use("/friendship", friendshipRouter);
+app.use("/event", eventsRouter);
+app.use("/timer", timerRouter);
 
 const initalizeDatabaseConnection = async () => {
   await dutyTimerDataSource.initialize();
@@ -31,7 +34,7 @@ const initalizeDatabaseConnection = async () => {
 const launchServer = () => {
   const serverPort = process.env.SERVER_PORT;
 
-  const server = app.listen(serverPort, () => {
+  const server = app.listen(parseInt(serverPort!), "192.168.0.107", () => {
     console.log(`Server up and running on port ${serverPort}`);
   });
   return server;

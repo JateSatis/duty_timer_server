@@ -3,6 +3,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  Long,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -23,9 +24,9 @@ export class Event extends BaseEntity {
   title: string;
 
   @Column({
-    type: "date",
+    type: "bigint",
   })
-  date: Date;
+  date: Long;
 
   @ManyToOne(() => User, (user) => user.events, {
     onDelete: "CASCADE",

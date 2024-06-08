@@ -1,4 +1,11 @@
-import { BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { User } from "./User";
 
 //# СУЩНОСТЬ ПОДПИСКА (Subscription)
@@ -8,7 +15,6 @@ import { User } from "./User";
 
 @Entity("subscription")
 export class Subscription extends BaseEntity {
-  
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -21,10 +27,10 @@ export class Subscription extends BaseEntity {
   @Column({
     type: "date",
   })
-	expiration_date: Date;
-	
-	@OneToOne(() => User, (user) => user.settings, {
+  expiration_date: Date;
+
+  @OneToOne(() => User, (user) => user.settings, {
     onDelete: "CASCADE",
-	})
-	user: User
+  })
+  user: User;
 }

@@ -54,7 +54,6 @@ userRouter.get("/:userId", async (req, res) => {
     .select([
       "user.id",
       "user.name",
-      "user.surname",
       "user.nickname",
       "user.avatar_link",
     ])
@@ -69,5 +68,5 @@ userRouter.get("/:userId", async (req, res) => {
 export const setStatus = async (userId: number, status: boolean) => {
   const userRepository = dutyTimerDataSource.getRepository(User);
 
-  await userRepository.update(userId, { online: false });
+  await userRepository.update(userId, { online: status });
 };

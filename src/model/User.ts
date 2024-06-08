@@ -53,11 +53,6 @@ export class User extends BaseEntity {
   name: string;
 
   @Column({
-    length: 20,
-  })
-  surname: string;
-
-  @Column({
     unique: true,
     length: 20,
   })
