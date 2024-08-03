@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { User } from "./User";
-import { BackgroundTint, Language, NicknameColor, Theme } from "./utils/Enums";
+import { BackgroundTint, Language, NicknameColor, Theme } from "../utils/Enums";
 
 //# СУЩНОСТЬ НАСТРОЙКИ (Settings)
 //# - Идентификатор = UserId

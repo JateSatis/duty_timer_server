@@ -1,8 +1,14 @@
 import { Router } from "express";
 import { auth } from "../auth/authMiddleware";
 import { dutyTimerDataSource } from "../model/config/initializeConfig";
-import { User } from "../model/User";
-import { Event } from "../model/Event";
+import { User } from "../model/database/User";
+import { Event } from "../model/database/Event";
+import {
+  CreateEventRequestBody,
+  GetAllEventsResponseBody,
+  GetSpecificEventResponseBody,
+  UpdateEventRequestBody,
+} from "src/model/routesEntities/EventsRouterEntities";
 
 export const eventsRouter = Router();
 
@@ -19,7 +25,9 @@ eventsRouter.get("/", auth, async (req, res) => {
 
   const events = user?.events;
 
-  return res.status(200).json(events);
+  const getAllEventsResponseBody: GetAllEventsResponseBody = events || [];
+
+  return res.status(200).json(getAllEventsResponseBody);
 });
 
 eventsRouter.get("/:eventId", auth, async (req, res) => {
@@ -46,37 +54,35 @@ eventsRouter.get("/:eventId", auth, async (req, res) => {
     id: eventId,
   });
 
-  return res.status(200).json(event);
+  if (!event) {
+    return res
+      .sendStatus(400)
+      .send(`There is no event with such id: ${eventId}`);
+  }
+
+  const getSpecificEventResponseBody: GetSpecificEventResponseBody = event;
+
+  return res.status(200).json(getSpecificEventResponseBody);
 });
 
 eventsRouter.post("/", auth, async (req, res) => {
   const jwt = req.body.jwt;
   const userId = jwt.sub;
 
-  const { title, millis } = req.body;
-  const date = parseInt(millis);
+  const createEventRequestBody: CreateEventRequestBody = req.body;
 
   const user = await User.findOneBy({
     id: userId,
   });
 
   const event = Event.create({
-    title: title,
-    date: date,
+    title: createEventRequestBody.title,
+    date: parseInt(createEventRequestBody.eventTimeMillis),
     user: user!!,
   });
   await event.save();
 
-  const joinedUser = await dutyTimerDataSource
-    .getRepository(User)
-    .createQueryBuilder("user")
-    .leftJoinAndSelect("user.events", "event")
-    .where("user.id = :userId", { userId })
-    .getOne();
-
-  const events = joinedUser?.events;
-
-  res.status(200).json(events);
+  res.status(200);
 });
 
 eventsRouter.put("/:eventId", auth, async (req, res) => {
@@ -90,8 +96,7 @@ eventsRouter.put("/:eventId", auth, async (req, res) => {
     .where("user.id = :userId", { userId })
     .getOne();
 
-  const { title, millis } = req.body;
-  const date = new Date(parseInt(millis));
+  const updateEventRequestBody: UpdateEventRequestBody = req.body;
 
   const eventId = parseInt(req.params.eventId);
   const eventIds = user?.events.map((event) => event.id);
@@ -107,8 +112,8 @@ eventsRouter.put("/:eventId", auth, async (req, res) => {
       id: eventId,
     },
     {
-      title,
-      date,
+      title: updateEventRequestBody.title,
+      date: parseInt(updateEventRequestBody.eventTimeMillis),
     }
   );
 
@@ -118,6 +123,7 @@ eventsRouter.put("/:eventId", auth, async (req, res) => {
 eventsRouter.delete("/:eventId", auth, async (req, res) => {
   const jwt = req.body.jwt;
   const userId = jwt.sub;
+
   let user = await dutyTimerDataSource
     .getRepository(User)
     .createQueryBuilder("user")
@@ -138,14 +144,5 @@ eventsRouter.delete("/:eventId", auth, async (req, res) => {
     id: eventId,
   });
 
-  user = await dutyTimerDataSource
-    .getRepository(User)
-    .createQueryBuilder("user")
-    .leftJoinAndSelect("user.events", "event")
-    .where("user.id = :userId", { userId })
-    .getOne();
-
-  const events = user?.events;
-
-  return res.status(200).json(events);
+  return res.status(200);
 });

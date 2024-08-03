@@ -1,10 +1,8 @@
-import { Server, IncomingMessage } from "http";
-import { WebSocketServer, WebSocket, RawData } from "ws";
-import { dutyTimerDataSource } from "../model/config/initializeConfig";
-import { User } from "../model/User";
-import { Chat } from "../model/Chat";
+import {IncomingMessage} from 'http'
+import { WebSocket, Data } from "ws";
+import { User } from "../model/database/User";
 import { authenticateSocket } from "./authSockets";
-import { Message } from "../model/Message";
+import { SendMessageRequestBody } from "../model/routesEntities/WebSocketRouterEntities";
 
 type UserSocket = {
   user: User;
@@ -13,101 +11,82 @@ type UserSocket = {
 
 //# Содержит чатрумы и их пользователей. В качестве ключа используется уникальный ключ чата
 //# в качестве значения используется список подключенных к данному чату пользователей
-const chatsMap = new Map<number, UserSocket[]>();
+export const chatsMap = new Map<number, UserSocket[]>();
 
-export const configureSockets = (server: Server) => {
-  const wss = new WebSocketServer({ noServer: true });
-
-  server.on("upgrade", (req, socket, head) => {
-    authenticateSocket(req, async (error, userId) => {
-      if (error) {
-        socket.write(`HTTP/1.1 401 ${error.message}\r\n\r\n`);
-        socket.destroy();
-        return;
-      }
-
-      const user = await dutyTimerDataSource
-        .getRepository(User)
-        .createQueryBuilder("user")
-        .leftJoinAndSelect("user.chats", "chat")
-        .where("user.id = :userId", { userId })
-        .getOne();
-
-      if (!user) {
-        socket.write("HTTP/1.1 401 No user with such id\r\n\r\n");
-        socket.destroy();
-        return;
-      }
-
-      socket.write("HTTP/1.1 101 Switching Protocols\r\n\r\n");
-
-      wss.handleUpgrade(req, socket, head, (ws) => {
-        wss.emit("connection", ws, req, user);
-      });
-    });
-  });
-
-  wss.on("connection", (ws: WebSocket, req: IncomingMessage, user: User) => {
-    connectToChatrooms(user, ws);
-
-    ws.on("error", console.error);
-
-    ws.on("message", async (message, isBinary) => {
-      const chatId = parseChatIdParam(req);
-      const chat = await Chat.findOneBy({ id: chatId });
-      sendMessage(message, user, chat!!, isBinary);
-    });
-  });
-};
-
-const parseChatIdParam = (req: IncomingMessage): number => {
-  const url = req.url;
-
-  if (!url) {
-    throw new Error("No url provided");
+export const webSocketOnConnection = async (ws: WebSocket, req: IncomingMessage) => {
+  let user;
+  try {
+    user = await authenticateSocket(req);
+  } catch (error) {
+    ws.send(error.message);
+    ws.close();
+    return;
   }
 
-  const paths = url.split("/").filter((p) => !!p);
+  const chatIds = connectToChatrooms(user, ws);
 
-  if (paths[0] === "chat" && paths[1]) {
-    return parseInt(paths[1]);
-  } else {
-    throw new Error("No chat id provided");
-  }
+  ws.on("error", console.error);
+
+  ws.on("message", async (message) => {
+    sendMessage(message, ws);
+  });
+
+  ws.on("close", () => {
+    disconnectFromChatrooms(chatIds, user);
+  });
 };
 
 const connectToChatrooms = (user: User, ws: WebSocket) => {
-  const userSocket: UserSocket = {
-    user: user,
-    socket: ws,
-  };
+	const userSocket: UserSocket = {
+		user: user,
+		socket: ws,
+	};
 
-  const chatIds = user.chats.map((chat) => chat.id);
-  chatIds.forEach((chatId) => {
-    if (chatsMap.has(chatId)) {
-      chatsMap.get(chatId)?.push(userSocket);
-    } else {
-      chatsMap.set(chatId, [userSocket]);
-    }
-  });
+	const chatIds = user.chats.map((chat) => chat.id);
+	chatIds.forEach((chatId) => {
+		if (chatsMap.has(chatId)) {
+			chatsMap.get(chatId)?.push(userSocket);
+		} else {
+			chatsMap.set(chatId, [userSocket]);
+		}
+	});
+	return chatIds;
 };
 
-const sendMessage = async (
-  data: RawData,
-  sender: User,
-  chat: Chat,
-  isBinary: boolean
-) => {
-  const message = Message.create({
-    text: data.toString(),
-    chat: chat!!,
-    sender: sender,
-    creation_time: new Date(),
-  });
+const disconnectFromChatrooms = (chatIds: number[], user: User) => {
+	chatIds.forEach((chatId) => {
+		const userSockets = chatsMap.get(chatId)!;
+		const filtererdUserSockets = userSockets.filter(
+			(userSocket) => userSocket.user != user
+		);
+		if (filtererdUserSockets.length == 0) chatsMap.delete(chatId);
+	});
+};
 
-  await message.save();
+const sendMessage = async (data: Data, ws: WebSocket) => {
+	const sendMessageRequestBody: SendMessageRequestBody = JSON.parse(
+		data.toString()
+	);
 
-  chatsMap.get(chat.id)?.forEach((userSocket) => {
-    userSocket.socket.send(data, { binary: isBinary });
-  });
+	const chatId = parseInt(sendMessageRequestBody.chatId);
+	const userSocket = chatsMap.get(chatId);
+
+	if (!userSocket) {
+		ws.send(`There is no available chat with this id: ${chatId}`);
+		ws.close();
+		return;
+	}
+
+	if (userSocket.filter((value) => value.socket == ws).length == 0) {
+		ws.send(
+			`Current user cannot send messages in chat with this id: ${chatId}`
+		);
+		ws.close();
+		return;
+	}
+
+	chatsMap.get(chatId)?.forEach((userSocket) => {
+		if (userSocket.socket != ws)
+			userSocket.socket.send(sendMessageRequestBody.messageId);
+	});
 };

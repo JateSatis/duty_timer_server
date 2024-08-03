@@ -17,7 +17,7 @@ import { Settings } from "./Settings";
 import { Chat } from "./Chat";
 import { Message } from "./Message";
 import { Subscription } from "./Subscription";
-import { UserType } from "./utils/Enums";
+import { UserType } from "../utils/Enums";
 import { FriendshipRequest } from "./FriendshipRequest";
 
 //# СУЩНОСТЬ ПОЛЬЗОВАТЕЛЬ (User)

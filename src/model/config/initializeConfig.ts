@@ -1,16 +1,16 @@
 import * as dotenv from "dotenv";
 
 import { DataSource } from "typeorm";
-import { User } from "../User";
-import { Timer } from "../Timer";
-import { Event } from "../Event";
-import { Settings } from "../Settings";
-import { Chat } from "../Chat";
-import { Message } from "../Message";
-import { Picture } from "../Picture";
-import { Subscription } from "../Subscription";
-import { Friend } from "../Friend";
-import { FriendshipRequest } from "../FriendshipRequest";
+import { User } from "../database/User";
+import { Timer } from "../database/Timer";
+import { Event } from "../database/Event";
+import { Settings } from "../database/Settings";
+import { Chat } from "../database/Chat";
+import { Message } from "../database/Message";
+import { Subscription } from "../database/Subscription";
+import { Friend } from "../database/Friend";
+import { FriendshipRequest } from "../database/FriendshipRequest";
+import { Image } from "../database/Image";
 
 dotenv.config();
 
@@ -47,7 +47,7 @@ export const dutyTimerDataSource = new DataSource({
     FriendshipRequest,
     Chat,
     Message,
-    Picture,
+    Image,
     Subscription,
   ],
   synchronize: true,

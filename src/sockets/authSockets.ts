@@ -3,21 +3,20 @@ import * as jsonwebtoken from "jsonwebtoken";
 import * as path from "path";
 import * as fs from "fs";
 import url from "url";
+import { dutyTimerDataSource } from "../model/config/initializeConfig";
+import { User } from "../model/database/User";
 
 const pathToPublicKey = path.join(__dirname, "../auth/jwt/public_key.pem");
 const PUB_KEY = fs.readFileSync(pathToPublicKey);
 
-type authSocketListener = (err: Error | null, userId: number | null) => void;
-export const authenticateSocket = (
+export const authenticateSocket =  async (
   req: IncomingMessage,
-  next: authSocketListener
-) => {
+) : Promise<User> => {
   const authorization = url.parse(req.url!!, true).query.token as string;
 
   //# Проверяем есть ли в запросе header под названием authorization
   if (!authorization) {
-    next(new Error("You are not authorized"), null);
-    return;
+    throw(new Error("You are not authorized"));
   }
 
   const tokenBearer = authorization.split(" ")[0];
@@ -25,22 +24,29 @@ export const authenticateSocket = (
 
   //# Проверяем является ли наполнение authorization токеном
   if (tokenBearer != "Bearer" || !token.match(/\S+.\S+.\S+/)) {
-    next(new Error("You are not authorized"), null);
-    return;
+    throw(new Error("You are not authorized"));
   } else {
-    try {
-      //# С помощью публчного ключа проверяем токен на подлинность
-      const verification = jsonwebtoken.verify(token, PUB_KEY, {
-        algorithms: ["RS256"],
-      });
+		//# С помощью публчного ключа проверяем токен на подлинность
+		const verification = jsonwebtoken.verify(token, PUB_KEY, {
+			algorithms: ["RS256"],
+		});
 
-      //# Если ошибки не произошло, добавляем в тело запроса токен, чтобы использовать его в следующих
-      //# middleware
+		//# Если ошибки не произошло, добавляем в тело запроса токен, чтобы использовать его в следующих
+		//# middleware
 
-      const userId = parseInt(verification.sub!! as string);
-      next(null, userId);
-    } catch (error) {
-      next(error, null);
+		const userId = parseInt(verification.sub!! as string);
+
+		const user = await dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.chats", "chat")
+      .where("user.id = :userId", { userId })
+      .getOne();
+
+    if (!user) {
+      throw(new Error("There is no user with such id"))
     }
+		
+		return user
   }
 };

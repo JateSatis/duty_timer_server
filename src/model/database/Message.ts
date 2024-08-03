@@ -8,9 +8,9 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { Picture } from "./Picture";
 import { Chat } from "./Chat";
 import { User } from "./User";
+import { Image } from "./Image";
 
 //# СУЩНОСТЬ СООБЩЕНИЕ (Message)
 //# - Идентификатор = GeneratedId
@@ -28,7 +28,7 @@ export class Message extends BaseEntity {
   id: number;
 
   @Column()
-  text: String;
+  text: string;
 
   @CreateDateColumn()
   creation_time: Date;
@@ -45,10 +45,8 @@ export class Message extends BaseEntity {
   })
   read: boolean;
 
-  @OneToMany(() => Picture, (picture) => picture.message, {
-    cascade: true,
-  })
-  pictures: Picture[];
+  @OneToMany(() => Image, (image) => image.message)
+  images: Image[];
 
   @ManyToOne(() => Chat, (chat) => chat.messages, {
     onDelete: "CASCADE",

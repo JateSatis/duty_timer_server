@@ -2,7 +2,7 @@ import * as jsonwebtoken from "jsonwebtoken";
 import * as fs from "fs";
 import * as path from "path";
 
-import { User } from "../../model/User";
+import { User } from "../../model/database/User";
 
 const pathToPrivateKey = path.join(__dirname, "/private_key.pem");
 const PRIV_KEY = fs.readFileSync(pathToPrivateKey);
@@ -25,7 +25,7 @@ const issueJWT = (user: User) => {
 
   return {
     token: "Bearer " + signedToken,
-    expires: expiresIn,
+    expiresIn,
   };
 };
 

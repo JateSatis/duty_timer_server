@@ -1,14 +1,20 @@
 import { Router } from "express";
 import { auth } from "../auth/authMiddleware";
 import { dutyTimerDataSource } from "../model/config/initializeConfig";
-import { Friend } from "../model/Friend";
-import { User } from "../model/User";
-import { FriendshipRequest } from "../model/FriendshipRequest";
-import { Chat } from "../model/Chat";
+import { Friend } from "../model/database/Friend";
+import { User } from "../model/database/User";
+import { FriendshipRequest } from "../model/database/FriendshipRequest";
+import { Chat } from "../model/database/Chat";
+import {
+  AcceptFriendshipResponseBody,
+  GetAllFriendsResponseBody,
+  GetAllRecievedFriendshipRequestsResponseBody,
+  GetAllSentFriendshipRequestsResponseBody,
+} from "src/model/routesEntities/FriendshipRouterEntities";
 
 export const friendshipRouter = Router();
 
-friendshipRouter.get("/", auth, async (req, res) => {
+friendshipRouter.get("/friends", auth, async (req, res) => {
   const jwt = req.body.jwt;
   const userId = jwt.sub;
 
@@ -20,9 +26,7 @@ friendshipRouter.get("/", auth, async (req, res) => {
     .getOne();
 
   if (!userWithFriends) {
-    return res.json({
-      message: "User has no friends",
-    });
+    return res.status(401).send("There is no such user");
   }
 
   const friendIds = userWithFriends.friends.map((friend) => friend.friend_id);
@@ -31,18 +35,63 @@ friendshipRouter.get("/", auth, async (req, res) => {
     .getRepository(User)
     .createQueryBuilder("user")
     .where("user.id IN (:...friendIds)", { friendIds })
-    .select([
-      "user.id",
-      "user.name",
-      "user.surname",
-      "user.nickname",
-      "user.avatar_link",
-    ])
+    .select(["user.id", "user.name", "user.nickname", "user.avatar_link"])
     .getMany();
 
-  return res.json({
-    friends,
-  });
+  const getAllFriendsResponseBody: GetAllFriendsResponseBody = friends || [];
+
+  return res.status(200).json(getAllFriendsResponseBody);
+});
+
+friendshipRouter.get("/sent-friendship-requests", auth, async (req, res) => {
+  const jwt = req.body.jwt;
+  const userId = jwt.sub;
+
+  const userWithFriendshipRequests = await dutyTimerDataSource
+    .getRepository(User)
+    .createQueryBuilder("user")
+    .leftJoinAndSelect("user.sent_friendship_requests", "friendship_request")
+    .where("user.id = :userId", { userId })
+    .getOne();
+
+  if (!userWithFriendshipRequests) {
+    return res.sendStatus(400).send(`There is no user with such id: ${userId}`);
+  }
+
+  const sentFriendshipRequests =
+    userWithFriendshipRequests.sent_friendship_requests;
+
+  const getAllSentFriendshipRequestsResponse: GetAllSentFriendshipRequestsResponseBody =
+    sentFriendshipRequests || [];
+
+  return res.sendStatus(200).send(getAllSentFriendshipRequestsResponse);
+});
+
+friendshipRouter.get("/recieved-friendship-requests", auth, async (req, res) => {
+  const jwt = req.body.jwt;
+  const userId = jwt.sub;
+
+  const userWithFriendshipRequests = await dutyTimerDataSource
+    .getRepository(User)
+    .createQueryBuilder("user")
+    .leftJoinAndSelect(
+      "user.recieved_friendship_requests",
+      "friendship_request"
+    )
+    .where("user.id = :userId", { userId })
+    .getOne();
+
+  if (!userWithFriendshipRequests) {
+    return res.sendStatus(400).send(`There is no user with such id: ${userId}`);
+  }
+
+  const recievedFriendshipRequests =
+    userWithFriendshipRequests.recieved_friendship_requests;
+
+  const getAllRecievedFriendshipRequestsResponse: GetAllRecievedFriendshipRequestsResponseBody =
+    recievedFriendshipRequests || [];
+
+  return res.sendStatus(200).send(getAllRecievedFriendshipRequestsResponse);
 });
 
 friendshipRouter.post("/send-request/:recieverId", auth, async (req, res) => {
@@ -57,12 +106,12 @@ friendshipRouter.post("/send-request/:recieverId", auth, async (req, res) => {
     .where("user.id = :userId", { userId })
     .getOne();
 
-  console.log(sender);
-
   //# Check if there is already a friendship between user and friend
   const friendIds = sender?.friends.map((friend) => friend.friend_id);
   if (friendIds?.includes(recieverId))
-    return res.json(401).send(`${recieverId} is already a friend of ${userId}`);
+    return res
+      .sendStatus(401)
+      .send(`${recieverId} is already a friend of ${userId}`);
 
   const reciever = await User.findOneBy({
     id: recieverId,
@@ -77,9 +126,7 @@ friendshipRouter.post("/send-request/:recieverId", auth, async (req, res) => {
 
   await friendshipRequest.save();
 
-  return res.status(200).json({
-    friendshipRequest,
-  });
+  return res.sendStatus(200);
 });
 
 friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
@@ -91,21 +138,27 @@ friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
     id: userId,
   });
 
+  if (!reciever) {
+    return res.sendStatus(400).send("There is no reciever with such id");
+  }
+
   const sender = await User.findOneBy({
     id: senderId,
   });
 
-  // TODO: get rid of explicit non-null operands
+  if (!sender) {
+    return res.sendStatus(400).send("There is no sender with such id");
+  }
+
   const senderFriend = Friend.create({
-    user: sender!!,
+    user: sender,
     friend_id: userId,
   });
 
   await senderFriend.save();
 
-  // TODO: get rid of explicit non-null operands
   const recieverFriend = Friend.create({
-    user: reciever!!,
+    user: reciever,
     friend_id: senderId,
   });
 
@@ -120,21 +173,25 @@ friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
     .andWhere("friendship_request.reciever_id = :userId", { userId })
     .getOne();
 
-  // TODO: get rid of explicit non-null operands
-  friendshipRequestRepository.remove(friendshipRequest!!);
+  if (!friendshipRequest) {
+    return res
+      .sendStatus(400)
+      .send("There is no friendship request with such id");
+  }
 
-  // TODO: get rid of explicit non-null operands
+  friendshipRequestRepository.remove(friendshipRequest);
+
   const chat = Chat.create({
-    users: [sender!!, reciever!!],
+    users: [sender, reciever],
     messages: [],
-    last_update_time: new Date(),
+    last_update_time: Date.now(),
     unread_messages_amount: 0,
   });
   await chat.save();
 
-  return res.status(200).json({
-    chat,
-  });
+  const AcceptFriendshipResponseBody: AcceptFriendshipResponseBody = chat;
+
+  return res.status(200).json(AcceptFriendshipResponseBody);
 });
 
 friendshipRouter.delete("/:friendId", auth, async (req, res) => {

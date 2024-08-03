@@ -5,7 +5,7 @@ import {
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  Long,
 } from "typeorm";
 import { Message } from "./Message";
 import { User } from "./User";
@@ -23,9 +23,9 @@ export class Chat extends BaseEntity {
   id: number;
 
   @Column({
-    type: "date",
+    type: "bigint",
   })
-  last_update_time: Date;
+  last_update_time: Long;
 
   @Column()
   unread_messages_amount: number;

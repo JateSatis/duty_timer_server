@@ -4,36 +4,39 @@ import {
   generatePasswordHash,
   validatePassword,
 } from "../auth/jwt/passwordHandler";
-import { User } from "../model/User";
+import { User } from "../model/database/User";
 import { requestBodyIsComplete } from "./utils/checkRequestBody";
 import { auth } from "../auth/authMiddleware";
 import { dutyTimerDataSource } from "../model/config/initializeConfig";
-import { setStatus } from "./userRoutes";
-import { Timer } from "../model/Timer";
+import { setStatus } from "./userRouter";
+import { Timer } from "../model/database/Timer";
+import {
+  SignInRequestBody,
+  SignInResponseBody,
+  SignUpRequestBody,
+  SignUpResponseBody,
+} from "../model/routesEntities/AuthRouterEntities";
 
 export const authRouter = Router();
 
 authRouter.post("/sign-up", async (req, res) => {
-  console.log("Hello");
   if (!requestBodyIsComplete(req, "login", "password", "name", "nickname")) {
     return res.status(400).json({
       message: "Not all properties provided",
     });
   }
 
-  const { login, password, name, nickname } = req.body;
+  const signUpRequestBody: SignUpRequestBody = req.body;
 
   const verifyUser = await User.findOneBy({
-    login: login,
+    login: signUpRequestBody.login,
   });
 
   if (verifyUser) {
-    return res.json({
-      message: "User is already registered. Try to login.",
-    });
+    return res.status(401).send("User is already registered. Try to login.");
   }
 
-  const passwordHash = generatePasswordHash(password);
+  const passwordHash = generatePasswordHash(signUpRequestBody.password);
 
   const startTime = new Date();
   const endTime = new Date();
@@ -48,9 +51,9 @@ authRouter.post("/sign-up", async (req, res) => {
   await timer.save();
 
   const user = User.create({
-    login: login,
-    name: name,
-    nickname: nickname,
+    login: signUpRequestBody.login,
+    name: signUpRequestBody.name,
+    nickname: signUpRequestBody.nickname,
     password_hash: passwordHash.hash,
     password_salt: passwordHash.salt,
     timer: timer,
@@ -60,10 +63,9 @@ authRouter.post("/sign-up", async (req, res) => {
 
   const jwt = issueJWT(user);
 
-  return res.status(200).json({
-    token: jwt.token,
-    expiresIn: jwt.expires,
-  });
+  const signUpResponseBody: SignUpResponseBody = jwt;
+
+  return res.status(200).json(signUpResponseBody);
 });
 
 authRouter.post("/sign-in", async (req, res) => {
@@ -73,10 +75,10 @@ authRouter.post("/sign-in", async (req, res) => {
     });
   }
 
-  const { password, login } = req.body;
+  const signInRequestBody: SignInRequestBody = req.body;
 
   const user = await User.findOneBy({
-    login: login,
+    login: signInRequestBody.login,
   });
 
   if (!user) {
@@ -86,7 +88,7 @@ authRouter.post("/sign-in", async (req, res) => {
   }
 
   const passwordIsValid = validatePassword(
-    password,
+    signInRequestBody.password,
     user.password_hash,
     user.password_salt
   );
@@ -99,10 +101,9 @@ authRouter.post("/sign-in", async (req, res) => {
 
   const jwt = issueJWT(user);
 
-  return res.status(200).json({
-    token: jwt.token,
-    expiresIn: jwt.expires,
-  });
+  const signInResponseBody: SignInResponseBody = jwt;
+
+  return res.status(200).json(signInResponseBody);
 });
 
 authRouter.post("/log-out", auth, async (req, res) => {
@@ -113,7 +114,7 @@ authRouter.post("/log-out", auth, async (req, res) => {
     await setStatus(userId, false);
     return res.status(200);
   } catch (error) {
-    return res.status(400);
+    return res.status(400).send(error.message);
   }
 });
 
