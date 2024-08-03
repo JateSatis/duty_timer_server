@@ -22,7 +22,7 @@ export class Image extends BaseEntity {
     onDelete: "CASCADE",
   })
   @JoinColumn({
-    name: "message_id",
+    name: "messageId",
   })
   message: Message;
 }

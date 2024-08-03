@@ -61,14 +61,14 @@ export class User extends BaseEntity {
   @Column({
     nullable: true,
   })
-  avatar_link: string;
+  avatarLink: string;
 
   @Column({
     type: "enum",
     enum: UserType,
     default: UserType.SOLDIER,
   })
-  user_type: UserType;
+  userType: UserType;
 
   @Column({
     unique: true,
@@ -78,7 +78,7 @@ export class User extends BaseEntity {
   @Column({
     unique: true,
   })
-  password_salt: string;
+  passwordSalt: string;
 
   @Column({
     type: "boolean",
@@ -99,21 +99,21 @@ export class User extends BaseEntity {
 
   @OneToMany(
     () => FriendshipRequest,
-    (friendship_request) => friendship_request.sender,
+    (friendshipRequest) => friendshipRequest.sender,
     {
       cascade: true,
     }
   )
-  sent_friendship_requests: FriendshipRequest[];
+  sentFriendshipRequests: FriendshipRequest[];
 
   @OneToMany(
     () => FriendshipRequest,
-    (friendship_request) => friendship_request.reciever,
+    (friendshipRequest) => friendshipRequest.reciever,
     {
       cascade: true,
     }
   )
-  recieved_friendship_requests: FriendshipRequest[];
+  recievedFriendshipRequests: FriendshipRequest[];
 
   @OneToMany(() => Friend, (friend) => friend.user, {
     cascade: true,
@@ -124,7 +124,7 @@ export class User extends BaseEntity {
     cascade: true,
   })
   @JoinColumn({
-    name: "settings_id",
+    name: "settingsId",
   })
   settings: Settings;
 
@@ -133,13 +133,13 @@ export class User extends BaseEntity {
     onDelete: "CASCADE",
   })
   @JoinTable({
-    name: "users_chats",
+    name: "usersChats",
     joinColumn: {
-      name: "user_id",
+      name: "userId",
       referencedColumnName: "id",
     },
     inverseJoinColumn: {
-      name: "chat_id",
+      name: "chatId",
       referencedColumnName: "id",
     },
   })
@@ -154,7 +154,7 @@ export class User extends BaseEntity {
     cascade: true,
   })
   @JoinColumn({
-    name: "subscription_id",
+    name: "subscriptionId",
   })
   subscription: Subscription;
 }

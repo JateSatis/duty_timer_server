@@ -18,5 +18,5 @@ export class Friend extends BaseEntity {
   user: User;
 
   @Column()
-  friend_id: number;
+  friendId: number;
 }

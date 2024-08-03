@@ -26,13 +26,13 @@ export class Event extends BaseEntity {
   @Column({
     type: "bigint",
   })
-  date: Long;
+  timeMillis: Long;
 
   @ManyToOne(() => User, (user) => user.events, {
     onDelete: "CASCADE",
   })
   @JoinColumn({
-    name: "user_id",
+    name: "userId",
   })
   user: User;
 }

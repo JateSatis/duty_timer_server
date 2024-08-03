@@ -40,7 +40,7 @@ messageRouter.post(
     const imageNames: string[] = [];
 
     try {
-			await Promise.all(
+      await Promise.all(
         filesArray.map(async (file) => {
           const imageName = file.originalname;
           const contentType = file.mimetype;
@@ -54,12 +54,12 @@ messageRouter.post(
           imageNames.push(s3ImageName);
         })
       );
-		} catch (error) {
-			return res.sendStatus(400).json({
+    } catch (error) {
+      return res.sendStatus(400).json({
         message: "Couldn't save images to S3 bucker",
         error: error.message,
       });
-		}
+    }
 
     const chat = await Chat.findOneBy({
       id: chatId,
@@ -81,7 +81,7 @@ messageRouter.post(
       text: text,
       chat: chat,
       sender: sender,
-      creation_time: new Date(),
+      creationTime: new Date(),
     });
 
     try {

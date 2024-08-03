@@ -31,7 +31,7 @@ export class Message extends BaseEntity {
   text: string;
 
   @CreateDateColumn()
-  creation_time: Date;
+  creationTime: Date;
 
   @Column({
     type: "boolean",
@@ -60,7 +60,7 @@ export class Message extends BaseEntity {
     onDelete: "CASCADE",
   })
   @JoinColumn({
-    name: "user_id",
+    name: "userId",
   })
   sender: User;
 }

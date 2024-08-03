@@ -56,8 +56,8 @@ timerRouter.put("/", auth, async (req, res) => {
       id: timerId,
     },
     {
-      start_time: parseInt(updateTimerRequestBody.startTimeMillis),
-      end_time: parseInt(updateTimerRequestBody.endTimeMillis),
+      startTimeMillis: parseInt(updateTimerRequestBody.startTimeMillis),
+      endTimeMillis: parseInt(updateTimerRequestBody.endTimeMillis),
     }
   );
 

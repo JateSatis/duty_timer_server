@@ -29,7 +29,7 @@ export class Settings extends BaseEntity {
   @Column({
     nullable: true,
   })
-  background_image_link: string;
+  backgroundImageLink: string;
 
   @Column({
     type: "enum",
@@ -43,26 +43,26 @@ export class Settings extends BaseEntity {
     enum: BackgroundTint,
     nullable: true,
   })
-  background_tint: BackgroundTint;
+  backgroundTint: BackgroundTint;
 
   @Column({
     default: 50,
   })
-  @Check(`"background_tint_opacity" >= 0 AND "background_tint_opacity" <= 100`)
-  background_tint_opacity: number;
+  @Check(`"backgroundTintOpacity" >= 0 AND "backgroundTintOpacity" <= 100`)
+  backgroundTintOpacity: number;
 
   @Column({
     type: "boolean",
     default: false,
   })
-  background_animation: Boolean;
+  backgroundAnimation: Boolean;
 
   @Column({
     type: "enum",
     enum: NicknameColor,
     default: NicknameColor.BLACK,
   })
-  nickname_color: NicknameColor;
+  nicknameColor: NicknameColor;
 
   @Column({
     type: "enum",

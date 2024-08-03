@@ -29,7 +29,7 @@ friendshipRouter.get("/friends", auth, async (req, res) => {
     return res.status(401).send("There is no such user");
   }
 
-  const friendIds = userWithFriends.friends.map((friend) => friend.friend_id);
+  const friendIds = userWithFriends.friends.map((friend) => friend.friendId);
 
   const friends = await dutyTimerDataSource
     .getRepository(User)
@@ -59,7 +59,7 @@ friendshipRouter.get("/sent-friendship-requests", auth, async (req, res) => {
   }
 
   const sentFriendshipRequests =
-    userWithFriendshipRequests.sent_friendship_requests;
+    userWithFriendshipRequests.sentFriendshipRequests;
 
   const getAllSentFriendshipRequestsResponse: GetAllSentFriendshipRequestsResponseBody =
     sentFriendshipRequests || [];
@@ -67,32 +67,38 @@ friendshipRouter.get("/sent-friendship-requests", auth, async (req, res) => {
   return res.sendStatus(200).send(getAllSentFriendshipRequestsResponse);
 });
 
-friendshipRouter.get("/recieved-friendship-requests", auth, async (req, res) => {
-  const jwt = req.body.jwt;
-  const userId = jwt.sub;
+friendshipRouter.get(
+  "/recieved-friendship-requests",
+  auth,
+  async (req, res) => {
+    const jwt = req.body.jwt;
+    const userId = jwt.sub;
 
-  const userWithFriendshipRequests = await dutyTimerDataSource
-    .getRepository(User)
-    .createQueryBuilder("user")
-    .leftJoinAndSelect(
-      "user.recieved_friendship_requests",
-      "friendship_request"
-    )
-    .where("user.id = :userId", { userId })
-    .getOne();
+    const userWithFriendshipRequests = await dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .leftJoinAndSelect(
+        "user.recieved_friendship_requests",
+        "friendship_request"
+      )
+      .where("user.id = :userId", { userId })
+      .getOne();
 
-  if (!userWithFriendshipRequests) {
-    return res.sendStatus(400).send(`There is no user with such id: ${userId}`);
+    if (!userWithFriendshipRequests) {
+      return res
+        .sendStatus(400)
+        .send(`There is no user with such id: ${userId}`);
+    }
+
+    const recievedFriendshipRequests =
+      userWithFriendshipRequests.recievedFriendshipRequests;
+
+    const getAllRecievedFriendshipRequestsResponse: GetAllRecievedFriendshipRequestsResponseBody =
+      recievedFriendshipRequests || [];
+
+    return res.sendStatus(200).send(getAllRecievedFriendshipRequestsResponse);
   }
-
-  const recievedFriendshipRequests =
-    userWithFriendshipRequests.recieved_friendship_requests;
-
-  const getAllRecievedFriendshipRequestsResponse: GetAllRecievedFriendshipRequestsResponseBody =
-    recievedFriendshipRequests || [];
-
-  return res.sendStatus(200).send(getAllRecievedFriendshipRequestsResponse);
-});
+);
 
 friendshipRouter.post("/send-request/:recieverId", auth, async (req, res) => {
   const jwt = req.body.jwt;
@@ -107,7 +113,7 @@ friendshipRouter.post("/send-request/:recieverId", auth, async (req, res) => {
     .getOne();
 
   //# Check if there is already a friendship between user and friend
-  const friendIds = sender?.friends.map((friend) => friend.friend_id);
+  const friendIds = sender?.friends.map((friend) => friend.friendId);
   if (friendIds?.includes(recieverId))
     return res
       .sendStatus(401)
@@ -152,14 +158,14 @@ friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
 
   const senderFriend = Friend.create({
     user: sender,
-    friend_id: userId,
+    friendId: userId,
   });
 
   await senderFriend.save();
 
   const recieverFriend = Friend.create({
     user: reciever,
-    friend_id: senderId,
+    friendId: senderId,
   });
 
   await recieverFriend.save();
@@ -184,8 +190,8 @@ friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
   const chat = Chat.create({
     users: [sender, reciever],
     messages: [],
-    last_update_time: Date.now(),
-    unread_messages_amount: 0,
+    lastUpdateTime: Date.now(),
+    unreadMessagesAmount: 0,
   });
   await chat.save();
 
@@ -206,7 +212,7 @@ friendshipRouter.delete("/:friendId", auth, async (req, res) => {
 
 const deleteFriendFrom = async (user: User, friendId: number) => {
   const friendToDelete = user.friends.find(
-    (friend) => friend.friend_id === friendId
+    (friend) => friend.friendId === friendId
   );
   // TODO: get rid of explicit non-null operands
   await dutyTimerDataSource.getRepository(Friend).remove(friendToDelete!!);

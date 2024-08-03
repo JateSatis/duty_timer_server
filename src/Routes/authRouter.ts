@@ -43,8 +43,8 @@ authRouter.post("/sign-up", async (req, res) => {
   endTime.setFullYear(startTime.getFullYear() + 1);
 
   const timer = Timer.create({
-    start_time: startTime.getTime(),
-    end_time: endTime.getTime(),
+    startTimeMillis: startTime.getTime(),
+    endTimeMillis: endTime.getTime(),
     users: [],
   });
 
@@ -55,7 +55,7 @@ authRouter.post("/sign-up", async (req, res) => {
     name: signUpRequestBody.name,
     nickname: signUpRequestBody.nickname,
     password_hash: passwordHash.hash,
-    password_salt: passwordHash.salt,
+    passwordSalt: passwordHash.salt,
     timer: timer,
   });
 
@@ -90,7 +90,7 @@ authRouter.post("/sign-in", async (req, res) => {
   const passwordIsValid = validatePassword(
     signInRequestBody.password,
     user.password_hash,
-    user.password_salt
+    user.passwordSalt
   );
 
   if (!passwordIsValid) {

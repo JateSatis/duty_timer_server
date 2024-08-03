@@ -25,13 +25,13 @@ export class Chat extends BaseEntity {
   @Column({
     type: "bigint",
   })
-  last_update_time: Long;
+  lastUpdateTime: Long;
 
   @Column()
-  unread_messages_amount: number;
+  unreadMessagesAmount: number;
 
   @OneToMany(() => Message, (message) => message.chat, {
-		cascade: true,
+    cascade: true,
   })
   messages: Message[];
 

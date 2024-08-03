@@ -23,18 +23,18 @@ export class Timer extends BaseEntity {
   @Column({
     type: "bigint",
   })
-  start_time: Long;
+  startTimeMillis: Long;
 
   @Column({
     type: "bigint",
   })
-  end_time: Long;
+  endTimeMillis: Long;
 
   @OneToMany(() => User, (user) => user.timer, {
     cascade: true,
   })
   @JoinColumn({
-    name: "user_id",
+    name: "userId",
   })
   users: User[];
 }

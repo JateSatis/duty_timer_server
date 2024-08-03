@@ -8,24 +8,24 @@ import {
 } from "typeorm";
 import { User } from "./User";
 
-@Entity("friendship_request")
+@Entity("friendshipRequest")
 export class FriendshipRequest extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.sent_friendship_requests, {
+  @ManyToOne(() => User, (user) => user.sentFriendshipRequests, {
     onDelete: "CASCADE",
   })
   @JoinColumn({
-    name: "sender_id",
+    name: "senderId",
   })
   sender: User;
 
-  @ManyToOne(() => User, (user) => user.recieved_friendship_requests, {
+  @ManyToOne(() => User, (user) => user.recievedFriendshipRequests, {
     onDelete: "CASCADE",
   })
   @JoinColumn({
-    name: "reciever_id",
+    name: "recieverId",
   })
   reciever: User;
 }

@@ -77,7 +77,7 @@ eventsRouter.post("/", auth, async (req, res) => {
 
   const event = Event.create({
     title: createEventRequestBody.title,
-    date: parseInt(createEventRequestBody.eventTimeMillis),
+    timeMillis: parseInt(createEventRequestBody.eventTimeMillis),
     user: user!!,
   });
   await event.save();
@@ -113,7 +113,7 @@ eventsRouter.put("/:eventId", auth, async (req, res) => {
     },
     {
       title: updateEventRequestBody.title,
-      date: parseInt(updateEventRequestBody.eventTimeMillis),
+      timeMillis: parseInt(updateEventRequestBody.eventTimeMillis),
     }
   );
 
