@@ -34,7 +34,7 @@ imageRouter.post("/upload", auth, upload.single("image"), async (req, res) => {
       contentType
     );
   } catch (error) {
-    return res.sendStatus(400).send(error.message);
+    return res.status(400).send(error.message);
   }
 
   const message = await Message.findOneBy({
@@ -42,7 +42,7 @@ imageRouter.post("/upload", auth, upload.single("image"), async (req, res) => {
   });
 
   if (!message) {
-    return res.sendStatus(400).send("There is no message with such id");
+    return res.status(400).send("There is no message with such id");
   }
 
   const image = Image.create({
@@ -54,7 +54,7 @@ imageRouter.post("/upload", auth, upload.single("image"), async (req, res) => {
 
   const uploadImageResponseBody: UploadImageResponseBody = image;
 
-  return res.sendStatus(200).json(uploadImageResponseBody);
+  return res.status(200).json(uploadImageResponseBody);
 });
 
 imageRouter.get("/url/:imageName", auth, async (req, res) => {
@@ -64,7 +64,7 @@ imageRouter.get("/url/:imageName", auth, async (req, res) => {
   const url = await s3DataSource.getImageUrlFromS3(imageName);
 
   if (!url) {
-    return res.sendStatus(404).send("Image not found");
+    return res.status(404).send("Image not found");
   }
 
   return res.status(200).json({
@@ -80,7 +80,7 @@ imageRouter.delete("/delete/:imageId", auth, async (req, res) => {
   });
 
   if (!image) {
-    return res.sendStatus(400).send("There is no image with such id");
+    return res.status(400).send("There is no image with such id");
   }
 
   const imageName = image.name;
@@ -89,13 +89,13 @@ imageRouter.delete("/delete/:imageId", auth, async (req, res) => {
   try {
     await s3DataSource.deleteImageFromS3(imageName);
   } catch (error) {
-    return res.sendStatus(400).send(error.message);
+    return res.status(400).send(error.message);
   }
 
   try {
     await image.remove();
   } catch (error) {
-    return res.sendStatus(400).send(error.message);
+    return res.status(400).send(error.message);
   }
 
   return res.sendStatus(200);

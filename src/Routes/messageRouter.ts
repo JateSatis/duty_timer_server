@@ -55,7 +55,7 @@ messageRouter.post(
         })
       );
     } catch (error) {
-      return res.sendStatus(400).json({
+      return res.status(400).json({
         message: "Couldn't save images to S3 bucker",
         error: error.message,
       });
@@ -66,7 +66,7 @@ messageRouter.post(
     });
 
     if (!chat) {
-      return res.sendStatus(400).send("There is no chat with such id");
+      return res.status(400).send("There is no chat with such id");
     }
 
     const sender = await User.findOneBy({
@@ -74,7 +74,7 @@ messageRouter.post(
     });
 
     if (!sender) {
-      return res.sendStatus(400).send("There is no sender with such id");
+      return res.status(400).send("There is no sender with such id");
     }
 
     const message = Message.create({
@@ -87,7 +87,7 @@ messageRouter.post(
     try {
       await message.save();
     } catch (error) {
-      return res.sendStatus(400).json({
+      return res.status(400).json({
         message: "Couldn't save message entity to DB",
         error: error.message,
       });
@@ -104,7 +104,7 @@ messageRouter.post(
         })
       );
     } catch (error) {
-      return res.sendStatus(400).json({
+      return res.status(400).json({
         message: "Couldn't save image entities to DB",
         error: error.message,
       });

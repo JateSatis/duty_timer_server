@@ -12,7 +12,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
 
   //# Проверяем есть ли в запросе header под названием authorization
   if (!authorization) {
-    return res.sendStatus(401).json({
+    return res.status(401).json({
       name: "AUTHORIZATION_HEADER_ABSENT",
       message:
         "Заголовок Authorization, необходимый для данного запроса, отсутствует",
@@ -24,7 +24,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
 
   //# Проверяем является ли наполнение authorization токеном
   if (tokenBearer != "Bearer" || !token.match(/\S+.\S+.\S+/)) {
-    return res.sendStatus(401).json({
+    return res.status(401).json({
       name: "INCORRECT_AUTHORIZATION_HEADER",
       message:
         "Значение заголовка Authorization неверно. Возможно в начале токена нет ключевого слова “Bearer” или сам токен не соответствует шаблону JWT токена",
@@ -48,18 +48,18 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
                 "Срок действия acess token истек. Обновите его с помощью refresh token",
             });
           case "JsonWebTokenError":
-            return res.sendStatus(401).json({
+            return res.status(401).json({
               name: "JWT_ERROR",
               message: `Произошла ошибка при проверке токена: ${error.message}`,
             });
           case "NotBeforeError":
-            return res.sendStatus(401).json({
+            return res.status(401).json({
               name: "NOT_BEFORE_ERROR",
               message:
                 "Токен использован до разрешенной даты его использования",
-						});
-					default:
-						return res.sendStatus(401).json({
+            });
+          default:
+            return res.status(401).json({
               name: "UNKNOWN_AUTH_ERROR",
               message: `Неизвестная ошибка авторизации: ${error.message}`,
             });
@@ -68,12 +68,12 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
         //# Если ошибки не произошло, добавляем в тело запроса токен, чтобы использовать его в следующих
         //# middleware
         req.body.jwt = verification;
-				next();
-				return;
+        next();
+        return;
       }
     }
-	);
-	return;
+  );
+  return;
 };
 
 export { authMiddleware as auth };

@@ -24,7 +24,7 @@ timerRouter.get("/", auth, async (req, res) => {
     .getOne();
 
   if (!user) {
-    return res.sendStatus(400).send(`There is no user with such id: ${userId}`);
+    return res.status(400).send(`There is no user with such id: ${userId}`);
   }
 
   const getTimerResponseBody: GetTimerResponseBody = user.timer;
@@ -46,7 +46,7 @@ timerRouter.put("/", auth, async (req, res) => {
     .getOne();
 
   if (!user) {
-    return res.sendStatus(400).send(`There is no user with such id: ${userId}`);
+    return res.status(400).send(`There is no user with such id: ${userId}`);
   }
 
   const timerId = user.timer.id;
@@ -66,9 +66,7 @@ timerRouter.put("/", auth, async (req, res) => {
   });
 
   if (!timer) {
-    return res
-      .sendStatus(400)
-      .send(`There is no timer with such id: ${timerId}`);
+    return res.status(400).send(`There is no timer with such id: ${timerId}`);
   }
 
   const updateTimerResponseBody: UpdateTimerResponseBody = timer;
@@ -87,9 +85,7 @@ timerRouter.post("/connect/:timerId", auth, async (req, res) => {
   });
 
   if (!timer) {
-    return res
-      .sendStatus(400)
-      .send(`There is no timer with such id: ${timerId}`);
+    return res.status(400).send(`There is no timer with such id: ${timerId}`);
   }
 
   await User.update(

@@ -21,12 +21,12 @@ userRouter.get("/", auth, async (req, res) => {
   });
 
   if (!user) {
-    return res.sendStatus(400).send(`There is no user with such id: ${userId}`);
+    return res.status(400).send(`There is no user with such id: ${userId}`);
   }
 
   const getUserInfoResponseBody: GetUserInfoResponseBody = user;
 
-  return res.sendStatus(200).json(getUserInfoResponseBody);
+  return res.status(200).json(getUserInfoResponseBody);
 });
 
 userRouter.put("/set-status-online", auth, async (req, res) => {
@@ -66,12 +66,12 @@ userRouter.get("/:userId", async (req, res) => {
     .getOne();
 
   if (!user) {
-    return res.sendStatus(400).send(`There is no user with such id: ${userId}`);
+    return res.status(400).send(`There is no user with such id: ${userId}`);
   }
 
   const getForeignUserInfoResponseBody: GetForeignUserInfoResponseBody = user;
 
-  return res.json(getForeignUserInfoResponseBody);
+  return res.status(200).json(getForeignUserInfoResponseBody);
 });
 
 export const setStatus = async (userId: number, status: boolean) => {

@@ -112,7 +112,7 @@ authRouter.post("/log-out", auth, async (req, res) => {
 
   try {
     await setStatus(userId, false);
-    return res.status(200);
+    return res.sendStatus(200);
   } catch (error) {
     return res.status(400).send(error.message);
   }
@@ -126,5 +126,5 @@ authRouter.delete("/", auth, async (req, res) => {
 
   await userRepository.delete({ id: userId });
 
-  return res.status(200);
+  return res.sendStatus(200);
 });

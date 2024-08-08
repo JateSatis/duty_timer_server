@@ -55,9 +55,7 @@ eventsRouter.get("/:eventId", auth, async (req, res) => {
   });
 
   if (!event) {
-    return res
-      .sendStatus(400)
-      .send(`There is no event with such id: ${eventId}`);
+    return res.status(400).send(`There is no event with such id: ${eventId}`);
   }
 
   const getSpecificEventResponseBody: GetSpecificEventResponseBody = event;
@@ -117,7 +115,7 @@ eventsRouter.put("/:eventId", auth, async (req, res) => {
     }
   );
 
-  return res.status(200);
+  return res.sendStatus(200);
 });
 
 eventsRouter.delete("/:eventId", auth, async (req, res) => {
@@ -144,5 +142,5 @@ eventsRouter.delete("/:eventId", auth, async (req, res) => {
     id: eventId,
   });
 
-  return res.status(200);
+  return res.sendStatus(200);
 });

@@ -55,7 +55,7 @@ friendshipRouter.get("/sent-friendship-requests", auth, async (req, res) => {
     .getOne();
 
   if (!userWithFriendshipRequests) {
-    return res.sendStatus(400).send(`There is no user with such id: ${userId}`);
+    return res.status(400).send(`There is no user with such id: ${userId}`);
   }
 
   const sentFriendshipRequests =
@@ -64,7 +64,7 @@ friendshipRouter.get("/sent-friendship-requests", auth, async (req, res) => {
   const getAllSentFriendshipRequestsResponse: GetAllSentFriendshipRequestsResponseBody =
     sentFriendshipRequests || [];
 
-  return res.sendStatus(200).send(getAllSentFriendshipRequestsResponse);
+  return res.status(200).send(getAllSentFriendshipRequestsResponse);
 });
 
 friendshipRouter.get(
@@ -85,9 +85,7 @@ friendshipRouter.get(
       .getOne();
 
     if (!userWithFriendshipRequests) {
-      return res
-        .sendStatus(400)
-        .send(`There is no user with such id: ${userId}`);
+      return res.status(400).send(`There is no user with such id: ${userId}`);
     }
 
     const recievedFriendshipRequests =
@@ -96,7 +94,7 @@ friendshipRouter.get(
     const getAllRecievedFriendshipRequestsResponse: GetAllRecievedFriendshipRequestsResponseBody =
       recievedFriendshipRequests || [];
 
-    return res.sendStatus(200).send(getAllRecievedFriendshipRequestsResponse);
+    return res.status(200).send(getAllRecievedFriendshipRequestsResponse);
   }
 );
 
@@ -116,7 +114,7 @@ friendshipRouter.post("/send-request/:recieverId", auth, async (req, res) => {
   const friendIds = sender?.friends.map((friend) => friend.friendId);
   if (friendIds?.includes(recieverId))
     return res
-      .sendStatus(401)
+      .status(401)
       .send(`${recieverId} is already a friend of ${userId}`);
 
   const reciever = await User.findOneBy({
@@ -145,7 +143,7 @@ friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
   });
 
   if (!reciever) {
-    return res.sendStatus(400).send("There is no reciever with such id");
+    return res.status(400).send("There is no reciever with such id");
   }
 
   const sender = await User.findOneBy({
@@ -153,7 +151,7 @@ friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
   });
 
   if (!sender) {
-    return res.sendStatus(400).send("There is no sender with such id");
+    return res.status(400).send("There is no sender with such id");
   }
 
   const senderFriend = Friend.create({
@@ -180,9 +178,7 @@ friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
     .getOne();
 
   if (!friendshipRequest) {
-    return res
-      .sendStatus(400)
-      .send("There is no friendship request with such id");
+    return res.status(400).send("There is no friendship request with such id");
   }
 
   friendshipRequestRepository.remove(friendshipRequest);
@@ -207,7 +203,7 @@ friendshipRouter.delete("/:friendId", auth, async (req, res) => {
 
   deleteFriendship(userId, friendId);
 
-  return res.status(200);
+  return res.sendStatus(200);
 });
 
 const deleteFriendFrom = async (user: User, friendId: number) => {
