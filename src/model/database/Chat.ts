@@ -25,7 +25,7 @@ export class Chat extends BaseEntity {
   @Column({
     type: "bigint",
   })
-  lastUpdateTime: Long;
+  lastUpdateTime: number;
 
   @Column()
   unreadMessagesAmount: number;

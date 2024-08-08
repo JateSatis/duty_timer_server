@@ -23,12 +23,12 @@ export class Timer extends BaseEntity {
   @Column({
     type: "bigint",
   })
-  startTimeMillis: Long;
+  startTimeMillis: number;
 
   @Column({
     type: "bigint",
   })
-  endTimeMillis: Long;
+  endTimeMillis: number;
 
   @OneToMany(() => User, (user) => user.timer, {
     cascade: true,

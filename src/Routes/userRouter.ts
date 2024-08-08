@@ -36,7 +36,7 @@ userRouter.put("/set-status-online", auth, async (req, res) => {
 
   try {
     await setStatus(userId, true);
-    return res.status(200);
+    return res.sendStatus(200);
   } catch (error) {
     return res.status(400).send(error.message);
   }
@@ -49,7 +49,7 @@ userRouter.put("/set-status-offline", auth, async (req, res) => {
 
   try {
     await setStatus(userId, false);
-    return res.status(200).send("Successful");
+    return res.sendStatus(200);
   } catch (error) {
     return res.status(400).send(error.message);
   }

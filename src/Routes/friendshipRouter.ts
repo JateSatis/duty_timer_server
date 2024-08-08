@@ -175,8 +175,8 @@ friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
 
   const friendshipRequest = await friendshipRequestRepository
     .createQueryBuilder("friendship_request")
-    .where("friendship_request.sender_id = :senderId", { senderId })
-    .andWhere("friendship_request.reciever_id = :userId", { userId })
+    .where("friendship_request.senderId = :senderId", { senderId })
+    .andWhere("friendship_request.recieverId = :userId", { userId })
     .getOne();
 
   if (!friendshipRequest) {

@@ -82,7 +82,7 @@ eventsRouter.post("/", auth, async (req, res) => {
   });
   await event.save();
 
-  res.status(200);
+  return res.sendStatus(200);
 });
 
 eventsRouter.put("/:eventId", auth, async (req, res) => {

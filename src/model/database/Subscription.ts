@@ -29,7 +29,7 @@ export class Subscription extends BaseEntity {
   })
   expirationDate: Date;
 
-  @OneToOne(() => User, (user) => user.settings, {
+  @OneToOne(() => User, (user) => user.subscription, {
     onDelete: "CASCADE",
   })
   user: User;

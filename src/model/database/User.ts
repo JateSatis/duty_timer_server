@@ -19,6 +19,7 @@ import { Message } from "./Message";
 import { Subscription } from "./Subscription";
 import { UserType } from "../utils/Enums";
 import { FriendshipRequest } from "./FriendshipRequest";
+import { RefreshToken } from "./RefreshToken";
 
 //# СУЩНОСТЬ ПОЛЬЗОВАТЕЛЬ (User)
 //# - Идентификатор: GeneratedId
@@ -43,6 +44,9 @@ import { FriendshipRequest } from "./FriendshipRequest";
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @OneToOne(() => RefreshToken, (refreshToken) => refreshToken.user)
+  refreshToken: RefreshToken;
 
   @Column()
   login: string;

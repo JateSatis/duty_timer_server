@@ -11,6 +11,7 @@ import { Subscription } from "../database/Subscription";
 import { Friend } from "../database/Friend";
 import { FriendshipRequest } from "../database/FriendshipRequest";
 import { Image } from "../database/Image";
+import { RefreshToken } from "../database/RefreshToken";
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ export const dutyTimerDataSource = new DataSource({
     Message,
     Image,
     Subscription,
+    RefreshToken,
   ],
   synchronize: true,
 });

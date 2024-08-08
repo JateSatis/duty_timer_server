@@ -8,7 +8,7 @@ const pathToPrivateKey = path.join(__dirname, "/private_key.pem");
 const PRIV_KEY = fs.readFileSync(pathToPrivateKey);
 
 //# Создает JWT токен на основе приватного ключа и полученного клиента
-const issueJWT = (user: User) => {
+const issueAccessToken = (user: User) => {
   const id = user.id;
 
   const expiresIn = "1d";
@@ -29,4 +29,22 @@ const issueJWT = (user: User) => {
   };
 };
 
-export { issueJWT };
+const issueRefreshToken = (user: User) => {
+	const id = user.id
+
+	const expiresIn = "30d"
+
+	const payload = {
+		sub: id,
+		iat: Date.now()
+	}
+
+	const signedRefreshToken = jsonwebtoken.sign(payload, PRIV_KEY, {
+		expiresIn,
+		algorithm: "RS256"
+	})
+
+	return signedRefreshToken
+}
+
+export { issueAccessToken as issueJWT };
