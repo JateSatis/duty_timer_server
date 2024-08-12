@@ -7,14 +7,12 @@ import {
   GetUserInfoResponseBody,
 } from "src/model/routesEntities/UserRouterEntities";
 
-// TODO: Use request and response entities in every route
-
 export const userRouter = Router();
 
 userRouter.get("/", auth, async (req, res) => {
-  const jwt = req.body.jwt;
+  const accessToken = req.body.accessToken;
 
-  const userId = jwt.sub;
+  const userId = accessToken.sub;
 
   const user = await User.findOneBy({
     id: userId,
@@ -30,9 +28,9 @@ userRouter.get("/", auth, async (req, res) => {
 });
 
 userRouter.put("/set-status-online", auth, async (req, res) => {
-  const jwt = req.body.jwt;
+  const accessToken = req.body.accessToken;
 
-  const userId = jwt.sub;
+  const userId = accessToken.sub;
 
   try {
     await setStatus(userId, true);
@@ -43,9 +41,9 @@ userRouter.put("/set-status-online", auth, async (req, res) => {
 });
 
 userRouter.put("/set-status-offline", auth, async (req, res) => {
-  const jwt = req.body.jwt;
+  const accessToken = req.body.accessToken;
 
-  const userId = jwt.sub;
+  const userId = accessToken.sub;
 
   try {
     await setStatus(userId, false);
@@ -61,7 +59,7 @@ userRouter.get("/:userId", async (req, res) => {
   const user = await dutyTimerDataSource
     .getRepository(User)
     .createQueryBuilder("user")
-    .select(["user.id", "user.name", "user.nickname", "user.avatar_link"])
+    .select(["user.id", "user.name", "user.nickname", "user.avatarLink"])
     .where("user.id = :userId", { userId })
     .getOne();
 
