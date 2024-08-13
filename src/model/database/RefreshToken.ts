@@ -11,7 +11,7 @@ import {
 } from "typeorm";
 import { Chat } from "./Chat";
 import { User } from "./User";
-import { Image } from "./Image";
+import { Attachment } from "./Attachment";
 
 //# СУЩНОСТЬ СООБЩЕНИЕ (Message)
 //# - Идентификатор = GeneratedId
@@ -34,7 +34,7 @@ export class RefreshToken extends BaseEntity {
   })
   user: User;
 
-  @CreateDateColumn()
+  @Column()
   token: string;
 
   @Column({
@@ -42,19 +42,4 @@ export class RefreshToken extends BaseEntity {
     default: false,
   })
   isRevoked: boolean;
-
-  @Column({
-    type: "bigint",
-  })
-  expiresAt: number;
-
-  @Column({
-    type: "bigint",
-  })
-  createdAt: number;
-
-  @Column({
-    type: "bigint",
-  })
-  updatedAt: number;
 }

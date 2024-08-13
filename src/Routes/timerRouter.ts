@@ -13,8 +13,8 @@ import {
 export const timerRouter = Router();
 
 timerRouter.get("/", auth, async (req, res) => {
-  const jwt = req.body.jwt;
-  const userId = jwt.sub;
+  const accessToken = req.body.accessToken;
+  const userId = accessToken.sub;
 
   const user = await dutyTimerDataSource
     .getRepository(User)
@@ -33,8 +33,8 @@ timerRouter.get("/", auth, async (req, res) => {
 });
 
 timerRouter.put("/", auth, async (req, res) => {
-  const jwt = req.body.jwt;
-  const userId = jwt.sub;
+  const accessToken = req.body.accessToken;
+  const userId = accessToken.sub;
 
   const updateTimerRequestBody: UpdateTimerRequestBody = req.body;
 
@@ -75,8 +75,8 @@ timerRouter.put("/", auth, async (req, res) => {
 });
 
 timerRouter.post("/connect/:timerId", auth, async (req, res) => {
-  const jwt = req.body.jwt;
-  const userId = jwt.sub;
+  const accessToken = req.body.accessToken;
+  const userId = accessToken.sub;
 
   const timerId = parseInt(req.params.timerId);
 

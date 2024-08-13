@@ -1,7 +1,7 @@
-import { Image } from "../database/Image";
+import { Attachment } from "../database/Attachment";
 
 export type UploadImageRequesBody = {
   messageId: string;
 };
 
-export type UploadImageResponseBody = Image;
+export type UploadImageResponseBody = Attachment;

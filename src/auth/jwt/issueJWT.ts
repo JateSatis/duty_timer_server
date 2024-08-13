@@ -4,47 +4,45 @@ import * as path from "path";
 
 import { User } from "../../model/database/User";
 
-const pathToPrivateKey = path.join(__dirname, "/private_key.pem");
-const PRIV_KEY = fs.readFileSync(pathToPrivateKey);
+const pathToAccessPrivateKey = path.join(
+  __dirname,
+  "/keys/private_access_key.pem"
+);
+const PRIV_ACCESS_KEY = fs.readFileSync(pathToAccessPrivateKey);
 
-//# Создает JWT токен на основе приватного ключа и полученного клиента
-const issueAccessToken = (user: User) => {
-  const id = user.id;
+const pathToRefreshPrivateKey = path.join(
+  __dirname,
+  "/keys/private_refresh_key.pem"
+);
+const PRIV_REFRESH_KEY = fs.readFileSync(pathToRefreshPrivateKey);
 
-  const expiresIn = "1d";
+const issueToken = (userId: number, expiresIn: number, privateKey: Buffer) => {
+	const issuedAt = Date.now()
+	const expiresAt = issuedAt + expiresIn
 
   const payload = {
-    sub: id,
-    iat: Date.now(),
+    sub: userId,
+    iat: issuedAt,
   };
 
-  const signedToken = jsonwebtoken.sign(payload, PRIV_KEY, {
+  const signedToken = jsonwebtoken.sign(payload, privateKey, {
     expiresIn: expiresIn,
     algorithm: "RS256",
   });
 
   return {
     token: "Bearer " + signedToken,
-    expiresIn,
+    expiresAt,
   };
 };
 
+//# Создает JWT токен на основе приватного ключа и полученного клиента
+const issueAccessToken = (user: User) => {
+  return issueToken(user.id, 1800000, PRIV_ACCESS_KEY);
+};
+
 const issueRefreshToken = (user: User) => {
-	const id = user.id
+  return issueToken(user.id, 2592000000, PRIV_REFRESH_KEY);
+};
 
-	const expiresIn = "30d"
-
-	const payload = {
-		sub: id,
-		iat: Date.now()
-	}
-
-	const signedRefreshToken = jsonwebtoken.sign(payload, PRIV_KEY, {
-		expiresIn,
-		algorithm: "RS256"
-	})
-
-	return signedRefreshToken
-}
-
-export { issueAccessToken as issueJWT };
+export { issueAccessToken, issueRefreshToken };

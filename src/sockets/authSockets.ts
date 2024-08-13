@@ -6,8 +6,8 @@ import url from "url";
 import { dutyTimerDataSource } from "../model/config/initializeConfig";
 import { User } from "../model/database/User";
 
-const pathToPublicKey = path.join(__dirname, "../auth/jwt/public_key.pem");
-const PUB_KEY = fs.readFileSync(pathToPublicKey);
+const pathToPublicAccessKey = path.join(__dirname, "../auth/jwt/keys/public_access_key.pem");
+const PUB_ACCESS_KEY = fs.readFileSync(pathToPublicAccessKey);
 
 export const authenticateSocket =  async (
   req: IncomingMessage,
@@ -27,7 +27,7 @@ export const authenticateSocket =  async (
     throw(new Error("You are not authorized"));
   } else {
 		//# С помощью публчного ключа проверяем токен на подлинность
-		const verification = jsonwebtoken.verify(token, PUB_KEY, {
+		const verification = jsonwebtoken.verify(token, PUB_ACCESS_KEY, {
 			algorithms: ["RS256"],
 		});
 

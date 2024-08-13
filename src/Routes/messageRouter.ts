@@ -5,7 +5,7 @@ import { User } from "../model/database/User";
 import { Message } from "../model/database/Message";
 import { CreateMessageResponseBody } from "../model/routesEntities/MessageRoutesEntities";
 import { S3DataSource } from "../model/config/imagesConfig";
-import { Image } from "../model/database/Image";
+import { Attachment } from "../model/database/Attachment";
 import { auth } from "../auth/authMiddleware";
 import { chatsMap } from "../sockets/socketsConfig";
 import { SendMessageRequestBody } from "../model/routesEntities/WebSocketRouterEntities";
@@ -21,8 +21,8 @@ messageRouter.post(
   upload.array("images", 10),
   auth,
   async (req, res) => {
-    const jwt = req.body.jwt;
-    const senderId = jwt.sub;
+    const accessToken = req.body.accessToken;
+    const senderId = accessToken.sub;
 
     const chatId = parseInt(req.params.chatId);
 
@@ -96,11 +96,11 @@ messageRouter.post(
     try {
       await Promise.all(
         imageNames.map(async (imageName) => {
-          const image = Image.create({
+          const attachment = Attachment.create({
             name: imageName,
             message: message,
           });
-          await image.save();
+          await attachment.save();
         })
       );
     } catch (error) {

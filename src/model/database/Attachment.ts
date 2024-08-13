@@ -10,15 +10,15 @@ import { Message } from "./Message";
 
 //# СУЩНОСТЬ КАРТИНКА (Picture)
 
-@Entity("image")
-export class Image extends BaseEntity {
+@Entity("attachment")
+export class Attachment extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   name: string;
 
-  @ManyToOne(() => Message, (message) => message.images, {
+  @ManyToOne(() => Message, (message) => message.attachments, {
     onDelete: "CASCADE",
   })
   @JoinColumn({

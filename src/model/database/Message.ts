@@ -10,7 +10,7 @@ import {
 } from "typeorm";
 import { Chat } from "./Chat";
 import { User } from "./User";
-import { Image } from "./Image";
+import { Attachment } from "./Attachment";
 
 //# СУЩНОСТЬ СООБЩЕНИЕ (Message)
 //# - Идентификатор = GeneratedId
@@ -45,8 +45,8 @@ export class Message extends BaseEntity {
   })
   read: boolean;
 
-  @OneToMany(() => Image, (image) => image.message)
-  images: Image[];
+  @OneToMany(() => Attachment, (attachment) => attachment.message)
+  attachments: Attachment[];
 
   @ManyToOne(() => Chat, (chat) => chat.messages, {
     onDelete: "CASCADE",

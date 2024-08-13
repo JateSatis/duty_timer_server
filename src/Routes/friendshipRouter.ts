@@ -15,8 +15,8 @@ import {
 export const friendshipRouter = Router();
 
 friendshipRouter.get("/friends", auth, async (req, res) => {
-  const jwt = req.body.jwt;
-  const userId = jwt.sub;
+  const accessToken = req.body.accessToken;
+  const userId = accessToken.sub;
 
   const userWithFriends = await dutyTimerDataSource
     .getRepository(User)
@@ -44,8 +44,8 @@ friendshipRouter.get("/friends", auth, async (req, res) => {
 });
 
 friendshipRouter.get("/sent-friendship-requests", auth, async (req, res) => {
-  const jwt = req.body.jwt;
-  const userId = jwt.sub;
+  const accessToken = req.body.accessToken;
+  const userId = accessToken.sub;
 
   const userWithFriendshipRequests = await dutyTimerDataSource
     .getRepository(User)
@@ -71,8 +71,8 @@ friendshipRouter.get(
   "/recieved-friendship-requests",
   auth,
   async (req, res) => {
-    const jwt = req.body.jwt;
-    const userId = jwt.sub;
+    const accessToken = req.body.accessToken;
+    const userId = accessToken.sub;
 
     const userWithFriendshipRequests = await dutyTimerDataSource
       .getRepository(User)
@@ -99,8 +99,8 @@ friendshipRouter.get(
 );
 
 friendshipRouter.post("/send-request/:recieverId", auth, async (req, res) => {
-  const jwt = req.body.jwt;
-  const userId = jwt.sub;
+  const accessToken = req.body.accessToken;
+  const userId = accessToken.sub;
   const recieverId = parseInt(req.params.recieverId);
 
   const sender = await dutyTimerDataSource
@@ -134,8 +134,8 @@ friendshipRouter.post("/send-request/:recieverId", auth, async (req, res) => {
 });
 
 friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
-  const jwt = req.body.jwt;
-  const userId = jwt.sub;
+  const accessToken = req.body.accessToken;
+  const userId = accessToken.sub;
   const senderId = parseInt(req.params.senderId);
 
   const reciever = await User.findOneBy({
@@ -197,8 +197,8 @@ friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
 });
 
 friendshipRouter.delete("/:friendId", auth, async (req, res) => {
-  const jwt = req.body.jwt;
-  const userId = jwt.sub;
+  const accessToken = req.body.accessToken;
+  const userId = accessToken.sub;
   const friendId = parseInt(req.params.friendId);
 
   deleteFriendship(userId, friendId);

@@ -65,7 +65,7 @@ export class User extends BaseEntity {
   @Column({
     nullable: true,
   })
-  avatarLink: string;
+  avatarImageName: string;
 
   @Column({
     type: "enum",

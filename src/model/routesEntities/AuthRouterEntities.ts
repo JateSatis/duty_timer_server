@@ -3,11 +3,13 @@ export type SignUpRequestBody = {
   password: string;
   name: string;
   nickname: string;
-}
+};
 
 export type SignUpResponseBody = {
-  token: string;
-  expiresIn: string;
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresAt: number;
+  refreshTokenExpiresAt: number;
 };
 
 export type SignInRequestBody = {
@@ -15,7 +17,6 @@ export type SignInRequestBody = {
   login: string;
 };
 
-export type SignInResponseBody = {
-  token: string;
-  expiresIn: string;
-};
+export type SignInResponseBody = SignUpResponseBody;
+
+export type RefreshTokenResponseBody = SignUpResponseBody;

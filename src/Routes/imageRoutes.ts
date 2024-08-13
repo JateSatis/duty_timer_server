@@ -6,8 +6,9 @@ import {
   UploadImageRequesBody,
   UploadImageResponseBody,
 } from "../model/routesEntities/ImageRouterEntitites";
-import { Message } from "../model/database/Message";
-import { Image } from "../model/database/Image";
+import { Attachment } from "../model/database/Attachment";
+import { dutyTimerDataSource } from "../model/config/initializeConfig";
+import { User } from "../model/database/User";
 
 // TODO: Use request and response entities in every route
 
@@ -16,46 +17,44 @@ export const imageRouter = Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-imageRouter.post("/upload", auth, upload.single("image"), async (req, res) => {
-  const imageName = req.file?.originalname!!;
-  const contentType = req.file?.mimetype!!;
-  const body = req.file?.buffer!!;
+// imageRouter.post("/upload", auth, upload.single("image"), async (req, res) => {
+//   const accessToken = req.body.accessToken;
+// 	const userId = accessToken.sub;
 
-  const uploadImageRequesBody: UploadImageRequesBody = req.body.data;
+// 	const user = await User.findOneBy({
+// 		id: userId
+// 	})
 
-  const s3DataSource = new S3DataSource();
+// 	if (!user) {
+// 		return res.status(404)
+// 	}
 
-  let s3ImageName;
+//   if (!req.file) {
+//     return res.status(400).send("No file provided to be uploaded");
+//   }
 
-  try {
-    s3ImageName = await s3DataSource.uploadImageToS3(
-      imageName,
-      body,
-      contentType
-    );
-  } catch (error) {
-    return res.status(400).send(error.message);
-  }
+//   const imageName = req.file.originalname;
+//   const contentType = req.file.mimetype;
+//   const body = req.file.buffer;
 
-  const message = await Message.findOneBy({
-    id: parseInt(uploadImageRequesBody.messageId),
-  });
+//   const s3DataSource = new S3DataSource();
 
-  if (!message) {
-    return res.status(400).send("There is no message with such id");
-  }
+//   let s3ImageName;
 
-  const image = Image.create({
-    name: s3ImageName,
-    message: message,
-  });
+//   try {
+//     s3ImageName = await s3DataSource.uploadImageToS3(
+//       imageName,
+//       body,
+//       contentType
+//     );
+//   } catch (error) {
+//     return res.status(400).send(error.message);
+//   }
 
-  await image.save();
+//   const uploadImageResponseBody: UploadImageResponseBody = image;
 
-  const uploadImageResponseBody: UploadImageResponseBody = image;
-
-  return res.status(200).json(uploadImageResponseBody);
-});
+//   return res.status(200).json(uploadImageResponseBody);
+// });
 
 imageRouter.get("/url/:imageName", auth, async (req, res) => {
   const imageName = req.params.imageName;
@@ -75,7 +74,7 @@ imageRouter.get("/url/:imageName", auth, async (req, res) => {
 imageRouter.delete("/delete/:imageId", auth, async (req, res) => {
   const imageId = req.params.imageId;
 
-  const image = await Image.findOneBy({
+  const image = await Attachment.findOneBy({
     id: parseInt(imageId),
   });
 
