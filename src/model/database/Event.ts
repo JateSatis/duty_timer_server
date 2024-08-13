@@ -25,8 +25,12 @@ export class Event extends BaseEntity {
 
   @Column({
     type: "bigint",
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseInt(value), // Convert string to number
+    },
   })
-  timeMillis: Long;
+  timeMillis: number;
 
   @ManyToOne(() => User, (user) => user.events, {
     onDelete: "CASCADE",

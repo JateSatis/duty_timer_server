@@ -81,7 +81,7 @@ messageRouter.post(
       text: text,
       chat: chat,
       sender: sender,
-      creationTime: new Date(),
+      creationTime: Date.now(),
     });
 
     try {

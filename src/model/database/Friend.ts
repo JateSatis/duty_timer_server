@@ -17,6 +17,11 @@ export class Friend extends BaseEntity {
   })
   user: User;
 
-  @Column()
+  @Column({
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseInt(value), // Convert string to number
+    },
+  })
   friendId: number;
 }

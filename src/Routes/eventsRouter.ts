@@ -23,9 +23,13 @@ eventsRouter.get("/", auth, async (req, res) => {
     .where("user.id = :userId", { userId })
     .getOne();
 
-  const events = user?.events;
+  if (!user) {
+    return res.status(404).send(`There is no user with such id: ${userId}`);
+  }
 
-  const getAllEventsResponseBody: GetAllEventsResponseBody = events || [];
+  const events = user.events;
+
+  const getAllEventsResponseBody: GetAllEventsResponseBody = events;
 
   return res.status(200).json(getAllEventsResponseBody);
 });

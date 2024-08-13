@@ -30,8 +30,14 @@ export class Message extends BaseEntity {
   @Column()
   text: string;
 
-  @CreateDateColumn()
-  creationTime: Date;
+  @Column({
+    type: "bigint",
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseInt(value), // Convert string to number
+    },
+  })
+  creationTime: number;
 
   @Column({
     type: "boolean",

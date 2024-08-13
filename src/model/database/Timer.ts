@@ -22,11 +22,19 @@ export class Timer extends BaseEntity {
 
   @Column({
     type: "bigint",
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseInt(value), // Convert string to number
+    },
   })
   startTimeMillis: number;
 
   @Column({
     type: "bigint",
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseInt(value), // Convert string to number
+    },
   })
   endTimeMillis: number;
 

@@ -47,6 +47,10 @@ export class Settings extends BaseEntity {
 
   @Column({
     default: 50,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseInt(value), // Convert string to number
+    },
   })
   @Check(`"backgroundTintOpacity" >= 0 AND "backgroundTintOpacity" <= 100`)
   backgroundTintOpacity: number;

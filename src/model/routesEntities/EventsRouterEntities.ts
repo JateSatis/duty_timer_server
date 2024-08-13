@@ -1,6 +1,12 @@
 import { Event } from "../database/Event";
 
-export type GetAllEventsResponseBody = Event[];
+type ResponseEvent = {
+  id: number;
+  title: string;
+  timeMillis: number;
+};
+
+export type GetAllEventsResponseBody = ResponseEvent[];
 
 export type GetSpecificEventResponseBody = Event;
 

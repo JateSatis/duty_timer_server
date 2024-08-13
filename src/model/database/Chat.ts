@@ -24,10 +24,19 @@ export class Chat extends BaseEntity {
 
   @Column({
     type: "bigint",
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseInt(value), // Convert string to number
+    },
   })
   lastUpdateTime: number;
 
-  @Column()
+  @Column({
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseInt(value), // Convert string to number
+    },
+  })
   unreadMessagesAmount: number;
 
   @OneToMany(() => Message, (message) => message.chat, {
