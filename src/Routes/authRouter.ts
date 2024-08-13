@@ -21,6 +21,8 @@ import {
 
 export const authRouter = Router();
 
+// TODO: Check if user with nickname already exists
+
 authRouter.post("/sign-up", async (req, res) => {
   if (!requestBodyIsComplete(req, "login", "password", "name", "nickname")) {
     return res.status(400).json({
@@ -56,7 +58,7 @@ authRouter.post("/sign-up", async (req, res) => {
     login: signUpRequestBody.login,
     name: signUpRequestBody.name,
     nickname: signUpRequestBody.nickname,
-    password_hash: passwordHash.hash,
+    passwordHash: passwordHash.hash,
     passwordSalt: passwordHash.salt,
     timer: timer,
   });
@@ -108,7 +110,7 @@ authRouter.post("/sign-in", async (req, res) => {
 
   const passwordIsValid = validatePassword(
     signInRequestBody.password,
-    user.password_hash,
+    user.passwordHash,
     user.passwordSalt
   );
 
@@ -191,11 +193,11 @@ authRouter.get("/refresh-token", refreshAuth, async (req, res) => {
 
   const refreshTokenDB = user.refreshToken;
 
-  if (refreshTokenDB.isRevoked || user.refreshToken.token !== refreshToken) {
+  if (refreshTokenDB.isRevoked) {
     return res
       .status(401)
       .send(
-        "The refresh token of this user is revoked or is does not belong to him"
+        "The refresh token of this user is revoked"
       );
   }
 

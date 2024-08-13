@@ -68,15 +68,16 @@ const sendMessage = async (data: Data, ws: WebSocket) => {
 		data.toString()
 	);
 
-	const chatId = parseInt(sendMessageRequestBody.chatId);
+	const chatId = sendMessageRequestBody.chatId;
 	const userSocket = chatsMap.get(chatId);
 
 	if (!userSocket) {
-		ws.send(`There is no available chat with this id: ${chatId}`);
+		ws.send(`There is no available users connected to chat with this id: ${chatId}`);
 		ws.close();
 		return;
 	}
 
+	//# Check if current socket is part of this chat
 	if (userSocket.filter((value) => value.socket == ws).length == 0) {
 		ws.send(
 			`Current user cannot send messages in chat with this id: ${chatId}`
@@ -87,6 +88,6 @@ const sendMessage = async (data: Data, ws: WebSocket) => {
 
 	chatsMap.get(chatId)?.forEach((userSocket) => {
 		if (userSocket.socket != ws)
-			userSocket.socket.send(sendMessageRequestBody.messageId);
+			userSocket.socket.send(JSON.stringify(sendMessageRequestBody));
 	});
 };

@@ -15,8 +15,8 @@ export class TimerDTO {
 export type GetTimerResponseBody = Timer;
 
 export type UpdateTimerRequestBody = {
-  startTimeMillis: string;
-  endTimeMillis: string;
+  startTimeMillis: number;
+  endTimeMillis: number;
 };
 
 export type UpdateTimerResponseBody = Timer;

@@ -9,6 +9,7 @@ import { Attachment } from "../model/database/Attachment";
 import { auth } from "../auth/authMiddleware";
 import { chatsMap } from "../sockets/socketsConfig";
 import { SendMessageRequestBody } from "../model/routesEntities/WebSocketRouterEntities";
+import { dutyTimerDataSource } from "../model/config/initializeConfig";
 
 export const messageRouter = Router();
 
@@ -28,37 +29,30 @@ messageRouter.post(
 
     const files = req.files;
     const text = req.body.data;
-
-    if (!files || (Array.isArray(files) && files.length === 0)) {
-      return res.status(400).send("No files uploaded.");
-    }
-
-    //# If `files` is an object, flatten it to an array
-    const filesArray = Array.isArray(files)
-      ? files
-      : Object.values(files).flat();
     const imageNames: string[] = [];
 
-    try {
-      await Promise.all(
-        filesArray.map(async (file) => {
-          const imageName = file.originalname;
-          const contentType = file.mimetype;
-          const body = file.buffer;
+    if (files !== undefined && Array.isArray(files) && files.length !== 0) {
+      try {
+        await Promise.all(
+          files.map(async (file) => {
+            const imageName = file.originalname;
+            const contentType = file.mimetype;
+            const body = file.buffer;
 
-          const s3ImageName = await s3DataSource.uploadImageToS3(
-            imageName,
-            body,
-            contentType
-          );
-          imageNames.push(s3ImageName);
-        })
-      );
-    } catch (error) {
-      return res.status(400).json({
-        message: "Couldn't save images to S3 bucker",
-        error: error.message,
-      });
+            const s3ImageName = await s3DataSource.uploadImageToS3(
+              imageName,
+              body,
+              contentType
+            );
+            imageNames.push(s3ImageName);
+          })
+        );
+      } catch (error) {
+        return res.status(400).json({
+          message: "Couldn't save images to S3 bucker",
+          error: error.message,
+        });
+      }
     }
 
     const chat = await Chat.findOneBy({
@@ -111,20 +105,54 @@ messageRouter.post(
     }
 
     const chatSockets = chatsMap.get(chatId);
-    const senderSocket = chatSockets?.find(
-      (value) => value.user.id == senderId
-    );
+    const resultMessage = {
+      id: message.id,
+      chatId: chatId,
+      text: message.text,
+      creationTime: message.creationTime,
+      senderName: sender.name,
+      edited: message.edited,
+      read: message.read,
+      attachmentNames: imageNames,
+    };
 
-    if (chatSockets && senderSocket) {
-      const socketMessage: SendMessageRequestBody = {
-        messageId: `${message.id}`,
-        chatId: `${chatId}`,
-      };
-      senderSocket.socket.emit("message", JSON.stringify(socketMessage));
+    if (chatSockets) {
+      const senderSocket = chatSockets.find(
+        (value) => value.user.id == senderId
+      );
+
+      if (senderSocket) {
+        const socketMessage: SendMessageRequestBody = resultMessage
+        senderSocket.socket.emit("message", JSON.stringify(socketMessage));
+      }
     }
 
-    const createMessageResponseBody: CreateMessageResponseBody = message;
+    const createMessageResponseBody: CreateMessageResponseBody = resultMessage;
 
     return res.status(200).json(createMessageResponseBody);
   }
 );
+
+messageRouter.delete("/delete-chat/:chatId", auth, async (req, res) => {
+  const userId = req.body.accessToken.sub;
+  const chatId = parseInt(req.params.chatId);
+
+  const user = await dutyTimerDataSource
+    .getRepository(User)
+    .createQueryBuilder("user")
+    .leftJoinAndSelect("user.chats", "chat")
+    .where("user.id = :userId", { userId })
+    .getOne();
+
+  if (!user) {
+    return res.status(404).send(`There is no user with such id: ${userId}`);
+  }
+
+  const userChatIds = user.chats.map((chat) => chat.id);
+  if (userChatIds.includes(chatId)) {
+    user.chats = user.chats.filter((chat) => chat.id !== chatId);
+    await dutyTimerDataSource.getRepository(User).save(user);
+  }
+
+  return res.sendStatus(200);
+});

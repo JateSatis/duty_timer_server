@@ -8,11 +8,15 @@ type ResponseEvent = {
 
 export type GetAllEventsResponseBody = ResponseEvent[];
 
-export type GetSpecificEventResponseBody = Event;
+export type GetSpecificEventResponseBody = ResponseEvent;
 
 export type CreateEventRequestBody = {
   title: string;
-  eventTimeMillis: string;
+  timeMillis: string;
 };
 
+export type CreateEventResponseBody = ResponseEvent;
+
 export type UpdateEventRequestBody = CreateEventRequestBody;
+
+export type UpdateEventResponseBody = ResponseEvent;

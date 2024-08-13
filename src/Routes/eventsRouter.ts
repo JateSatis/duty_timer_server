@@ -5,9 +5,11 @@ import { User } from "../model/database/User";
 import { Event } from "../model/database/Event";
 import {
   CreateEventRequestBody,
+  CreateEventResponseBody,
   GetAllEventsResponseBody,
   GetSpecificEventResponseBody,
   UpdateEventRequestBody,
+  UpdateEventResponseBody,
 } from "src/model/routesEntities/EventsRouterEntities";
 
 export const eventsRouter = Router();
@@ -79,12 +81,18 @@ eventsRouter.post("/", auth, async (req, res) => {
 
   const event = Event.create({
     title: createEventRequestBody.title,
-    timeMillis: parseInt(createEventRequestBody.eventTimeMillis),
+    timeMillis: parseInt(createEventRequestBody.timeMillis),
     user: user!!,
   });
   await event.save();
 
-  return res.sendStatus(200);
+  const createEventResponseBody: CreateEventResponseBody = {
+    id: event.id,
+    title: event.title,
+    timeMillis: event.timeMillis,
+  };
+
+  return res.status(200).json(createEventResponseBody);
 });
 
 eventsRouter.put("/:eventId", auth, async (req, res) => {
@@ -115,11 +123,21 @@ eventsRouter.put("/:eventId", auth, async (req, res) => {
     },
     {
       title: updateEventRequestBody.title,
-      timeMillis: parseInt(updateEventRequestBody.eventTimeMillis),
+      timeMillis: parseInt(updateEventRequestBody.timeMillis),
     }
   );
 
-  return res.sendStatus(200);
+  const event = await Event.findOneBy({
+    id: eventId,
+  });
+
+  if (!event) {
+    return res.status(404).send(`There is no event with such id: ${eventId}`);
+  }
+
+  const updateEventResponseBody: UpdateEventResponseBody = event;
+
+  return res.status(200).json(updateEventResponseBody);
 });
 
 eventsRouter.delete("/:eventId", auth, async (req, res) => {

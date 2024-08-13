@@ -17,8 +17,8 @@ const pathToRefreshPrivateKey = path.join(
 const PRIV_REFRESH_KEY = fs.readFileSync(pathToRefreshPrivateKey);
 
 const issueToken = (userId: number, expiresIn: number, privateKey: Buffer) => {
-	const issuedAt = Date.now()
-	const expiresAt = issuedAt + expiresIn
+  const issuedAt = Date.now();
+  const expiresAt = issuedAt + expiresIn;
 
   const payload = {
     sub: userId,
@@ -42,7 +42,13 @@ const issueAccessToken = (user: User) => {
 };
 
 const issueRefreshToken = (user: User) => {
-  return issueToken(user.id, 2592000000, PRIV_REFRESH_KEY);
+  const bearerToken = issueToken(user.id, 2592000000, PRIV_REFRESH_KEY);
+
+  //# Get rid of the Bearer
+  return {
+    token: bearerToken.token.split(" ")[1],
+    expiresAt: bearerToken.expiresAt,
+  };
 };
 
 export { issueAccessToken, issueRefreshToken };

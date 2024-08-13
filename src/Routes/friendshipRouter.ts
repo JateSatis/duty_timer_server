@@ -10,7 +10,7 @@ import {
   GetAllFriendsResponseBody,
   GetAllRecievedFriendshipRequestsResponseBody,
   GetAllSentFriendshipRequestsResponseBody,
-} from "src/model/routesEntities/FriendshipRouterEntities";
+} from "../model/routesEntities/FriendshipRouterEntities";
 
 export const friendshipRouter = Router();
 
@@ -133,6 +133,9 @@ friendshipRouter.post("/send-request/:recieverId", auth, async (req, res) => {
   return res.sendStatus(200);
 });
 
+// TODO: Check case when users were already friends, then one of them deleted the chat and deleted from friends.
+// TODO: Now if they accept friendship again, what will happen to the old chan and wouldn't it crash
+
 friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
   const accessToken = req.body.accessToken;
   const userId = accessToken.sub;
@@ -191,7 +194,11 @@ friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
   });
   await chat.save();
 
-  const AcceptFriendshipResponseBody: AcceptFriendshipResponseBody = chat;
+  const AcceptFriendshipResponseBody: AcceptFriendshipResponseBody = {
+    id: chat.id,
+    lastUpdateTime: chat.lastUpdateTime,
+    unreadMessagesAmount: chat.unreadMessagesAmount,
+  };
 
   return res.status(200).json(AcceptFriendshipResponseBody);
 });
@@ -222,12 +229,20 @@ const deleteFriendship = async (userId: number, friendId: number) => {
     .where("user.id = :userId", { userId })
     .getOne();
 
+  if (!user) {
+    return;
+  }
+
   const friend = await dutyTimerDataSource
     .getRepository(User)
     .createQueryBuilder("user")
     .leftJoinAndSelect("user.friends", "friend")
     .where("user.id = :friendId", { friendId })
     .getOne();
+
+  if (!friend) {
+    return;
+  }
 
   // TODO: get rid of explicit non-null operands
   await deleteFriendFrom(user!!, friendId);

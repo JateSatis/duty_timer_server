@@ -15,6 +15,8 @@ export const pathToPublicRefreshKey = path.join(
 );
 export const PUB_REFRESH_KEY = fs.readFileSync(pathToPublicRefreshKey);
 
+// TODO: Check if the refresh-token of the user is not revoked, to make sure the user isn't logged
+
 //# Пользовательский middleware для проверки аутентификации пользователя по JWT
 const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const authorization = req.headers.authorization;

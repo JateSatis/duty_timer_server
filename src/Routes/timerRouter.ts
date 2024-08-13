@@ -36,7 +36,10 @@ timerRouter.put("/", auth, async (req, res) => {
   const accessToken = req.body.accessToken;
   const userId = accessToken.sub;
 
-  const updateTimerRequestBody: UpdateTimerRequestBody = req.body;
+  const updateTimerRequestBody: UpdateTimerRequestBody = {
+    startTimeMillis: parseInt(req.body.startTimeMillis),
+    endTimeMillis: parseInt(req.body.endTimeMillis),
+  };
 
   const user = await dutyTimerDataSource
     .getRepository(User)
@@ -56,8 +59,8 @@ timerRouter.put("/", auth, async (req, res) => {
       id: timerId,
     },
     {
-      startTimeMillis: parseInt(updateTimerRequestBody.startTimeMillis),
-      endTimeMillis: parseInt(updateTimerRequestBody.endTimeMillis),
+      startTimeMillis: updateTimerRequestBody.startTimeMillis,
+      endTimeMillis: updateTimerRequestBody.endTimeMillis,
     }
   );
 

@@ -8,4 +8,8 @@ export type GetAllSentFriendshipRequestsResponseBody = FriendshipRequest[];
 
 export type GetAllRecievedFriendshipRequestsResponseBody = FriendshipRequest[];
 
-export type AcceptFriendshipResponseBody = Chat;
+export type AcceptFriendshipResponseBody = {
+	id: number,
+	lastUpdateTime: number,
+	unreadMessagesAmount: number
+};

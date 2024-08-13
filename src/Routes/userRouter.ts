@@ -22,9 +22,20 @@ userRouter.get("/", auth, async (req, res) => {
 
   const userId = accessToken.sub;
 
-  const user = await User.findOneBy({
-    id: userId,
-  });
+  const user = await dutyTimerDataSource
+    .getRepository(User)
+    .createQueryBuilder("user")
+    .select([
+      "user.login",
+      "user.id",
+      "user.name",
+      "user.nickname",
+      "user.avatarImageName",
+      "user.userType",
+      "user.online",
+    ])
+    .where("user.id = :userId", { userId })
+    .getOne();
 
   if (!user) {
     return res.status(400).send(`There is no user with such id: ${userId}`);

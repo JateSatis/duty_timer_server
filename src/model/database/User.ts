@@ -77,7 +77,7 @@ export class User extends BaseEntity {
   @Column({
     unique: true,
   })
-  password_hash: string;
+  passwordHash: string;
 
   @Column({
     unique: true,
@@ -92,7 +92,7 @@ export class User extends BaseEntity {
 
   @ManyToOne(() => Timer, (timer) => timer.users)
   @JoinColumn({
-    name: "timer_id",
+    name: "timerId",
   })
   timer: Timer;
 
