@@ -35,7 +35,7 @@ friendshipRouter.get("/friends", auth, async (req, res) => {
     .getRepository(User)
     .createQueryBuilder("user")
     .where("user.id IN (:...friendIds)", { friendIds })
-    .select(["user.id", "user.name", "user.nickname", "user.avatar_link"])
+    .select(["user.id", "user.name", "user.nickname", "user.avatarImageName"])
     .getMany();
 
   const getAllFriendsResponseBody: GetAllFriendsResponseBody = friends || [];
