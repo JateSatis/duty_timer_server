@@ -45,7 +45,9 @@ export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @OneToOne(() => RefreshToken, (refreshToken) => refreshToken.user)
+  @OneToOne(() => RefreshToken, (refreshToken) => refreshToken.user, {
+    cascade: true,
+  })
   refreshToken: RefreshToken;
 
   @Column()
