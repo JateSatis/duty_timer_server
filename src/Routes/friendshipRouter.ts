@@ -31,6 +31,10 @@ friendshipRouter.get("/friends", auth, async (req, res) => {
 
   const friendIds = userWithFriends.friends.map((friend) => friend.friendId);
 
+  if (friendIds.length == 0) {
+    return res.status(200).json([]);
+  }
+
   const friends = await dutyTimerDataSource
     .getRepository(User)
     .createQueryBuilder("user")
