@@ -159,8 +159,19 @@ userRouter.post("/avatar", upload.single("image"), auth, async (req, res) => {
   return res.status(200).json(uploadAvatarResponseBody);
 });
 
-userRouter.get("/avatar/:avatarName", auth, async (req, res) => {
-  const avatarName = req.params.avatarName;
+userRouter.get("/avatar", auth, async (req, res) => {
+	const accessToken = req.body.accessToken
+	const userId = accessToken.sub
+
+	const user = await User.findOneBy({
+		id: userId
+	})
+
+	if (!user) {
+		return res.status(404).send(`There is no user with such id: ${userId}`)
+	}
+
+  const avatarName = user.avatarImageName;
 
   const s3DataSource = new S3DataSource();
   const url = await s3DataSource.getImageUrlFromS3(avatarName);
