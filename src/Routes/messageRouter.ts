@@ -19,7 +19,7 @@ const s3DataSource = new S3DataSource();
 
 messageRouter.post(
   "/create/:chatId",
-  upload.array("images", 10),
+  upload.array("image", 10),
   auth,
   async (req, res) => {
     const accessToken = req.body.accessToken;

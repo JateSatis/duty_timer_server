@@ -43,14 +43,14 @@ friendshipRouter.get("/friends", auth, async (req, res) => {
   return res.status(200).json(getAllFriendsResponseBody);
 });
 
-friendshipRouter.get("/sent-friendship-requests", auth, async (req, res) => {
+friendshipRouter.get("/sent-requests", auth, async (req, res) => {
   const accessToken = req.body.accessToken;
   const userId = accessToken.sub;
 
   const userWithFriendshipRequests = await dutyTimerDataSource
     .getRepository(User)
     .createQueryBuilder("user")
-    .leftJoinAndSelect("user.sent_friendship_requests", "friendship_request")
+    .leftJoinAndSelect("user.sentFriendshipRequests", "friendshipRequest")
     .where("user.id = :userId", { userId })
     .getOne();
 
@@ -58,45 +58,76 @@ friendshipRouter.get("/sent-friendship-requests", auth, async (req, res) => {
     return res.status(400).send(`There is no user with such id: ${userId}`);
   }
 
-  const sentFriendshipRequests =
-    userWithFriendshipRequests.sentFriendshipRequests;
+  const sentFriendshipRequestsIds =
+    userWithFriendshipRequests.sentFriendshipRequests.map(
+      (request) => request.id
+    );
+
+  const sentFriendshipRequests = await dutyTimerDataSource
+    .getRepository(FriendshipRequest)
+    .createQueryBuilder("friendshipRequest")
+    .leftJoinAndSelect("friendshipRequest.reciever", "user")
+    .where("friendshipRequest.id IN (:...sentFriendshipRequestsIds)", {
+      sentFriendshipRequestsIds,
+    })
+    .getMany();
 
   const getAllSentFriendshipRequestsResponse: GetAllSentFriendshipRequestsResponseBody =
-    sentFriendshipRequests || [];
+    sentFriendshipRequests.map((request) => {
+      return {
+        id: request.id,
+        recieverId: request.reciever.id,
+        recieverName: request.reciever.name,
+        recieverNickname: request.reciever.nickname,
+        recieverAvatarImageName: request.reciever.avatarImageName,
+      };
+    }) || [];
 
   return res.status(200).send(getAllSentFriendshipRequestsResponse);
 });
 
-friendshipRouter.get(
-  "/recieved-friendship-requests",
-  auth,
-  async (req, res) => {
-    const accessToken = req.body.accessToken;
-    const userId = accessToken.sub;
+friendshipRouter.get("/recieved-requests", auth, async (req, res) => {
+  const accessToken = req.body.accessToken;
+  const userId = accessToken.sub;
 
-    const userWithFriendshipRequests = await dutyTimerDataSource
-      .getRepository(User)
-      .createQueryBuilder("user")
-      .leftJoinAndSelect(
-        "user.recieved_friendship_requests",
-        "friendship_request"
-      )
-      .where("user.id = :userId", { userId })
-      .getOne();
+  const userWithFriendshipRequests = await dutyTimerDataSource
+    .getRepository(User)
+    .createQueryBuilder("user")
+    .leftJoinAndSelect("user.recievedFriendshipRequests", "friendshipRequest")
+    .where("user.id = :userId", { userId })
+    .getOne();
 
-    if (!userWithFriendshipRequests) {
-      return res.status(400).send(`There is no user with such id: ${userId}`);
-    }
-
-    const recievedFriendshipRequests =
-      userWithFriendshipRequests.recievedFriendshipRequests;
-
-    const getAllRecievedFriendshipRequestsResponse: GetAllRecievedFriendshipRequestsResponseBody =
-      recievedFriendshipRequests || [];
-
-    return res.status(200).send(getAllRecievedFriendshipRequestsResponse);
+  if (!userWithFriendshipRequests) {
+    return res.status(400).send(`There is no user with such id: ${userId}`);
   }
-);
+
+  const recievedFriendshipRequestsIds =
+    userWithFriendshipRequests.recievedFriendshipRequests.map(
+      (request) => request.id
+    );
+
+  const recievedFriendshipRequests = await dutyTimerDataSource
+    .getRepository(FriendshipRequest)
+    .createQueryBuilder("friendshipRequest")
+    .leftJoinAndSelect("friendshipRequest.sender", "user")
+    .where("friendshipRequest.id IN (:...recievedFriendshipRequestsIds)", {
+      recievedFriendshipRequestsIds,
+    })
+    .getMany();
+
+  const getAllRecievedFriendshipRequestsResponse: GetAllRecievedFriendshipRequestsResponseBody =
+    recievedFriendshipRequests.map((request) => {
+      return {
+        id: request.id,
+        senderId: request.sender.id,
+        senderName: request.sender.name,
+        senderNickname: request.sender.nickname,
+        senderAvatarImageName: request.sender.avatarImageName,
+      };
+    }) || [];
+
+  return res.status(200).send(getAllRecievedFriendshipRequestsResponse);
+});
 
 friendshipRouter.post("/send-request/:recieverId", auth, async (req, res) => {
   const accessToken = req.body.accessToken;
@@ -110,9 +141,13 @@ friendshipRouter.post("/send-request/:recieverId", auth, async (req, res) => {
     .where("user.id = :userId", { userId })
     .getOne();
 
+  if (!sender) {
+    return res.status(404).send(`There is no user with such id: ${userId}`);
+  }
+
   //# Check if there is already a friendship between user and friend
-  const friendIds = sender?.friends.map((friend) => friend.friendId);
-  if (friendIds?.includes(recieverId))
+  const friendIds = sender.friends.map((friend) => friend.friendId);
+  if (friendIds.includes(recieverId))
     return res
       .status(401)
       .send(`${recieverId} is already a friend of ${userId}`);
@@ -121,11 +156,13 @@ friendshipRouter.post("/send-request/:recieverId", auth, async (req, res) => {
     id: recieverId,
   });
 
-  // TODO: Change the authMiddleware so that it checks if user exists
-  // TODO: get rid of explicit non-null operands
+  if (!reciever) {
+    return res.status(404).send(`There is no user with such id: ${recieverId}`);
+  }
+
   const friendshipRequest = FriendshipRequest.create({
-    sender: sender!!,
-    reciever: reciever!!,
+    sender: sender,
+    reciever: reciever,
   });
 
   await friendshipRequest.save();
