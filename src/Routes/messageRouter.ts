@@ -17,6 +17,8 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const s3DataSource = new S3DataSource();
 
+// TODO: Catch errors when working with DB
+
 messageRouter.post(
   "/create/:chatId",
   upload.array("image", 10),

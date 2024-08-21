@@ -6,7 +6,7 @@ import { dutyTimerDataSource } from "./model/config/initializeConfig";
 
 //# Routes import
 import { userRouter } from "./Routes/userRouter";
-import { authRouter } from "./Routes/authRouter";
+import { authRouter } from "./Routes/authRouter/authRouter";
 import { friendshipRouter } from "./Routes/friendshipRouter";
 import { eventsRouter } from "./Routes/eventsRouter";
 import { timerRouter } from "./Routes/timerRouter";
@@ -20,10 +20,13 @@ dotenv.config();
 const app = express();
 
 const webSocketServerPort =
-		parseInt(process.env.WEB_SOCKET_SERVER_PORT!) || 4000;
-export const wss: WebSocketServer = new WebSocketServer({port: webSocketServerPort});
+  parseInt(process.env.WEB_SOCKET_SERVER_PORT!) || 4000;
+export const wss: WebSocketServer = new WebSocketServer({
+  port: webSocketServerPort,
+});
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 //# Routes
 app.use("/user", userRouter);
@@ -47,11 +50,10 @@ const main = async () => {
     console.error(error.message);
   }
 
-  
   try {
-		wss.on("connection", (socket, req) => {
-			webSocketOnConnection(socket, req)
-		});
+    wss.on("connection", (socket, req) => {
+      webSocketOnConnection(socket, req);
+    });
   } catch (error) {
     console.error(error.message);
   }

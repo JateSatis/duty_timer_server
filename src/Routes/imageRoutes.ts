@@ -14,6 +14,8 @@ import { User } from "../model/database/User";
 
 export const imageRouter = Router();
 
+// TODO: Catch errors when working with DB
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 

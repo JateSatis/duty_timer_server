@@ -12,6 +12,8 @@ import {
 
 export const timerRouter = Router();
 
+// TODO: Catch errors when working with DB
+
 timerRouter.get("/", auth, async (req, res) => {
   const accessToken = req.body.accessToken;
   const userId = accessToken.sub;

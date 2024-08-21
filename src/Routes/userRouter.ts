@@ -17,6 +17,8 @@ export const userRouter = Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+// TODO: Catch errors when working with DB
+
 userRouter.get("/", auth, async (req, res) => {
   const accessToken = req.body.accessToken;
 

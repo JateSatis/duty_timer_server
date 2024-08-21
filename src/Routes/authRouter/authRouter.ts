@@ -1,97 +1,29 @@
 import { Router } from "express";
-import { issueAccessToken, issueRefreshToken } from "../auth/jwt/issueJWT";
-import {
-  generatePasswordHash,
-  validatePassword,
-} from "../auth/jwt/passwordHandler";
-import { User } from "../model/database/User";
-import { requestBodyIsComplete } from "./utils/checkRequestBody";
-import { auth, refreshAuth } from "../auth/authMiddleware";
-import { dutyTimerDataSource } from "../model/config/initializeConfig";
-import { setStatus } from "./userRouter";
-import { Timer } from "../model/database/Timer";
-import { RefreshToken } from "../model/database/RefreshToken";
+import { issueAccessToken, issueRefreshToken } from "../../auth/jwt/issueJWT";
+import { validatePassword } from "../../auth/jwt/passwordHandler";
+import { User } from "../../model/database/User";
+import { invalidRequest } from "../utils/validateRequest";
+import { auth, refreshAuth } from "../../auth/authMiddleware";
+import { dutyTimerDataSource } from "../../model/config/initializeConfig";
+import { setStatus } from "../userRouter";
+import { RefreshToken } from "../../model/database/RefreshToken";
 import {
   RefreshTokenResponseBody,
   SignInRequestBody,
+  signInRequestBodyProperties,
   SignInResponseBody,
   SignUpRequestBody,
+  signUpRequestBodyProperties,
   SignUpResponseBody,
-} from "../model/routesEntities/AuthRouterEntities";
+} from "../../model/routesEntities/AuthRouterEntities";
+import { signUpRoute } from "./signUpRoute/signUpRoute";
 
 export const authRouter = Router();
 
-// TODO: Check if user with nickname already exists
-
-authRouter.post("/sign-up", async (req, res) => {
-  if (!requestBodyIsComplete(req, "login", "password", "name", "nickname")) {
-    return res.status(400).json({
-      message: "Not all properties provided",
-    });
-  }
-
-  const signUpRequestBody: SignUpRequestBody = req.body;
-
-  const verifyUser = await User.findOneBy({
-    login: signUpRequestBody.login,
-  });
-
-  if (verifyUser) {
-    return res.status(401).send("User is already registered. Try to login.");
-  }
-
-  const passwordHash = generatePasswordHash(signUpRequestBody.password);
-
-  const startTime = new Date();
-  const endTime = new Date();
-  endTime.setFullYear(startTime.getFullYear() + 1);
-
-  const timer = Timer.create({
-    startTimeMillis: startTime.getTime(),
-    endTimeMillis: endTime.getTime(),
-    users: [],
-  });
-
-  await timer.save();
-
-  const user = User.create({
-    login: signUpRequestBody.login,
-    name: signUpRequestBody.name,
-    nickname: signUpRequestBody.nickname,
-    passwordHash: passwordHash.hash,
-    passwordSalt: passwordHash.salt,
-    timer: timer,
-  });
-
-  await user.save();
-
-  const accessToken = issueAccessToken(user);
-  const refreshToken = issueRefreshToken(user);
-
-  const refreshTokenDB = RefreshToken.create({
-    token: refreshToken.token,
-    isRevoked: false,
-    user,
-  });
-
-  await refreshTokenDB.save();
-
-  const signUpResponseBody: SignUpResponseBody = {
-    accessToken: accessToken.token,
-    accessTokenExpiresAt: accessToken.expiresAt,
-    refreshToken: refreshToken.token,
-    refreshTokenExpiresAt: refreshToken.expiresAt,
-  };
-
-  return res.status(200).json(signUpResponseBody);
-});
+authRouter.post("/sign-up", signUpRoute);
 
 authRouter.post("/sign-in", async (req, res) => {
-  if (!requestBodyIsComplete(req, "password", "login")) {
-    return res.status(400).json({
-      message: "Not all properties provided",
-    });
-  }
+  if (!invalidRequest(req, res, signInRequestBodyProperties)) return res;
 
   const signInRequestBody: SignInRequestBody = req.body;
 
@@ -194,11 +126,7 @@ authRouter.get("/refresh-token", refreshAuth, async (req, res) => {
   const refreshTokenDB = user.refreshToken;
 
   if (refreshTokenDB.isRevoked) {
-    return res
-      .status(401)
-      .send(
-        "The refresh token of this user is revoked"
-      );
+    return res.status(401).send("The refresh token of this user is revoked");
   }
 
   const newAccessToken = issueAccessToken(user);

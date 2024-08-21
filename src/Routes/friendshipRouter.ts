@@ -14,6 +14,8 @@ import {
 
 export const friendshipRouter = Router();
 
+// TODO: Catch errors when working with DB
+
 friendshipRouter.get("/friends", auth, async (req, res) => {
   const accessToken = req.body.accessToken;
   const userId = accessToken.sub;
