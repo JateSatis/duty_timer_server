@@ -38,7 +38,7 @@ const issueToken = (userId: number, expiresIn: number, privateKey: Buffer) => {
 
 //# Создает JWT токен на основе приватного ключа и полученного клиента
 const issueAccessToken = (user: User) => {
-  return issueToken(user.id, 1800000, PRIV_ACCESS_KEY);
+  return issueToken(user.id, 2592000000, PRIV_ACCESS_KEY);
 };
 
 const issueRefreshToken = (user: User) => {
