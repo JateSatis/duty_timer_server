@@ -62,6 +62,10 @@ friendshipRouter.get("/sent-requests", auth, async (req, res) => {
     return res.status(400).send(`There is no user with such id: ${userId}`);
   }
 
+  if (userWithFriendshipRequests.sentFriendshipRequests.length == 0) {
+    return res.status(200).json([]);
+  }
+
   const sentFriendshipRequestsIds =
     userWithFriendshipRequests.sentFriendshipRequests.map(
       (request) => request.id
@@ -103,6 +107,10 @@ friendshipRouter.get("/recieved-requests", auth, async (req, res) => {
 
   if (!userWithFriendshipRequests) {
     return res.status(400).send(`There is no user with such id: ${userId}`);
+  }
+
+  if (userWithFriendshipRequests.recievedFriendshipRequests.length == 0) {
+    return res.status(200).json([]);
   }
 
   const recievedFriendshipRequestsIds =
