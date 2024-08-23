@@ -1,7 +1,8 @@
 import { Response } from "express";
 import { dutyTimerDataSource } from "../../../model/config/initializeConfig";
 import { User } from "../../../model/database/User";
-import { err } from "../../../Routes/utils/serverErrors";
+import { err } from "../../utils/createServerError";
+import { NICKNAME_IS_TAKEN } from "../../utils/Errors/AuthErrors";
 
 export const nicknameIsTaken = async (
   res: Response,
@@ -12,14 +13,7 @@ export const nicknameIsTaken = async (
   });
 
   if (user) {
-    res
-      .status(409)
-      .json(
-        err(
-          "NICKNAME_IS_TAKEN",
-          "The provided nickname is already in use. Please choose a different nickname."
-        )
-      );
+    res.status(409).json(err(new NICKNAME_IS_TAKEN()));
     return true;
   }
   return false;

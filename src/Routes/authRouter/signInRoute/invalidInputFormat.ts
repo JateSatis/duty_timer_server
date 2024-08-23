@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { SignUpRequestBody } from "../../../model/routesEntities/AuthRouterEntities";
+import { SignInRequestBody } from "../../../model/routesEntities/AuthRouterEntities";
 import { err } from "../../utils/createServerError";
 import { INVALID_INPUT_FORMAT } from "../../utils/Errors/AuthErrors";
 
@@ -8,25 +8,17 @@ const allowedLogin = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const allowedPassword =
   /^[A-Za-zА-Яа-яҐґЄєІіЇїҒғӘәҮүҰұҢңҺһ0-9!@#$%^&*()_+\-={}\[\]:;"'<>,.?\/\\|`~ ]*$/;
 
-const allowedName = /^[A-Za-zА-Яа-яҐґЄєІіЇїҒғӘәҮүҰұҢңҺһ ]*$/;
-
-const allowedNickname = /^[A-Za-z0-9_]*$/;
-
 export const invalidInputFormat = (
   res: Response,
-  signUpRequestBody: SignUpRequestBody
+  signInRequestBody: SignInRequestBody
 ): boolean => {
-  const { login, password, name, nickname } = signUpRequestBody;
+  const { login, password } = signInRequestBody;
 
   if (
     allowedLogin.test(login) &&
     allowedPassword.test(password) &&
-    allowedName.test(signUpRequestBody.name) &&
-    allowedNickname.test(nickname) &&
     login.length <= 254 &&
-    password.length <= 128 &&
-    name.length <= 50 &&
-    nickname.length <= 30
+    password.length <= 128
   ) {
     return false;
   }

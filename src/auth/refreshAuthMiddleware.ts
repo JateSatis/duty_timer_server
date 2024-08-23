@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import * as jsonwebtoken from "jsonwebtoken";
 import * as path from "path";
 import * as fs from "fs";
@@ -12,35 +12,31 @@ import {
   UNKNOWN_AUTH_ERROR,
 } from "../Routes/utils/Errors/AuthErrors";
 
-export const pathToPublicAcessKey = path.join(
+export const pathToPublicRefreshKey = path.join(
   __dirname,
-  "/jwt/keys/public_access_key.pem"
+  "/jwt/keys/public_refresh_key.pem"
 );
-export const PUB_ACCESS_KEY = fs.readFileSync(pathToPublicAcessKey);
+export const PUB_REFRESH_KEY = fs.readFileSync(pathToPublicRefreshKey);
 
-// TODO: Check if the refresh-token of the user is not revoked, to make sure the user isn't logged
-
-//# Пользовательский middleware для проверки аутентификации пользователя по JWT
-const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const authorization = req.headers.authorization;
+const refreshAuthMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const token = req.headers.authorization;
 
   //# Проверяем есть ли в запросе header под названием authorization
-  if (!authorization) {
+  if (!token) {
     return res.status(401).json(err(new AUTHORIZATION_HEADER_ABSENT()));
   }
 
-  const tokenBearer = authorization.split(" ")[0];
-  const token = authorization.split(" ")[1];
-
-  //# Проверяем является ли наполнение authorization токеном
-  if (tokenBearer != "Bearer" || !token.match(/\S+.\S+.\S+/)) {
+  if (token.split(" ").length > 1 || !token.match(/\S+.\S+.\S+/)) {
     return res.status(401).json(err(new INCORRECT_AUTHORIZATION_HEADER()));
   }
 
-  //# С помощью публчного ключа проверяем токен на подлинность
   jsonwebtoken.verify(
     token,
-    PUB_ACCESS_KEY,
+    PUB_REFRESH_KEY,
     {
       algorithms: ["RS256"],
     },
@@ -64,10 +60,9 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
         if (decoded && typeof decoded !== "string") {
           if (decoded.exp!! < Date.now()) {
             return res.status(401).json(err(new TOKEN_EXPIRED()));
-          } else {
-            req.body.accessToken = decoded;
-            next();
           }
+          req.body.refreshToken = decoded;
+          next();
         } else {
           return res
             .status(401)
@@ -87,4 +82,4 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   return;
 };
 
-export { authMiddleware as auth };
+export { refreshAuthMiddleware as refreshAuth };

@@ -162,21 +162,27 @@ userRouter.post("/avatar", upload.single("image"), auth, async (req, res) => {
 });
 
 userRouter.get("/avatar", auth, async (req, res) => {
-	const accessToken = req.body.accessToken
-	const userId = accessToken.sub
+  const accessToken = req.body.accessToken;
+  const userId = accessToken.sub;
 
-	const user = await User.findOneBy({
-		id: userId
-	})
+  const user = await User.findOneBy({
+    id: userId,
+  });
 
-	if (!user) {
-		return res.status(404).send(`There is no user with such id: ${userId}`)
-	}
+  if (!user) {
+    return res.status(404).send(`There is no user with such id: ${userId}`);
+  }
 
-  const avatarName = user.avatarImageName;
+  const avatarImageName = user.avatarImageName;
+
+  if (!avatarImageName) {
+    return res
+      .status(404)
+      .send(`There is no avatar image for this user: ${userId}`);
+  }
 
   const s3DataSource = new S3DataSource();
-  const url = await s3DataSource.getImageUrlFromS3(avatarName);
+  const url = await s3DataSource.getImageUrlFromS3(avatarImageName);
 
   if (!url) {
     return res.status(404).send("Image not found");
@@ -187,4 +193,37 @@ userRouter.get("/avatar", auth, async (req, res) => {
   };
 
   return res.status(200).json(getAvatarLinkResponseBody);
+});
+
+userRouter.delete("/avatar", auth, async (req, res) => {
+  const userId = req.body.accessToken.sub;
+
+  const user = await dutyTimerDataSource.getRepository(User).findOneBy({
+    id: userId,
+  });
+
+  if (!user) {
+    return res.status(404).send(`There is no user with such id: ${userId}`);
+  }
+
+  const avatarImageName = user.avatarImageName;
+
+  if (!avatarImageName) {
+    return res
+      .status(404)
+      .send(`There us no avatar image for this user: ${userId}`);
+  }
+
+  await dutyTimerDataSource
+    .getRepository(User)
+    .createQueryBuilder()
+    .update()
+    .set({ avatarImageName: () => "NULL" })
+    .where("id = :id", { id: userId })
+    .execute();
+
+  const s3DataSource = new S3DataSource();
+  await s3DataSource.deleteImageFromS3(avatarImageName);
+
+  return res.status(200).send();
 });

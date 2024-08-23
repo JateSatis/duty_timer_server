@@ -1,102 +1,24 @@
 import { Router } from "express";
 import { issueAccessToken, issueRefreshToken } from "../../auth/jwt/issueJWT";
-import { validatePassword } from "../../auth/jwt/passwordHandler";
 import { User } from "../../model/database/User";
-import { invalidRequest } from "../utils/validateRequest";
-import { auth, refreshAuth } from "../../auth/authMiddleware";
+import { auth } from "../../auth/authMiddleware";
+import { refreshAuth } from "../../auth/refreshAuthMiddleware";
 import { dutyTimerDataSource } from "../../model/config/initializeConfig";
-import { setStatus } from "../userRouter";
 import { RefreshToken } from "../../model/database/RefreshToken";
 import {
   RefreshTokenResponseBody,
-  SignInRequestBody,
-  signInRequestBodyProperties,
-  SignInResponseBody,
-  SignUpRequestBody,
-  signUpRequestBodyProperties,
-  SignUpResponseBody,
 } from "../../model/routesEntities/AuthRouterEntities";
 import { signUpRoute } from "./signUpRoute/signUpRoute";
+import { signInRoute } from "./signInRoute/signInRoute";
+import { logOutRoute } from "./logOutRoute/logOutRoute";
 
 export const authRouter = Router();
 
 authRouter.post("/sign-up", signUpRoute);
 
-authRouter.post("/sign-in", async (req, res) => {
-  if (!invalidRequest(req, res, signInRequestBodyProperties)) return res;
+authRouter.post("/sign-in", signInRoute);
 
-  const signInRequestBody: SignInRequestBody = req.body;
-
-  const user = await dutyTimerDataSource
-    .getRepository(User)
-    .createQueryBuilder("user")
-    .leftJoinAndSelect("user.refreshToken", "refreshToken")
-    .where("user.login = :login", { login: signInRequestBody.login })
-    .getOne();
-
-  if (!user) {
-    return res.status(400).json({
-      message: "There is no user with corresponding login",
-    });
-  }
-
-  const passwordIsValid = validatePassword(
-    signInRequestBody.password,
-    user.passwordHash,
-    user.passwordSalt
-  );
-
-  if (!passwordIsValid) {
-    return res.status(400).json({
-      message: "Incorrect password",
-    });
-  }
-
-  const accessToken = issueAccessToken(user);
-  const refreshToken = issueRefreshToken(user);
-
-  const refreshTokenId = user.refreshToken.id;
-
-  await RefreshToken.update(refreshTokenId, {
-    token: refreshToken.token,
-    isRevoked: false,
-  });
-
-  const signInResponseBody: SignInResponseBody = {
-    accessToken: accessToken.token,
-    accessTokenExpiresAt: accessToken.expiresAt,
-    refreshToken: refreshToken.token,
-    refreshTokenExpiresAt: refreshToken.expiresAt,
-  };
-
-  return res.status(200).json(signInResponseBody);
-});
-
-authRouter.post("/log-out", auth, async (req, res) => {
-  const userId = req.body.accessToken.sub;
-
-  const user = await dutyTimerDataSource
-    .getRepository(User)
-    .createQueryBuilder("user")
-    .leftJoinAndSelect("user.refreshToken", "refreshToken")
-    .where("user.id = :userId", { userId })
-    .getOne();
-
-  if (!user) {
-    return res.status(400).send(`There is no user with such id: ${userId}`);
-  }
-
-  const refreshToken = user.refreshToken;
-  const refreshTokenRepoitory = dutyTimerDataSource.getRepository(RefreshToken);
-  await refreshTokenRepoitory.update(refreshToken.id, { isRevoked: true });
-
-  try {
-    await setStatus(userId, false);
-    return res.sendStatus(200);
-  } catch (error) {
-    return res.status(400).send(error.message);
-  }
-});
+authRouter.post("/log-out", auth, logOutRoute);
 
 authRouter.delete("/", auth, async (req, res) => {
   const userId = req.body.accessToken.sub;

@@ -1,6 +1,7 @@
 import { Response } from "express";
 import { SignUpRequestBody } from "../../../model/routesEntities/AuthRouterEntities";
-import { err } from "../../../Routes/utils/serverErrors";
+import { err } from "../../utils/createServerError";
+import { EMPTY_FIELD } from "../../utils/Errors/AuthErrors";
 
 export const emptyField = (
   res: Response,
@@ -14,14 +15,7 @@ export const emptyField = (
     name.length == 0 ||
     nickname.length == 0
   ) {
-    res
-      .status(400)
-      .json(
-        err(
-          "EMPTY_FIELD",
-          "All form fields must be filled. Please ensure that none of the fields are empty before submitting."
-        )
-      );
+    res.status(400).json(err(new EMPTY_FIELD()));
     return true;
   }
   return false;
