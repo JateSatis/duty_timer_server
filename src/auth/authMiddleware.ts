@@ -2,15 +2,19 @@ import { Request, Response, NextFunction } from "express";
 import * as jsonwebtoken from "jsonwebtoken";
 import * as path from "path";
 import * as fs from "fs";
-import { err } from "../Routes/utils/createServerError";
+import { err } from "../Routes/utils/errors/GlobalErrors";
 import {
   AUTHORIZATION_HEADER_ABSENT,
   INCORRECT_AUTHORIZATION_HEADER,
+  ABSENT_JWT_SUB,
   JWT_ERROR,
   NOT_BEFORE_ERROR,
   TOKEN_EXPIRED,
   UNKNOWN_AUTH_ERROR,
-} from "../Routes/utils/Errors/AuthErrors";
+  NON_EXISTANT_USER,
+} from "../Routes/utils/errors/AuthErrors";
+import { dutyTimerDataSource } from "../model/config/initializeConfig";
+import { User } from "../model/database/User";
 
 export const pathToPublicAcessKey = path.join(
   __dirname,
@@ -18,10 +22,12 @@ export const pathToPublicAcessKey = path.join(
 );
 export const PUB_ACCESS_KEY = fs.readFileSync(pathToPublicAcessKey);
 
-// TODO: Check if the refresh-token of the user is not revoked, to make sure the user isn't logged
-
 //# Пользовательский middleware для проверки аутентификации пользователя по JWT
-const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+const authMiddleware = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const authorization = req.headers.authorization;
 
   //# Проверяем есть ли в запросе header под названием authorization
@@ -44,7 +50,7 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
     {
       algorithms: ["RS256"],
     },
-    (error, decoded) => {
+    async (error, decoded) => {
       if (error) {
         switch (error.name) {
           case "TokenExpiredError":
@@ -62,12 +68,24 @@ const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
         //# Если ошибки не произошло, добавляем в тело запроса токен, чтобы использовать его в следующих
         //# middleware
         if (decoded && typeof decoded !== "string") {
-          if (decoded.exp!! < Date.now()) {
+          if (decoded.exp!! < Date.now())
             return res.status(401).json(err(new TOKEN_EXPIRED()));
-          } else {
-            req.body.accessToken = decoded;
-            next();
-          }
+
+          if (!decoded.sub)
+            return res.status(401).json(err(new ABSENT_JWT_SUB()));
+
+          const userId = parseInt(decoded.sub);
+          const user = await dutyTimerDataSource.getRepository(User).findOneBy({
+            id: userId,
+          });
+
+          if (!user)
+            return res
+              .status(401)
+              .json(err(new NON_EXISTANT_USER("id", userId)));
+
+          req.body.user = user;
+          next();
         } else {
           return res
             .status(401)

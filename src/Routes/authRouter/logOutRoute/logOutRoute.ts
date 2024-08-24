@@ -2,35 +2,40 @@
 import { Request, Response } from "express";
 
 //# --- Config ---
-import { dutyTimerDataSource } from "../../../model/config/initializeConfig";
-import { setStatus } from "../../../Routes/userRouter";
+import {
+  DB,
+  dutyTimerDataSource,
+} from "../../../model/config/initializeConfig";
+import { setStatus } from "../../userRouter/userRouter";
 
 //# --- Database entities ---
 import { RefreshToken } from "../../../model/database/RefreshToken";
-import { User } from "../../../model/database/User";
+
+//# --- ERRORS ---
+import { err } from "../../utils/errors/GlobalErrors";
+import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
 
 export const logOutRoute = async (req: Request, res: Response) => {
-  const userId = req.body.accessToken.sub;
+  const userId = req.body.user.id;
 
-  const user = await dutyTimerDataSource
-    .getRepository(User)
-    .createQueryBuilder("user")
-    .leftJoinAndSelect("user.refreshToken", "refreshToken")
-    .where("user.id = :userId", { userId })
-    .getOne();
-
-  if (!user) {
-    return res.status(400).send(`There is no user with such id: ${userId}`);
+  let refreshToken: RefreshToken;
+  try {
+    refreshToken = await DB.getRefreshTokenByUserId(userId);
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
   }
 
-  const refreshToken = user.refreshToken;
   const refreshTokenRepoitory = dutyTimerDataSource.getRepository(RefreshToken);
-  await refreshTokenRepoitory.update(refreshToken.id, { isRevoked: true });
+  try {
+    await refreshTokenRepoitory.update(refreshToken.id, { isRevoked: true });
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+  }
 
   try {
     await setStatus(userId, false);
     return res.sendStatus(200);
   } catch (error) {
-    return res.status(400).send(error.message);
+    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
   }
 };

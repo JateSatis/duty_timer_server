@@ -54,3 +54,62 @@ export const dutyTimerDataSource = new DataSource({
   ],
   synchronize: true,
 });
+
+export class DB {
+  static dutyTimerDataSource: DataSource = dutyTimerDataSource;
+
+  static getRefreshTokenByUserId = async (
+    userId: number
+  ): Promise<RefreshToken> => {
+    const userWithRefreshToken = (await this.dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.refreshToken", "refreshToken")
+      .where("user.id = :userId", { userId })
+      .getOne())!!;
+
+    return userWithRefreshToken.refreshToken;
+  };
+
+  static getUserByLogin = async (login: string): Promise<User | null> => {
+    const user = await dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.refreshToken", "refreshToken")
+      .where("user.login = :login", { login })
+      .getOne();
+    return user;
+  };
+
+  static getUserInfoById = async (userId: number): Promise<User> => {
+    const user = (await dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .select([
+        "user.login",
+        "user.id",
+        "user.name",
+        "user.nickname",
+        "user.avatarImageName",
+        "user.userType",
+        "user.online",
+      ])
+      .where("user.id = :userId", { userId })
+      .getOne())!!;
+
+    return user;
+  };
+
+  static getForeignUsersInfoByName = async (userName: string) => {
+    const users = await dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .select(["user.id", "user.name", "user.nickname", "user.avatarImageName"])
+      .where("user.name = :userName", {
+        userName,
+      })
+			.getMany();
+		
+		return users;
+  };
+}

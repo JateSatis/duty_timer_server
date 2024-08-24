@@ -9,8 +9,7 @@ import {
 } from "../../../auth/jwt/issueJWT";
 
 //# --- Validate request ---
-import { invalidRequest } from "../../utils/validateRequest";
-import { emptyField } from "./emptyField";
+import { missingRequestField } from "../../utils/validation/missingRequestField";
 import { nicknameIsTaken } from "./nicknameIsTaken";
 import { accountAlreadyExists } from "./accountAlreadyExists";
 import { invalidInputFormat } from "./invalidInputFormat";
@@ -26,25 +25,29 @@ import {
 import { User } from "../../../model/database/User";
 import { Timer } from "../../../model/database/Timer";
 import { RefreshToken } from "../../../model/database/RefreshToken";
+import { emptyField } from "../../../Routes/utils/validation/emptyField";
 
-// TODO: Catch errors when working with DB
+//# --- ERRORS ---
+import { err } from "../../utils/errors/GlobalErrors";
+import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
+
 // TODO: Connect to the Global chat when initializing user
 
 export const signUpRoute = async (req: Request, res: Response) => {
   //# Check if all fields of json object are present in request
-  if (invalidRequest(req, res, signUpRequestBodyProperties)) return res;
+  if (missingRequestField(req, res, signUpRequestBodyProperties)) return res;
 
-	const signUpRequestBody: SignUpRequestBody = req.body;
-	//# Check if all sign up fields are filled and not empty
-  if (emptyField(res, signUpRequestBody)) return res;
+  //# Check if all sign up fields are filled and not empty
+  if (emptyField(req, res, signUpRequestBodyProperties)) return res;
+  const signUpRequestBody: SignUpRequestBody = req.body;
 
-	//# Check if all sign up fields satisfy the format requirements
+  //# Check if all sign up fields satisfy the format requirements
   if (invalidInputFormat(res, signUpRequestBody)) return res;
 
-	//# Check if nickname provided is already in use
+  //# Check if nickname provided is already in use
   if (await nicknameIsTaken(res, signUpRequestBody.nickname)) return res;
 
-	//# Check if login provided already belongs to an existing account
+  //# Check if login provided already belongs to an existing account
   if (await accountAlreadyExists(res, signUpRequestBody.login)) return res;
 
   const passwordHash = generatePasswordHash(signUpRequestBody.password);
@@ -59,7 +62,11 @@ export const signUpRoute = async (req: Request, res: Response) => {
     users: [],
   });
 
-  await timer.save();
+  try {
+    await timer.save();
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+  }
 
   const user = User.create({
     login: signUpRequestBody.login,
@@ -70,10 +77,14 @@ export const signUpRoute = async (req: Request, res: Response) => {
     timer: timer,
   });
 
-  await user.save();
+  try {
+    await user.save();
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+  }
 
-  const accessToken = issueAccessToken(user);
-  const refreshToken = issueRefreshToken(user);
+  const accessToken = issueAccessToken(user.id);
+  const refreshToken = issueRefreshToken(user.id);
 
   const refreshTokenDB = RefreshToken.create({
     token: refreshToken.token,
@@ -81,7 +92,11 @@ export const signUpRoute = async (req: Request, res: Response) => {
     user,
   });
 
-  await refreshTokenDB.save();
+  try {
+    await refreshTokenDB.save();
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+  }
 
   const signUpResponseBody: SignUpResponseBody = {
     accessToken: accessToken.token,

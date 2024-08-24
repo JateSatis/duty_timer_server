@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { SignInRequestBody } from "../../../model/routesEntities/AuthRouterEntities";
-import { err } from "../../utils/createServerError";
-import { INVALID_INPUT_FORMAT } from "../../utils/Errors/AuthErrors";
+import { err } from "../../utils/errors/GlobalErrors";
+import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
 
 const allowedLogin = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 

@@ -5,12 +5,11 @@ import express from "express";
 import { dutyTimerDataSource } from "./model/config/initializeConfig";
 
 //# Routes import
-import { userRouter } from "./Routes/userRouter";
+import { userRouter } from "./Routes/userRouter/userRouter";
 import { authRouter } from "./Routes/authRouter/authRouter";
 import { friendshipRouter } from "./Routes/friendshipRouter";
 import { eventsRouter } from "./Routes/eventsRouter";
 import { timerRouter } from "./Routes/timerRouter";
-import { imageRouter } from "./Routes/imageRoutes";
 import { messageRouter } from "./Routes/messageRouter";
 import { webSocketOnConnection } from "./sockets/socketsConfig";
 import { WebSocketServer } from "ws";
@@ -34,7 +33,6 @@ app.use("/auth", authRouter);
 app.use("/friendship", friendshipRouter);
 app.use("/event", eventsRouter);
 app.use("/timer", timerRouter);
-app.use("/image", imageRouter);
 app.use("/message", messageRouter);
 
 const initalizeDatabaseConnection = async () => {

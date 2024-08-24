@@ -1,13 +1,4 @@
-import { ServerError } from "../ServerError";
-
-export class EMPTY_FIELD extends ServerError {
-  constructor() {
-    super(
-      "EMPTY_FIELD",
-      "All form fields must be filled. Please ensure that none of the fields are empty before submitting."
-    );
-  }
-}
+import { ServerError } from "./GlobalErrors";
 
 export class INVALID_INPUT_FORMAT extends ServerError {
   constructor() {
@@ -80,5 +71,45 @@ export class UNKNOWN_AUTH_ERROR extends ServerError {
   constructor(jwtErrorName: string, jwtErrorMessage: string) {
     const message = `Неизвестная ошибка авторизации: ${jwtErrorName} - ${jwtErrorMessage}`;
     super("UNKNOWN_AUTH_ERROR", message);
+  }
+}
+
+export class ABSENT_JWT_SUB extends ServerError {
+  constructor() {
+    super(
+      "ABSENT_JWT_SUB",
+      "The access token is missing a valid 'sub' field in its payload. Ensure the token is properly generated and includes the required 'sub' claim."
+    );
+  }
+}
+
+export class NON_EXISTANT_USER extends ServerError {
+  constructor(criteria: string, value: any) {
+    const message = `The user with such parameters (${criteria} = ${value}) doesn't exist. Please check that values you're providing are correct and associated with a valid user account.`;
+    super("NON_EXISTANT_USER", message);
+  }
+}
+
+export class REFRESH_TOKEN_REVOKED extends ServerError {
+  constructor() {
+    super(
+      "REFRESH_TOKEN_REVOKED",
+      "Provided refresh token is revoked. This may mean that owner of the token is logged out or asked to revoke the token."
+    );
+  }
+}
+
+export class OUTDATED_REFRESH_TOKEN extends ServerError {
+  constructor() {
+    super(
+      "OUTDATED_REFRESH_TOKEN",
+      "Provided refresh token is outdated. This may indicate that the user changed the refresh token to a new one"
+    );
+  }
+}
+
+export class INCORRECT_PASSWORD extends ServerError {
+  constructor() {
+    super("INCORRECT_PASSWORD", "The password is incorrect");
   }
 }

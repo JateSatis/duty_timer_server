@@ -2,7 +2,7 @@ import { User } from "../database/User";
 
 export type GetUserInfoResponseBody = User;
 
-export type GetForeignUserInfoResponseBody = User;
+export type GetUserByIdResponseBody = User;
 
 export type GetUsersByNameRequestBody = {
   name: string;

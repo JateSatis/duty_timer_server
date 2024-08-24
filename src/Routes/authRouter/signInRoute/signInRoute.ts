@@ -9,7 +9,7 @@ import {
 import { validatePassword } from "../../../auth/jwt/passwordHandler";
 
 //# --- Config
-import { dutyTimerDataSource } from "../../../model/config/initializeConfig";
+import { DB, dutyTimerDataSource } from "../../../model/config/initializeConfig";
 
 //# --- Request entities ---
 import {
@@ -23,29 +23,37 @@ import { RefreshToken } from "../../../model/database/RefreshToken";
 import { User } from "../../../model/database/User";
 
 //# --- Validate request ---
-import { invalidRequest } from "../../../Routes/utils/validateRequest";
+import { missingRequestField } from "../../utils/validation/missingRequestField";
 import { invalidInputFormat } from "./invalidInputFormat";
-import { emptyField } from "./emptyFields";
+import { emptyField } from "../../utils/validation/emptyField";
+
+//# --- ERRORS ---
+import { err } from "../../utils/errors/GlobalErrors";
+import {
+  INCORRECT_PASSWORD,
+  NON_EXISTANT_USER,
+} from "../../utils/errors/AuthErrors";
+import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
 
 export const signInRoute = async (req: Request, res: Response) => {
-  if (invalidRequest(req, res, signInRequestBodyProperties)) return res;
+  if (missingRequestField(req, res, signInRequestBodyProperties)) return res;
 
+  if (emptyField(req, res, signInRequestBodyProperties)) return res;
   const signInRequestBody: SignInRequestBody = req.body;
-  if (emptyField(res, signInRequestBody)) return res;
 
   if (invalidInputFormat(res, signInRequestBody)) return res;
 
-  const user = await dutyTimerDataSource
-    .getRepository(User)
-    .createQueryBuilder("user")
-    .leftJoinAndSelect("user.refreshToken", "refreshToken")
-    .where("user.login = :login", { login: signInRequestBody.login })
-    .getOne();
+  let user: User | null;
+  try {
+		user = await DB.getUserByLogin(signInRequestBody.login);
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+  }
 
   if (!user) {
-    return res.status(400).json({
-      message: "There is no user with corresponding login",
-    });
+    return res
+      .status(400)
+      .json(err(new NON_EXISTANT_USER("login", signInRequestBody.login)));
   }
 
   const passwordIsValid = validatePassword(
@@ -54,21 +62,22 @@ export const signInRoute = async (req: Request, res: Response) => {
     user.passwordSalt
   );
 
-  if (!passwordIsValid) {
-    return res.status(400).json({
-      message: "Incorrect password",
-    });
-  }
+  if (!passwordIsValid)
+    return res.status(400).json(err(new INCORRECT_PASSWORD()));
 
-  const accessToken = issueAccessToken(user);
-  const refreshToken = issueRefreshToken(user);
+  const accessToken = issueAccessToken(user.id);
+  const refreshToken = issueRefreshToken(user.id);
 
   const refreshTokenId = user.refreshToken.id;
 
-  await RefreshToken.update(refreshTokenId, {
-    token: refreshToken.token,
-    isRevoked: false,
-  });
+  try {
+    await RefreshToken.update(refreshTokenId, {
+      token: refreshToken.token,
+      isRevoked: false,
+    });
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+  }
 
   const signInResponseBody: SignInResponseBody = {
     accessToken: accessToken.token,

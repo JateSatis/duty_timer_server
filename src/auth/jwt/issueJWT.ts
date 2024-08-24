@@ -2,8 +2,6 @@ import * as jsonwebtoken from "jsonwebtoken";
 import * as fs from "fs";
 import * as path from "path";
 
-import { User } from "../../model/database/User";
-
 const pathToAccessPrivateKey = path.join(
   __dirname,
   "/keys/private_access_key.pem"
@@ -37,12 +35,12 @@ const issueToken = (userId: number, expiresIn: number, privateKey: Buffer) => {
 };
 
 //# Создает JWT токен на основе приватного ключа и полученного клиента
-const issueAccessToken = (user: User) => {
-  return issueToken(user.id, 2592000000, PRIV_ACCESS_KEY);
+const issueAccessToken = (userId: number) => {
+  return issueToken(userId, 2592000000, PRIV_ACCESS_KEY);
 };
 
-const issueRefreshToken = (user: User) => {
-  const bearerToken = issueToken(user.id, 2592000000, PRIV_REFRESH_KEY);
+const issueRefreshToken = (userId: number) => {
+  const bearerToken = issueToken(userId, 2592000000, PRIV_REFRESH_KEY);
 
   //# Get rid of the Bearer
   return {
