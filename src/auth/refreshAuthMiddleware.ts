@@ -7,7 +7,7 @@ import {
   ABSENT_JWT_SUB,
   AUTHORIZATION_HEADER_ABSENT,
   INCORRECT_AUTHORIZATION_HEADER,
-  NON_EXISTANT_USER,
+  DATA_NOT_FOUND,
   JWT_ERROR,
   NOT_BEFORE_ERROR,
   TOKEN_EXPIRED,
@@ -77,9 +77,7 @@ const refreshAuthMiddleware = (
           });
 
           if (!user)
-            return res
-              .status(401)
-              .json(err(new NON_EXISTANT_USER("id", userId)));
+            return res.status(401).json(err(new DATA_NOT_FOUND("user", `id = ${userId}`)));
 
           req.body.user = user;
           req.body.refreshToken = token;

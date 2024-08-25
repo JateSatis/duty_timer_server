@@ -1,27 +1,27 @@
-//# --- Libs ---
+//# --- LIBS ---
 import { Request, Response } from "express";
 
-//# --- Auth ---
+//# --- AUTH ---
 import { generatePasswordHash } from "../../../auth/jwt/passwordHandler";
 import {
   issueAccessToken,
   issueRefreshToken,
 } from "../../../auth/jwt/issueJWT";
 
-//# --- Validate request ---
+//# --- VALIDATE REQUEST ---
 import { missingRequestField } from "../../utils/validation/missingRequestField";
 import { nicknameIsTaken } from "./nicknameIsTaken";
 import { accountAlreadyExists } from "./accountAlreadyExists";
 import { invalidInputFormat } from "./invalidInputFormat";
 
-//# --- Request entities ---
+//# --- REQUEST ENTITIES ---
 import {
   SignUpRequestBody,
   signUpRequestBodyProperties,
   SignUpResponseBody,
 } from "../../../model/routesEntities/AuthRouterEntities";
 
-//# --- Database entities ---
+//# --- DATABASE ENTITIES ---
 import { User } from "../../../model/database/User";
 import { Timer } from "../../../model/database/Timer";
 import { RefreshToken } from "../../../model/database/RefreshToken";

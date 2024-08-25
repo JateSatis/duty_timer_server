@@ -7,8 +7,8 @@ import { dutyTimerDataSource } from "./model/config/initializeConfig";
 //# Routes import
 import { userRouter } from "./Routes/userRouter/userRouter";
 import { authRouter } from "./Routes/authRouter/authRouter";
-import { friendshipRouter } from "./Routes/friendshipRouter";
-import { eventsRouter } from "./Routes/eventsRouter";
+import { friendshipRouter } from "./Routes/frienshipRouter/friendshipRouter";
+import { eventsRouter } from "./Routes/eventsRouter/eventsRouter";
 import { timerRouter } from "./Routes/timerRouter";
 import { messageRouter } from "./Routes/messageRouter";
 import { webSocketOnConnection } from "./sockets/socketsConfig";

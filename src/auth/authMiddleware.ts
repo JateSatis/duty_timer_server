@@ -11,7 +11,7 @@ import {
   NOT_BEFORE_ERROR,
   TOKEN_EXPIRED,
   UNKNOWN_AUTH_ERROR,
-  NON_EXISTANT_USER,
+  DATA_NOT_FOUND,
 } from "../Routes/utils/errors/AuthErrors";
 import { dutyTimerDataSource } from "../model/config/initializeConfig";
 import { User } from "../model/database/User";
@@ -80,9 +80,7 @@ const authMiddleware = async (
           });
 
           if (!user)
-            return res
-              .status(401)
-              .json(err(new NON_EXISTANT_USER("id", userId)));
+            return res.status(404).json(err(new DATA_NOT_FOUND("user", `id = ${userId}`)));
 
           req.body.user = user;
           next();

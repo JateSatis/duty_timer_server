@@ -11,6 +11,17 @@ import { chatsMap } from "../sockets/socketsConfig";
 import { SendMessageRequestBody } from "../model/routesEntities/WebSocketRouterEntities";
 import { dutyTimerDataSource } from "../model/config/initializeConfig";
 
+// TODO: Make request: get all chats
+// TODO: Make request: get all messages from chat
+// TODO: Make request: edit the message
+// TODO: Make request: delete the message
+
+// TODO: Create all alternative requests for group chats
+
+// TODO: Create all alternative requests for global chat
+
+// TODO: Create all alternative request for news chat (maybe not for now)
+
 export const messageRouter = Router();
 
 const storage = multer.memoryStorage();
@@ -18,6 +29,9 @@ const upload = multer({ storage: storage });
 const s3DataSource = new S3DataSource();
 
 // TODO: Catch errors when working with DB
+
+// TODO: Make it so that images are saved last, after everything else is done
+// TODO: Check if sending user is friends with reciever user
 
 messageRouter.post(
   "/create/:chatId",
@@ -134,6 +148,9 @@ messageRouter.post(
   }
 );
 
+
+// TODO: Make it so that when one user deltes the chat, it' getting deleted from his friend
+// TODO: If it's a group chat delete it only if all users delete it
 messageRouter.delete("/delete-chat/:chatId", auth, async (req, res) => {
   const userId = req.body.user.id;
   const chatId = parseInt(req.params.chatId);

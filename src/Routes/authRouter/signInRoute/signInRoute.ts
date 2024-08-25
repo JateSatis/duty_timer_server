@@ -1,28 +1,31 @@
-//# --- Libs ---
+//# --- LIBS ---
 import { Request, Response } from "express";
 
-//# --- Auth ---
+//# --- AUTH ---
 import {
   issueAccessToken,
   issueRefreshToken,
 } from "../../../auth/jwt/issueJWT";
 import { validatePassword } from "../../../auth/jwt/passwordHandler";
 
-//# --- Config
-import { DB, dutyTimerDataSource } from "../../../model/config/initializeConfig";
+//# --- CONFIG
+import {
+  DB,
+  dutyTimerDataSource,
+} from "../../../model/config/initializeConfig";
 
-//# --- Request entities ---
+//# --- REQUEST ENTITIES ---
 import {
   SignInRequestBody,
   signInRequestBodyProperties,
   SignInResponseBody,
 } from "../../../model/routesEntities/AuthRouterEntities";
 
-//# --- Database entities ---
+//# --- DATABASE ENTITIES ---
 import { RefreshToken } from "../../../model/database/RefreshToken";
 import { User } from "../../../model/database/User";
 
-//# --- Validate request ---
+//# --- VALIDATE REQUEST ---
 import { missingRequestField } from "../../utils/validation/missingRequestField";
 import { invalidInputFormat } from "./invalidInputFormat";
 import { emptyField } from "../../utils/validation/emptyField";
@@ -31,7 +34,7 @@ import { emptyField } from "../../utils/validation/emptyField";
 import { err } from "../../utils/errors/GlobalErrors";
 import {
   INCORRECT_PASSWORD,
-  NON_EXISTANT_USER,
+  DATA_NOT_FOUND,
 } from "../../utils/errors/AuthErrors";
 import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
 
@@ -45,7 +48,7 @@ export const signInRoute = async (req: Request, res: Response) => {
 
   let user: User | null;
   try {
-		user = await DB.getUserByLogin(signInRequestBody.login);
+    user = await DB.getUserByLogin(signInRequestBody.login);
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error.message)));
   }
@@ -53,7 +56,7 @@ export const signInRoute = async (req: Request, res: Response) => {
   if (!user) {
     return res
       .status(400)
-      .json(err(new NON_EXISTANT_USER("login", signInRequestBody.login)));
+      .json(err(new DATA_NOT_FOUND("user", `login = ${signInRequestBody.login}`)));
   }
 
   const passwordIsValid = validatePassword(

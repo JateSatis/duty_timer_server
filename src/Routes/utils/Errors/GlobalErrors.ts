@@ -71,12 +71,20 @@ export class DATABASE_ERROR extends ServerError {
   }
 }
 
-;
 export class S3_STORAGE_ERROR extends ServerError {
   constructor(message: string) {
     super(
       "S3_STORAGE_ERROR",
       `There was an error while working with the S3 storage:\n${message}.`
+    );
+  }
+}
+
+export class FORBIDDEN_ACCESS extends ServerError {
+  constructor() {
+    super(
+      "FORBIDDEN_ACCESS",
+      `You do not have permission to modify this data. Please ensure you have the appropriate access rights or contact support for assistance.`
     );
   }
 }

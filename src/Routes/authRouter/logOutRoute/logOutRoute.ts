@@ -1,14 +1,14 @@
-//# --- Libs ---
+//# --- LIBS ---
 import { Request, Response } from "express";
 
-//# --- Config ---
+//# --- CONFIG ---
 import {
   DB,
   dutyTimerDataSource,
 } from "../../../model/config/initializeConfig";
 import { setStatus } from "../../userRouter/userRouter";
 
-//# --- Database entities ---
+//# --- DATABASE ENTITIES ---
 import { RefreshToken } from "../../../model/database/RefreshToken";
 
 //# --- ERRORS ---

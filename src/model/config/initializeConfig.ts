@@ -108,8 +108,119 @@ export class DB {
       .where("user.name = :userName", {
         userName,
       })
-			.getMany();
-		
-		return users;
+      .getMany();
+
+    return users;
+  };
+
+  static getEventsByUserId = async (id: number) => {
+    const user = (await dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.events", "event")
+      .where("user.id = :userId", { userId: id })
+      .getOne())!!;
+
+    return user.events;
+  };
+
+  static getFriendsByUserId = async (id: number) => {
+    const user = (await dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.friends", "friend")
+      .where("user.id = :userId", { userId: id })
+      .getOne())!!;
+
+    return user.friends;
+  };
+
+  static getFriendsInfoByIds = async (ids: number[]) => {
+    const friendsInfo = await dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .where("user.id IN (:...friendIds)", { friendIds: ids })
+      .select(["user.id", "user.name", "user.nickname", "user.avatarImageName"])
+      .getMany();
+
+    return friendsInfo;
+  };
+
+  static getSentRequestsByUserId = async (id: number) => {
+    const user = (await dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.sentFriendshipRequests", "friendshipRequest")
+      .where("user.id = :userId", { userId: id })
+      .getOne())!!;
+
+    return user.sentFriendshipRequests;
+  };
+
+  static getSentRequestsInfoByIds = async (ids: number[]) => {
+    const sentFriendshipRequestsInfo = await dutyTimerDataSource
+      .getRepository(FriendshipRequest)
+      .createQueryBuilder("friendshipRequest")
+      .leftJoinAndSelect("friendshipRequest.reciever", "user")
+      .where("friendshipRequest.id IN (:...sentFriendshipRequestsIds)", {
+        sentFriendshipRequestsIds: ids,
+      })
+      .getMany();
+
+    return sentFriendshipRequestsInfo;
+  };
+
+  static getRecievedRequestsByUserId = async (id: number) => {
+    const user = (await dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.recievedFriendshipRequests", "friendshipRequest")
+      .where("user.id = :userId", { userId: id })
+      .getOne())!!;
+
+    return user.recievedFriendshipRequests;
+  };
+
+  static getRecievedRequestsInfoByIds = async (ids: number[]) => {
+    const recievedFriendshipRequestsInfo = await dutyTimerDataSource
+      .getRepository(FriendshipRequest)
+      .createQueryBuilder("friendshipRequest")
+      .leftJoinAndSelect("friendshipRequest.sender", "user")
+      .where("friendshipRequest.id IN (:...recievedFriendshipRequestsIds)", {
+        recievedFriendshipRequestsIds: ids,
+      })
+      .getMany();
+
+    return recievedFriendshipRequestsInfo;
+  };
+
+  static getRequestBySenderAndReciever = async (
+    senderId: number,
+    recieverId: number
+  ) => {
+    const friendshipRequest = await dutyTimerDataSource
+      .getRepository(FriendshipRequest)
+      .createQueryBuilder("friendshipRequest")
+      .where("friendshipRequest.senderId = :senderId", { senderId })
+      .andWhere("friendshipRequest.recieverId = :userId", { recieverId })
+      .getOne();
+
+    return friendshipRequest;
+  };
+
+  static getChatBySenderAndReciever = async (
+    senderId: number,
+    recieverId: number
+  ) => {
+    const chat = await dutyTimerDataSource
+      .getRepository(Chat)
+      .createQueryBuilder("chat")
+      .innerJoin("chat.users", "user")
+      .where("user.id IN (:...userIds)", { userIds: [senderId, recieverId] })
+      .groupBy("chat.id")
+      .having("COUNT(user.id) = 2")
+      .getOne();
+
+    return chat;
   };
 }

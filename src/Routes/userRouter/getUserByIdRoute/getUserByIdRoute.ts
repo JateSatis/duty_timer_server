@@ -17,12 +17,12 @@ import { emptyParam } from "../../utils/validation/emptyParam";
 //# --- ERRORS ---
 import { err } from "../../utils/errors/GlobalErrors";
 import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
-import { NON_EXISTANT_USER } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 
 export const getUserByIdRoute = async (req: Request, res: Response) => {
-	if (invalidParamType(req, res, "userId")) return res;
-	
-	if (emptyParam(req, res, "userId")) return res;
+  if (invalidParamType(req, res, "userId")) return res;
+
+  if (emptyParam(req, res, "userId")) return res;
 
   const userId = parseInt(req.params.userId);
 
@@ -39,7 +39,7 @@ export const getUserByIdRoute = async (req: Request, res: Response) => {
   }
 
   if (!user) {
-    return res.status(400).json(err(new NON_EXISTANT_USER("id", userId)));
+    return res.status(400).json(err(new DATA_NOT_FOUND("user", `id = ${userId}`)));
   }
 
   const getForeignUserInfoResponseBody: GetUserByIdResponseBody = user;

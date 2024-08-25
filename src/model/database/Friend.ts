@@ -2,6 +2,7 @@ import {
   BaseEntity,
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
@@ -14,6 +15,9 @@ export class Friend extends BaseEntity {
 
   @ManyToOne(() => User, (user) => user.friends, {
     onDelete: "CASCADE",
+  })
+  @JoinColumn({
+    name: "userId",
   })
   user: User;
 

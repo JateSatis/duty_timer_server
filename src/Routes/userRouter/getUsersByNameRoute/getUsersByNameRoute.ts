@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { DB } from "../../../model/config/initializeConfig";
 import { GetUsersByNameResponseBody } from "../../../model/routesEntities/UserRouterEntities";
-import { NON_EXISTANT_USER } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
 import { invalidParamFormat } from "../../utils/validation/invalidParamFormat";
 import { emptyParam } from "../../utils/validation/emptyParam";

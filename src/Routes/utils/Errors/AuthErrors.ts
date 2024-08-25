@@ -83,10 +83,10 @@ export class ABSENT_JWT_SUB extends ServerError {
   }
 }
 
-export class NON_EXISTANT_USER extends ServerError {
-  constructor(criteria: string, value: any) {
-    const message = `The user with such parameters (${criteria} = ${value}) doesn't exist. Please check that values you're providing are correct and associated with a valid user account.`;
-    super("NON_EXISTANT_USER", message);
+export class DATA_NOT_FOUND extends ServerError {
+  constructor(entitieName: string, criteria: any) {
+    const message = `The data (${entitieName}) with these parameters: ${criteria} doesn't exist. Please check that values you're providing are correct.`;
+    super("USER_NOT_FOUND", message);
   }
 }
 
