@@ -12,12 +12,12 @@ import { GetUserByIdResponseBody } from "../../../model/routesEntities/UserRoute
 
 //# --- VALIDATE REQUEST ---
 import { invalidParamType } from "../../utils/validation/invalidParamType";
+import { emptyParam } from "../../utils/validation/emptyParam";
 
 //# --- ERRORS ---
 import { err } from "../../utils/errors/GlobalErrors";
 import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
 import { NON_EXISTANT_USER } from "../../utils/errors/AuthErrors";
-import { emptyParam } from "../../utils/validation/emptyParam";
 
 export const getUserByIdRoute = async (req: Request, res: Response) => {
 	if (invalidParamType(req, res, "userId")) return res;

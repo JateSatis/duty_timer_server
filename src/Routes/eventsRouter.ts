@@ -10,7 +10,7 @@ import {
   GetSpecificEventResponseBody,
   UpdateEventRequestBody,
   UpdateEventResponseBody,
-} from "src/model/routesEntities/EventsRouterEntities";
+} from "../model/routesEntities/EventsRouterEntities";
 
 export const eventsRouter = Router();
 
