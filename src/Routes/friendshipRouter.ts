@@ -17,8 +17,7 @@ export const friendshipRouter = Router();
 // TODO: Catch errors when working with DB
 
 friendshipRouter.get("/friends", auth, async (req, res) => {
-  const accessToken = req.body.accessToken;
-  const userId = accessToken.sub;
+  const userId = req.body.user.id;
 
   const userWithFriends = await dutyTimerDataSource
     .getRepository(User)
@@ -50,8 +49,7 @@ friendshipRouter.get("/friends", auth, async (req, res) => {
 });
 
 friendshipRouter.get("/sent-requests", auth, async (req, res) => {
-  const accessToken = req.body.accessToken;
-  const userId = accessToken.sub;
+  const userId = req.body.user.id;
 
   const userWithFriendshipRequests = await dutyTimerDataSource
     .getRepository(User)
@@ -97,8 +95,7 @@ friendshipRouter.get("/sent-requests", auth, async (req, res) => {
 });
 
 friendshipRouter.get("/recieved-requests", auth, async (req, res) => {
-  const accessToken = req.body.accessToken;
-  const userId = accessToken.sub;
+  const userId = req.body.user.id;
 
   const userWithFriendshipRequests = await dutyTimerDataSource
     .getRepository(User)
@@ -144,8 +141,7 @@ friendshipRouter.get("/recieved-requests", auth, async (req, res) => {
 });
 
 friendshipRouter.post("/send-request/:recieverId", auth, async (req, res) => {
-  const accessToken = req.body.accessToken;
-  const userId = accessToken.sub;
+  const userId = req.body.user.id;
   const recieverId = parseInt(req.params.recieverId);
 
   const sender = await dutyTimerDataSource
@@ -188,8 +184,7 @@ friendshipRouter.post("/send-request/:recieverId", auth, async (req, res) => {
 // TODO: Now if they accept friendship again, what will happen to the old chan and wouldn't it crash
 
 friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
-  const accessToken = req.body.accessToken;
-  const userId = accessToken.sub;
+  const userId = req.body.user.id;
   const senderId = parseInt(req.params.senderId);
 
   const reciever = await User.findOneBy({
@@ -255,8 +250,7 @@ friendshipRouter.post("/accept-request/:senderId", auth, async (req, res) => {
 });
 
 friendshipRouter.delete("/:friendId", auth, async (req, res) => {
-  const accessToken = req.body.accessToken;
-  const userId = accessToken.sub;
+  const userId = req.body.user.id;
   const friendId = parseInt(req.params.friendId);
 
   deleteFriendship(userId, friendId);

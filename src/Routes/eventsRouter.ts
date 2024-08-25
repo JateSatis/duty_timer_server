@@ -17,8 +17,7 @@ export const eventsRouter = Router();
 // TODO: Catch errors when working with DB
 
 eventsRouter.get("/", auth, async (req, res) => {
-  const accessToken = req.body.accessToken;
-  const userId = accessToken.sub;
+  const userId = req.body.user.id;
 
   const user = await dutyTimerDataSource
     .getRepository(User)
@@ -39,8 +38,7 @@ eventsRouter.get("/", auth, async (req, res) => {
 });
 
 eventsRouter.get("/:eventId", auth, async (req, res) => {
-  const accessToken = req.body.accessToken;
-  const userId = accessToken.sub;
+  const userId = req.body.user.id;
 
   const user = await dutyTimerDataSource
     .getRepository(User)
@@ -72,8 +70,7 @@ eventsRouter.get("/:eventId", auth, async (req, res) => {
 });
 
 eventsRouter.post("/", auth, async (req, res) => {
-  const accessToken = req.body.accessToken;
-  const userId = accessToken.sub;
+  const userId = req.body.user.id;
 
   const createEventRequestBody: CreateEventRequestBody = req.body;
 
@@ -98,8 +95,7 @@ eventsRouter.post("/", auth, async (req, res) => {
 });
 
 eventsRouter.put("/:eventId", auth, async (req, res) => {
-  const accessToken = req.body.accessToken;
-  const userId = accessToken.sub;
+  const userId = req.body.user.id;
 
   const user = await dutyTimerDataSource
     .getRepository(User)
@@ -143,8 +139,7 @@ eventsRouter.put("/:eventId", auth, async (req, res) => {
 });
 
 eventsRouter.delete("/:eventId", auth, async (req, res) => {
-  const accessToken = req.body.accessToken;
-  const userId = accessToken.sub;
+  const userId = req.body.user.id;
 
   let user = await dutyTimerDataSource
     .getRepository(User)

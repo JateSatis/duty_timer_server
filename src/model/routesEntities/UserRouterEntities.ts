@@ -15,5 +15,5 @@ export type UploadAvatarResponseBody = {
 };
 
 export type GetAvatarLinkResponseBody = {
-  imageUrl: string;
+  imageUrl: string | null;
 };

@@ -3,9 +3,7 @@ import { Router } from "express";
 import { auth } from "../../auth/authMiddleware";
 import { User } from "../../model/database/User";
 import { dutyTimerDataSource } from "../../model/config/initializeConfig";
-import {
-  GetAvatarLinkResponseBody,
-} from "../../model/routesEntities/UserRouterEntities";
+import { GetAvatarLinkResponseBody } from "../../model/routesEntities/UserRouterEntities";
 import { S3DataSource } from "../../model/config/imagesConfig";
 import { getUserByIdRoute } from "./getUserByIdRoute/getUserByIdRoute";
 import { getUserInfoRoute } from "./getUserInfoRoute/getUserInfoRoute";
@@ -40,23 +38,15 @@ export const setStatus = async (userId: number, status: boolean) => {
 userRouter.post("/avatar", upload.single("image"), auth, postAvatarRoute);
 
 userRouter.get("/avatar", auth, async (req, res) => {
-  const accessToken = req.body.accessToken;
-  const userId = accessToken.sub;
-
-  const user = await User.findOneBy({
-    id: userId,
-  });
-
-  if (!user) {
-    return res.status(404).send(`There is no user with such id: ${userId}`);
-  }
+  const user = req.body.user;
 
   const avatarImageName = user.avatarImageName;
 
-  if (!avatarImageName) {
-    return res
-      .status(404)
-      .send(`There is no avatar image for this user: ${userId}`);
+	if (!avatarImageName) {
+		const getAvatarLinkResponseBody: GetAvatarLinkResponseBody = {
+      imageUrl: null,
+    };
+    return res.status(404).json(getAvatarLinkResponseBody);
   }
 
   const s3DataSource = new S3DataSource();
@@ -74,22 +64,14 @@ userRouter.get("/avatar", auth, async (req, res) => {
 });
 
 userRouter.delete("/avatar", auth, async (req, res) => {
-  const userId = req.body.accessToken.sub;
-
-  const user = await dutyTimerDataSource.getRepository(User).findOneBy({
-    id: userId,
-  });
-
-  if (!user) {
-    return res.status(404).send(`There is no user with such id: ${userId}`);
-  }
+  const user = req.body.user.id;
 
   const avatarImageName = user.avatarImageName;
 
   if (!avatarImageName) {
     return res
       .status(404)
-      .send(`There us no avatar image for this user: ${userId}`);
+      .send(`There us no avatar image for this user: ${user.id}`);
   }
 
   await dutyTimerDataSource
@@ -97,7 +79,7 @@ userRouter.delete("/avatar", auth, async (req, res) => {
     .createQueryBuilder()
     .update()
     .set({ avatarImageName: () => "NULL" })
-    .where("id = :id", { id: userId })
+    .where("id = :id", { id: user.id })
     .execute();
 
   const s3DataSource = new S3DataSource();

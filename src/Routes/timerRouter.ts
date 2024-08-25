@@ -15,8 +15,7 @@ export const timerRouter = Router();
 // TODO: Catch errors when working with DB
 
 timerRouter.get("/", auth, async (req, res) => {
-  const accessToken = req.body.accessToken;
-  const userId = accessToken.sub;
+  const userId = req.body.user.id;
 
   const user = await dutyTimerDataSource
     .getRepository(User)
@@ -35,8 +34,7 @@ timerRouter.get("/", auth, async (req, res) => {
 });
 
 timerRouter.put("/", auth, async (req, res) => {
-  const accessToken = req.body.accessToken;
-  const userId = accessToken.sub;
+  const userId = req.body.user.id;
 
   const updateTimerRequestBody: UpdateTimerRequestBody = {
     startTimeMillis: parseInt(req.body.startTimeMillis),
@@ -80,8 +78,7 @@ timerRouter.put("/", auth, async (req, res) => {
 });
 
 timerRouter.post("/connect/:timerId", auth, async (req, res) => {
-  const accessToken = req.body.accessToken;
-  const userId = accessToken.sub;
+  const userId = req.body.user.id;
 
   const timerId = parseInt(req.params.timerId);
 

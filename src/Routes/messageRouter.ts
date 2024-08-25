@@ -24,8 +24,7 @@ messageRouter.post(
   upload.array("image", 10),
   auth,
   async (req, res) => {
-    const accessToken = req.body.accessToken;
-    const senderId = accessToken.sub;
+    const senderId = req.body.user.id;
 
     const chatId = parseInt(req.params.chatId);
 
@@ -124,7 +123,7 @@ messageRouter.post(
       );
 
       if (senderSocket) {
-        const socketMessage: SendMessageRequestBody = resultMessage
+        const socketMessage: SendMessageRequestBody = resultMessage;
         senderSocket.socket.emit("message", JSON.stringify(socketMessage));
       }
     }
@@ -136,7 +135,7 @@ messageRouter.post(
 );
 
 messageRouter.delete("/delete-chat/:chatId", auth, async (req, res) => {
-  const userId = req.body.accessToken.sub;
+  const userId = req.body.user.id;
   const chatId = parseInt(req.params.chatId);
 
   const user = await dutyTimerDataSource
