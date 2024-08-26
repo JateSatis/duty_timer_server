@@ -35,11 +35,13 @@ export const getUserByIdRoute = async (req: Request, res: Response) => {
       .where("user.id = :userId", { userId })
       .getOne();
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   if (!user) {
-    return res.status(400).json(err(new DATA_NOT_FOUND("user", `id = ${userId}`)));
+    return res
+      .status(400)
+      .json(err(new DATA_NOT_FOUND("user", `id = ${userId}`)));
   }
 
   const getForeignUserInfoResponseBody: GetUserByIdResponseBody = user;

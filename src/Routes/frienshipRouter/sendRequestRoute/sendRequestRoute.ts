@@ -32,7 +32,7 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
   try {
     friends = await DB.getFriendsByUserId(user.id);
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   //# Check if there is already a friendship between user and friend
@@ -46,7 +46,7 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
       id: recieverId,
     });
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   if (!reciever) {
@@ -63,7 +63,7 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
   try {
     await friendshipRequest.save();
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   return res.sendStatus(200);

@@ -22,20 +22,20 @@ export const logOutRoute = async (req: Request, res: Response) => {
   try {
     refreshToken = await DB.getRefreshTokenByUserId(userId);
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   const refreshTokenRepoitory = dutyTimerDataSource.getRepository(RefreshToken);
   try {
     await refreshTokenRepoitory.update(refreshToken.id, { isRevoked: true });
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   try {
     await setStatus(userId, false);
     return res.sendStatus(200);
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 };

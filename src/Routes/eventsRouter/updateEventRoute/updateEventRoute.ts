@@ -17,7 +17,11 @@ import {
 //# --- VALIDATE REQUEST ---
 import { emptyField } from "../../utils/validation/emptyField";
 import { missingRequestField } from "../../utils/validation/missingRequestField";
-import { DATABASE_ERROR, err, FORBIDDEN_ACCESS } from "../../utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  err,
+  FORBIDDEN_ACCESS,
+} from "../../utils/errors/GlobalErrors";
 import { invalidParamType } from "../../utils/validation/invalidParamType";
 import { emptyParam } from "../../utils/validation/emptyParam";
 
@@ -25,20 +29,21 @@ import { emptyParam } from "../../utils/validation/emptyParam";
 import { invalidInputFormat } from "./invalidInputFormat";
 
 export const updateEventRoute = async (req: Request, res: Response) => {
-	if (missingRequestField(req, res, updateEventRequestBodyProperties)) return res;
+  if (missingRequestField(req, res, updateEventRequestBodyProperties))
+    return res;
 
-	if (emptyField(req, res, updateEventRequestBodyProperties)) return res;
+  if (emptyField(req, res, updateEventRequestBodyProperties)) return res;
 
-	const updateEventRequestBody: UpdateEventRequestBody = req.body;
-	if (invalidInputFormat(res, updateEventRequestBody)) return res;
-	
-	if (invalidParamType(req, res, "eventId")) return res;
+  const updateEventRequestBody: UpdateEventRequestBody = req.body;
+  if (invalidInputFormat(res, updateEventRequestBody)) return res;
 
-	if (emptyParam(req, res, "eventId")) return res;
+  if (invalidParamType(req, res, "eventId")) return res;
 
-	const eventId = parseInt(req.params.eventId);
-	
-	const user = req.body.user;
+  if (emptyParam(req, res, "eventId")) return res;
+
+  const eventId = parseInt(req.params.eventId);
+
+  const user = req.body.user;
 
   const events = await DB.getEventsByUserId(user.id);
 
@@ -46,17 +51,17 @@ export const updateEventRoute = async (req: Request, res: Response) => {
 
   if (!eventIds.includes(eventId)) {
     return res.status(401).json(err(new FORBIDDEN_ACCESS()));
-	}
-	
-	const event = events.find(event => event.id == eventId)!!
-	event.title = updateEventRequestBody.title
-	event.timeMillis = parseInt(updateEventRequestBody.timeMillis)
+  }
 
-	try {
-		await Event.save(event);
-	} catch (error) {
-		return res.status(400).json(err(new DATABASE_ERROR(error.message)))
-	}
+  const event = events.find((event) => event.id == eventId)!!;
+  event.title = updateEventRequestBody.title;
+  event.timeMillis = parseInt(updateEventRequestBody.timeMillis);
+
+  try {
+    await Event.save(event);
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
 
   const updateEventResponseBody: UpdateEventResponseBody = event;
 

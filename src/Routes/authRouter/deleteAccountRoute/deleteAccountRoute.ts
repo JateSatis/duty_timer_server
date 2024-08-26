@@ -14,7 +14,7 @@ export const deleteAccountRoute = async (req: Request, res: Response) => {
   try {
     await User.delete({ id: userId });
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   return res.sendStatus(200);

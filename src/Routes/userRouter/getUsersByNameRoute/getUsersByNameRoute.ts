@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { DB } from "../../../model/config/initializeConfig";
 import { GetUsersByNameResponseBody } from "../../../model/routesEntities/UserRouterEntities";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
 import { invalidParamFormat } from "../../utils/validation/invalidParamFormat";
 import { emptyParam } from "../../utils/validation/emptyParam";
@@ -17,7 +16,7 @@ export const getUsersByNameRoute = async (req: Request, res: Response) => {
   try {
     users = await DB.getForeignUsersInfoByName(userName);
   } catch (error) {
-    return res.status(404).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(404).json(err(new DATABASE_ERROR(error)));
   }
 
   const getUsersByNameResponseBody: GetUsersByNameResponseBody = users;

@@ -26,7 +26,7 @@ export const deleteAvatarRoute = async (req: Request, res: Response) => {
       .where("id = :id", { id: user.id })
       .execute();
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   const s3DataSource = new S3DataSource();

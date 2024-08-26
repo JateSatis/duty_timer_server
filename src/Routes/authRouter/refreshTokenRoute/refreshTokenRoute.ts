@@ -32,7 +32,7 @@ export const refreshTokenRoute = async (req: Request, res: Response) => {
   try {
     refreshTokenDB = await DB.getRefreshTokenByUserId(userId);
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   if (refreshTokenDB.isRevoked) {
@@ -52,7 +52,7 @@ export const refreshTokenRoute = async (req: Request, res: Response) => {
       isRevoked: false,
     });
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   const refreshTokenResponseBody: RefreshTokenResponseBody = {

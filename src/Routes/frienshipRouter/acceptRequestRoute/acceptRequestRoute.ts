@@ -36,7 +36,7 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
       id: senderId,
     });
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   if (!sender) {
@@ -53,7 +53,7 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
   try {
     await senderFriend.save();
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   const recieverFriend = Friend.create({
@@ -64,7 +64,7 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
   try {
     await recieverFriend.save();
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   let friendshipRequest;
@@ -74,7 +74,7 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
       user.id
     );
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   if (!friendshipRequest) {
@@ -93,15 +93,15 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
   try {
     await FriendshipRequest.delete(friendshipRequest.id);
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-	//# Check if chat between these two users already exist and if so do nothing
+  //# Check if chat between these two users already exist and if so do nothing
   let existingChat;
   try {
     existingChat = await DB.getChatBySenderAndReciever(senderId, user.id);
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   if (existingChat) {
@@ -114,8 +114,7 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
     return res.status(200).json(AcceptFriendshipResponseBody);
   }
 
-
-	//#  If it doesn't exist, create a new one
+  //#  If it doesn't exist, create a new one
   const chat = Chat.create({
     users: [sender, user],
     messages: [],
@@ -126,7 +125,7 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
   try {
     await chat.save();
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   const AcceptFriendshipResponseBody: AcceptFriendshipResponseBody = {

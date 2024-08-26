@@ -36,10 +36,10 @@ export const postAvatarRoute = async (req: Request, res: Response) => {
   try {
     await User.update(user.id, { avatarImageName: s3ImageName });
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-	let avatarLink;
+  let avatarLink;
   try {
     avatarLink = await s3DataSource.getImageUrlFromS3(s3ImageName);
   } catch (error) {

@@ -65,7 +65,7 @@ export const signUpRoute = async (req: Request, res: Response) => {
   try {
     await timer.save();
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   const user = User.create({
@@ -80,7 +80,7 @@ export const signUpRoute = async (req: Request, res: Response) => {
   try {
     await user.save();
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   const accessToken = issueAccessToken(user.id);
@@ -95,7 +95,7 @@ export const signUpRoute = async (req: Request, res: Response) => {
   try {
     await refreshTokenDB.save();
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   const signUpResponseBody: SignUpResponseBody = {

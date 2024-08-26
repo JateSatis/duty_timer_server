@@ -13,12 +13,12 @@ import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
 export const getEventsRoute = async (req: Request, res: Response) => {
   const userId = req.body.user.id;
 
-	let events;
-	try {
-		events = await DB.getEventsByUserId(userId);
-	} catch (error) {
-		return res.status(400).json(err(new DATABASE_ERROR(error.message)))
-	}
+  let events;
+  try {
+    events = await DB.getEventsByUserId(userId);
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
 
   const getAllEventsResponseBody: GetAllEventsResponseBody = events;
 

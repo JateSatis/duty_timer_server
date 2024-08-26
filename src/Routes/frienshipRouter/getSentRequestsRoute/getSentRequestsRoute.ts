@@ -20,7 +20,7 @@ export const getSentRequestsRoute = async (req: Request, res: Response) => {
   try {
     sentFriendshipRequests = await DB.getSentRequestsByUserId(user.id);
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   if (sentFriendshipRequests.length == 0) {
@@ -37,7 +37,7 @@ export const getSentRequestsRoute = async (req: Request, res: Response) => {
       sentFriendshipRequestsIds
     );
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   const getAllSentFriendshipRequestsResponse: GetAllSentFriendshipRequestsResponseBody =

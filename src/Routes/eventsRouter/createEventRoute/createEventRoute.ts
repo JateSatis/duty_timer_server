@@ -39,10 +39,10 @@ export const createEventRoute = async (req: Request, res: Response) => {
   });
 
   try {
-		await event.save();
-	} catch (error) {
-		return res.status(400).json(err(new DATABASE_ERROR(error.message)))
-	}
+    await event.save();
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
 
   const createEventResponseBody: CreateEventResponseBody = {
     id: event.id,

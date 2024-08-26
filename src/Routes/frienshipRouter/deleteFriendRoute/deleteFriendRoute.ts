@@ -35,7 +35,7 @@ export const deleteFriendRoute = async (req: Request, res: Response) => {
       id: friendId,
     });
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   if (!friend) {
@@ -50,7 +50,7 @@ export const deleteFriendRoute = async (req: Request, res: Response) => {
     friends = await DB.getFriendsByUserId(user.id);
     foreignFriends = await DB.getFriendsByUserId(friendId);
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   const friendIds = friends.map((friend) => friend.id);
@@ -68,14 +68,14 @@ export const deleteFriendRoute = async (req: Request, res: Response) => {
       (friend) => friend.id === user.id
     ))!!;
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   try {
     await Friend.delete(friendToDelete.id);
     await Friend.delete(foreignFriendToDelete.id);
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   return res.sendStatus(200);

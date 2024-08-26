@@ -50,13 +50,15 @@ export const signInRoute = async (req: Request, res: Response) => {
   try {
     user = await DB.getUserByLogin(signInRequestBody.login);
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   if (!user) {
     return res
       .status(400)
-      .json(err(new DATA_NOT_FOUND("user", `login = ${signInRequestBody.login}`)));
+      .json(
+        err(new DATA_NOT_FOUND("user", `login = ${signInRequestBody.login}`))
+      );
   }
 
   const passwordIsValid = validatePassword(
@@ -79,7 +81,7 @@ export const signInRoute = async (req: Request, res: Response) => {
       isRevoked: false,
     });
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   const signInResponseBody: SignInResponseBody = {

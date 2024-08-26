@@ -30,7 +30,7 @@ export const deleteEventRoute = async (req: Request, res: Response) => {
   try {
     events = await DB.getEventsByUserId(user.id);
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   const eventIds = events.map((event) => event.id);
@@ -44,7 +44,7 @@ export const deleteEventRoute = async (req: Request, res: Response) => {
       id: eventId,
     });
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   return res.sendStatus(200);

@@ -10,7 +10,7 @@ export const getUserInfoRoute = async (req: Request, res: Response) => {
   try {
     userInfo = await DB.getUserInfoById(userId);
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   const getUserInfoResponseBody: GetUserInfoResponseBody = userInfo;

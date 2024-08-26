@@ -36,7 +36,7 @@ export const getEventByIdRoute = async (req: Request, res: Response) => {
   try {
     events = await DB.getEventsByUserId(user.id);
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   const eventIds = events.map((event) => event.id);
@@ -51,11 +51,13 @@ export const getEventByIdRoute = async (req: Request, res: Response) => {
       id: eventId,
     });
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   if (!event) {
-    return res.status(404).json(err(new DATA_NOT_FOUND("event", `id = ${eventId}`)));
+    return res
+      .status(404)
+      .json(err(new DATA_NOT_FOUND("event", `id = ${eventId}`)));
   }
 
   const getSpecificEventResponseBody: GetSpecificEventResponseBody = event;

@@ -9,6 +9,6 @@ export const setStatusOfflineRoute = async (req: Request, res: Response) => {
     await setStatus(userId, false);
     return res.sendStatus(200);
   } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error.message)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 };
