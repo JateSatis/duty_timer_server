@@ -29,7 +29,6 @@ export const invalidInputFormat = (
 
   if (
     !allowedTitle.test(title) ||
-    !allowedTimeMillis.test(timeMillis) ||
     title.length > 280
   ) {
     return true;

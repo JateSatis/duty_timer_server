@@ -223,4 +223,15 @@ export class DB {
 
     return chat;
   };
+
+  static getTimerByUserId = async (id: number) => {
+    const user = (await dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.timer", "timer")
+      .where("user.id = :userId", { userId: id })
+      .getOne())!!;
+
+    return user.timer;
+  };
 }
