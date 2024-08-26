@@ -208,6 +208,17 @@ export class DB {
     return friendshipRequest;
   };
 
+  static getChatsByUserId = async (id: number) => {
+    const user = (await dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.chats", "chat")
+      .where("user.id = :userId", { userId: id })
+      .getOne())!!;
+
+    return user.chats;
+  };
+
   static getChatBySenderAndReciever = async (
     senderId: number,
     recieverId: number
@@ -222,6 +233,17 @@ export class DB {
       .getOne();
 
     return chat;
+  };
+
+  static getMessagesFromChatId = async (id: number) => {
+    const chat = (await dutyTimerDataSource
+      .getRepository(Chat)
+      .createQueryBuilder("chat")
+      .leftJoinAndSelect("chat.messages", "message")
+      .where("chat.id = :chatId", { chatId: id })
+      .getOne())!!;
+
+    return chat.messages;
   };
 
   static getTimerByUserId = async (id: number) => {

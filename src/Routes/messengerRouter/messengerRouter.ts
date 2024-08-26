@@ -1,18 +1,18 @@
 import multer from "multer";
 import { Router } from "express";
-import { Chat } from "../model/database/Chat";
-import { User } from "../model/database/User";
-import { Message } from "../model/database/Message";
-import { CreateMessageResponseBody } from "../model/routesEntities/MessageRoutesEntities";
-import { S3DataSource } from "../model/config/imagesConfig";
-import { Attachment } from "../model/database/Attachment";
-import { auth } from "../auth/authMiddleware";
-import { chatsMap } from "../sockets/socketsConfig";
-import { SendMessageRequestBody } from "../model/routesEntities/WebSocketRouterEntities";
-import { dutyTimerDataSource } from "../model/config/initializeConfig";
+import { Chat } from "../../model/database/Chat";
+import { User } from "../../model/database/User";
+import { Message } from "../../model/database/Message";
+import { CreateMessageResponseBody } from "../../model/routesEntities/MessageRoutesEntities";
+import { S3DataSource } from "../../model/config/imagesConfig";
+import { Attachment } from "../../model/database/Attachment";
+import { auth } from "../../auth/authMiddleware";
+import { chatsMap } from "../../sockets/socketsConfig";
+import { SendMessageRequestBody } from "../../model/routesEntities/WebSocketRouterEntities";
+import { dutyTimerDataSource } from "../../model/config/initializeConfig";
+import { getAllChatsRoute } from "./getAllChatsRoute/getAllChatsRoute";
+import { getMessagesFromChatRoute } from "./getMessagesFromChatRoute/getMessagesFromChatRoute";
 
-// TODO: Make request: get all chats
-// TODO: Make request: get all messages from chat
 // TODO: Make request: edit the message
 // TODO: Make request: delete the message
 
@@ -148,6 +148,9 @@ messageRouter.post(
   }
 );
 
+messageRouter.get("/chats", auth, getAllChatsRoute);
+
+messageRouter.get("/messages/:chatId", auth, getMessagesFromChatRoute);
 
 // TODO: Make it so that when one user deltes the chat, it' getting deleted from his friend
 // TODO: If it's a group chat delete it only if all users delete it

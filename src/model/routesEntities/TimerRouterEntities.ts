@@ -8,7 +8,7 @@ export type UpdateTimerRequestBody = {
   endTimeMillis: string;
 };
 export const updateTimerRequestBodyProperties = [
-  "startTimerMillis",
+  "startTimeMillis",
   "endTimeMillis",
 ];
 

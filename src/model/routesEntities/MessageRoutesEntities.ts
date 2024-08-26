@@ -1,3 +1,4 @@
+import { Chat } from "../database/Chat";
 import { Message } from "../database/Message";
 
 export type CreateMessageResponseBody = {
@@ -10,3 +11,7 @@ export type CreateMessageResponseBody = {
   read: boolean;
   attachmentNames: string[];
 };
+
+export type GetAllChatsResponseBody = Chat[];
+
+export type GetMessagesFromChatResponseBody = Message[];

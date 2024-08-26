@@ -10,7 +10,7 @@ import { authRouter } from "./Routes/authRouter/authRouter";
 import { friendshipRouter } from "./Routes/frienshipRouter/friendshipRouter";
 import { eventsRouter } from "./Routes/eventsRouter/eventsRouter";
 import { timerRouter } from "./Routes/timerRouter/timerRouter";
-import { messageRouter } from "./Routes/messageRouter";
+import { messageRouter } from "./Routes/messengerRouter/messengerRouter";
 import { webSocketOnConnection } from "./sockets/socketsConfig";
 import { WebSocketServer } from "ws";
 
@@ -33,7 +33,7 @@ app.use("/auth", authRouter);
 app.use("/friendship", friendshipRouter);
 app.use("/event", eventsRouter);
 app.use("/timer", timerRouter);
-app.use("/message", messageRouter);
+app.use("/messenger", messageRouter);
 
 const initalizeDatabaseConnection = async () => {
   await dutyTimerDataSource.initialize();
