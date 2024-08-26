@@ -1,14 +1,14 @@
 import { Router } from "express";
-import { auth } from "../auth/authMiddleware";
-import { Timer } from "../model/database/Timer";
-import { User } from "../model/database/User";
-import { dutyTimerDataSource } from "../model/config/initializeConfig";
+import { auth } from "../../auth/authMiddleware";
+import { Timer } from "../../model/database/Timer";
+import { User } from "../../model/database/User";
+import { dutyTimerDataSource } from "../../model/config/initializeConfig";
 import {
   ConnectToTimerResponseBody,
   GetTimerResponseBody,
   UpdateTimerRequestBody,
   UpdateTimerResponseBody,
-} from "../model/routesEntities/TimerRouterEntities";
+} from "../../model/routesEntities/TimerRouterEntities";
 
 export const timerRouter = Router();
 

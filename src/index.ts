@@ -9,7 +9,7 @@ import { userRouter } from "./Routes/userRouter/userRouter";
 import { authRouter } from "./Routes/authRouter/authRouter";
 import { friendshipRouter } from "./Routes/frienshipRouter/friendshipRouter";
 import { eventsRouter } from "./Routes/eventsRouter/eventsRouter";
-import { timerRouter } from "./Routes/timerRouter";
+import { timerRouter } from "./Routes/timerRouter/timerRouter";
 import { messageRouter } from "./Routes/messageRouter";
 import { webSocketOnConnection } from "./sockets/socketsConfig";
 import { WebSocketServer } from "ws";

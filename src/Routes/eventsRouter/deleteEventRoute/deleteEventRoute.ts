@@ -24,7 +24,7 @@ export const deleteEventRoute = async (req: Request, res: Response) => {
   if (emptyParam(req, res, "eventId")) return res;
   const eventId = parseInt(req.params.eventId);
 
-  const user = req.body.user.id;
+  const user = req.body.user;
 
   let events;
   try {
