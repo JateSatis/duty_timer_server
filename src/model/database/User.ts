@@ -156,6 +156,9 @@ export class User extends BaseEntity {
   })
   messages: Message[];
 
+  @ManyToMany(() => Message, (message) => message.readBy)
+  readMessages: Message[];
+
   @OneToOne(() => Subscription, (subscription) => subscription.user, {
     cascade: true,
   })

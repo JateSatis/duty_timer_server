@@ -38,7 +38,7 @@ messageRouter.post(
   upload.array("image", 10),
   auth,
   async (req, res) => {
-    const senderId = req.body.user.id;
+		const senderId = req.body.user.id;
 
     const chatId = parseInt(req.params.chatId);
 

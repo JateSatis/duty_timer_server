@@ -4,6 +4,8 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -69,4 +71,18 @@ export class Message extends BaseEntity {
     name: "userId",
   })
   sender: User;
+
+  @ManyToMany(() => User, (user) => user.readMessages)
+  @JoinTable({
+    name: "usersReadMessages", // Custom join table name
+    joinColumn: {
+      name: "messageId",
+      referencedColumnName: "id",
+    },
+    inverseJoinColumn: {
+      name: "userId",
+      referencedColumnName: "id",
+    },
+  })
+  readBy: User[]; // Relation to User entities who read the message
 }
