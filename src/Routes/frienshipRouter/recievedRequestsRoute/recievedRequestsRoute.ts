@@ -8,7 +8,10 @@ import { DB } from "../../../model/config/initializeConfig";
 import { User } from "../../../model/database/User";
 
 //# --- REQUEST ENTITIES ---
-import { GetAllRecievedFriendshipRequestsResponseBody } from "../../../model/routesEntities/FriendshipRouterEntities";
+import {
+  GetAllRecievedFriendshipRequestsResponseBody,
+  RecievedFriendshipRequestInfo,
+} from "../../../model/routesEntities/FriendshipRouterEntities";
 
 //# --- ERRORS ---
 import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
@@ -42,13 +45,14 @@ export const recievedRequestRoute = async (req: Request, res: Response) => {
 
   const getAllRecievedFriendshipRequestsResponse: GetAllRecievedFriendshipRequestsResponseBody =
     recievedFriendshipRequestsInfo.map((request) => {
-      return {
+      const recievedFriendshipRequestInfo: RecievedFriendshipRequestInfo = {
         id: request.id,
         senderId: request.sender.id,
         senderName: request.sender.name,
         senderNickname: request.sender.nickname,
         senderAvatarImageName: request.sender.avatarImageName,
       };
+      return recievedFriendshipRequestInfo;
     }) || [];
 
   return res.status(200).send(getAllRecievedFriendshipRequestsResponse);

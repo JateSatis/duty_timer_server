@@ -36,7 +36,7 @@ export class RefreshToken extends BaseEntity {
   })
   user: User;
 
-  @Column()
+  @Column("text")
   token: string;
 
   @Column({

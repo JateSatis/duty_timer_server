@@ -15,7 +15,7 @@ export class Attachment extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column("text")
   name: string;
 
   @ManyToOne(() => Message, (message) => message.attachments, {

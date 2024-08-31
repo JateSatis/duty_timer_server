@@ -5,10 +5,8 @@ import { Request, Response } from "express";
 import { DB } from "../../../model/config/initializeConfig";
 
 //# --- DATABASE ENTITIES ---
+import { Chat } from "../../../model/database/Chat";
 import { User } from "../../../model/database/User";
-
-//# --- REQUEST ENTITIES ---
-import { GetMessagesFromChatResponseBody } from "../../../model/routesEntities/MessageRoutesEntities";
 
 //# --- VALIDATE REQUEST ---
 import { emptyParam } from "../../utils/validation/emptyParam";
@@ -19,17 +17,11 @@ import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-  S3_STORAGE_ERROR,
 } from "../../utils/errors/GlobalErrors";
 
-//# --- UTILS ---
-import { transformMessageForResponse } from "../transformMessageForResponse";
-
-export const getMessagesFromChatRoute = async (req: Request, res: Response) => {
+export const deleteChatRoute = async (req: Request, res: Response) => {
   if (invalidParamType(req, res, "chatId")) return res;
-
   if (emptyParam(req, res, "chatId")) return res;
-
   const chatId = parseInt(req.params.chatId);
 
   const user: User = req.body.user;
@@ -42,28 +34,27 @@ export const getMessagesFromChatRoute = async (req: Request, res: Response) => {
   }
 
   const chat = chats.find((chat) => chat.id === chatId);
+
   if (!chat) {
-    return res.status(403).json(err(new FORBIDDEN_ACCESS()));
+    return res.status(400).json(err(new FORBIDDEN_ACCESS()));
   }
 
-  let messages;
   try {
-    messages = await DB.getMessagesFromChatId(chatId);
+    if (chat.users.length <= 2) {
+      await Chat.delete({ id: chatId });
+      return res.sendStatus(200);
+    }
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  let getMessagesFromChatResponseBody: GetMessagesFromChatResponseBody;
+  user.chats = user.chats.filter((chat) => chat.id !== chatId);
+
   try {
-    getMessagesFromChatResponseBody = await Promise.all(
-      messages.map(
-        async (message) =>
-          await transformMessageForResponse(message, user, chat)
-      )
-    )
+    await User.save(user);
   } catch (error) {
-    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  return res.status(200).json(getMessagesFromChatResponseBody);
+  return res.sendStatus(200);
 };

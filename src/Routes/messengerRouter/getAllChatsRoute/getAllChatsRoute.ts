@@ -8,7 +8,14 @@ import { DB } from "../../../model/config/initializeConfig";
 import { GetAllChatsResponseBody } from "../../../model/routesEntities/MessageRoutesEntities";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  err,
+  S3_STORAGE_ERROR,
+} from "../../utils/errors/GlobalErrors";
+
+//# --- UTILS ---
+import { transformChatForResponse } from "../transformChatForResponse";
 
 export const getAllChatsRoute = async (req: Request, res: Response) => {
   const user = req.body.user;
@@ -20,7 +27,14 @@ export const getAllChatsRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  const getAllChatsResponseBody: GetAllChatsResponseBody = chats;
+  let getAllChatsResponseBody: GetAllChatsResponseBody;
+  try {
+    getAllChatsResponseBody = await Promise.all(
+      chats.map(async (chat) => await transformChatForResponse(chat, user))
+    );
+  } catch (error) {
+    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
+  }
 
   return res.status(200).json(getAllChatsResponseBody);
 };

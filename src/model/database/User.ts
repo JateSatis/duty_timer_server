@@ -50,24 +50,21 @@ export class User extends BaseEntity {
   })
   refreshToken: RefreshToken;
 
-  @Column()
+  @Column("text")
   login: string;
 
-  @Column({
-    length: 20,
-  })
+  @Column("text")
   name: string;
 
-  @Column({
+  @Column("text", {
     unique: true,
-    length: 20,
   })
   nickname: string;
 
-  @Column({
+  @Column("text", {
     nullable: true,
   })
-  avatarImageName: string;
+  avatarImageName: string | null;
 
   @Column({
     type: "enum",
@@ -76,12 +73,12 @@ export class User extends BaseEntity {
   })
   userType: UserType;
 
-  @Column({
+  @Column("text", {
     unique: true,
   })
   passwordHash: string;
 
-  @Column({
+  @Column("text", {
     unique: true,
   })
   passwordSalt: string;
@@ -155,9 +152,6 @@ export class User extends BaseEntity {
     cascade: true,
   })
   messages: Message[];
-
-  @ManyToMany(() => Message, (message) => message.readBy)
-  readMessages: Message[];
 
   @OneToOne(() => Subscription, (subscription) => subscription.user, {
     cascade: true,

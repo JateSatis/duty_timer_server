@@ -5,8 +5,8 @@ import { Request, Response } from "express";
 import { DB } from "../../../model/config/initializeConfig";
 
 //# --- DATABASE ENTITIES ---
-import { Friend } from "../../../model/database/Friend";
 import { User } from "../../../model/database/User";
+import { Message } from "../../../model/database/Message";
 
 //# --- VALIDATE REQUEST ---
 import { emptyParam } from "../../utils/validation/emptyParam";
@@ -19,31 +19,27 @@ import {
   FORBIDDEN_ACCESS,
 } from "../../utils/errors/GlobalErrors";
 
-export const deleteFriendRoute = async (req: Request, res: Response) => {
-  if (invalidParamType(req, res, "friendId")) return res;
-
-  if (emptyParam(req, res, "friendId")) return res;
-
-  const friendId = parseInt(req.params.friendId);
+export const deleteMessageRoute = async (req: Request, res: Response) => {
+  if (invalidParamType(req, res, "messageId")) return res;
+  if (emptyParam(req, res, "messageId")) return res;
+  const messageId = parseInt(req.params.messageId);
 
   const user: User = req.body.user;
 
-  let friend;
-  let foreignFriend;
+  let messages;
   try {
-    friend = await DB.getFriendByUserIds(user.id, friendId);
-    foreignFriend = await DB.getFriendByUserIds(friendId, user.id);
+    messages = await DB.getMessagesFromUserId(user.id);
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  if (!friend || !foreignFriend) {
-    return res.status(404).json(err(new FORBIDDEN_ACCESS()));
+  const message = messages.find((message) => message.id === messageId);
+  if (!message) {
+    return res.status(400).json(err(new FORBIDDEN_ACCESS()));
   }
 
   try {
-    await Friend.delete(friend.id);
-    await Friend.delete(foreignFriend.id);
+    await Message.delete({ id: messageId });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }

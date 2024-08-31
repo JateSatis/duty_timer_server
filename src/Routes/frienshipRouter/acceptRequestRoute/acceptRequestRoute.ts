@@ -19,7 +19,12 @@ import { invalidParamType } from "../../utils/validation/invalidParamType";
 
 //# --- ERRORS ---
 import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  err,
+  S3_STORAGE_ERROR,
+} from "../../utils/errors/GlobalErrors";
+import { transformChatForResponse } from "../../messengerRouter/transformChatForResponse";
 
 export const acceptRequestRoute = async (req: Request, res: Response) => {
   if (invalidParamType(req, res, "senderId")) return res;
@@ -29,6 +34,35 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
   const senderId = parseInt(req.params.senderId);
 
   const user: User = req.body.user;
+
+  let friendshipRequest;
+  try {
+    friendshipRequest = await DB.getRequestBySenderAndReciever(
+      senderId,
+      user.id
+    );
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
+
+  if (!friendshipRequest) {
+    return res
+      .status(400)
+      .json(
+        err(
+          new DATA_NOT_FOUND(
+            "friendshipRequest",
+            `senderId = ${senderId}, recieverId = ${user.id}`
+          )
+        )
+      );
+  }
+
+  try {
+    await FriendshipRequest.delete(friendshipRequest.id);
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
 
   let sender;
   try {
@@ -67,35 +101,6 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  let friendshipRequest;
-  try {
-    friendshipRequest = await DB.getRequestBySenderAndReciever(
-      senderId,
-      user.id
-    );
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
-  }
-
-  if (!friendshipRequest) {
-    return res
-      .status(400)
-      .json(
-        err(
-          new DATA_NOT_FOUND(
-            "friendshipRequest",
-            `senderId = ${senderId}, recieverId = ${user.id}`
-          )
-        )
-      );
-  }
-
-  try {
-    await FriendshipRequest.delete(friendshipRequest.id);
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
-  }
-
   //# Check if chat between these two users already exist and if so do nothing
   let existingChat;
   try {
@@ -105,21 +110,24 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
   }
 
   if (existingChat) {
-    const AcceptFriendshipResponseBody: AcceptFriendshipResponseBody = {
-      id: existingChat.id,
-      lastUpdateTime: existingChat.lastUpdateTime,
-      unreadMessagesAmount: existingChat.unreadMessagesAmount,
-    };
+    let joinedChat;
+    try {
+      joinedChat = await DB.getChatById(existingChat?.id);
+    } catch (error) {
+      return res.status(400).json(err(new DATABASE_ERROR(error)));
+    }
 
-    return res.status(200).json(AcceptFriendshipResponseBody);
+    const acceptFriendshipResponseBody: AcceptFriendshipResponseBody =
+      await transformChatForResponse(joinedChat, user);
+
+    return res.status(200).json(acceptFriendshipResponseBody);
   }
 
   //#  If it doesn't exist, create a new one
   const chat = Chat.create({
     users: [sender, user],
     messages: [],
-    lastUpdateTime: Date.now(),
-    unreadMessagesAmount: 0,
+    name: `${sender.name}, ${user.name}`,
   });
 
   try {
@@ -127,12 +135,22 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
+  let joinedChat;
+  try {
+    joinedChat = await DB.getChatById(chat.id);
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
 
-  const AcceptFriendshipResponseBody: AcceptFriendshipResponseBody = {
-    id: chat.id,
-    lastUpdateTime: chat.lastUpdateTime,
-    unreadMessagesAmount: chat.unreadMessagesAmount,
-  };
+  let acceptFriendshipResponseBody: AcceptFriendshipResponseBody;
+  try {
+    acceptFriendshipResponseBody = await transformChatForResponse(
+      joinedChat,
+      user
+    );
+  } catch (error) {
+    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
+  }
 
-  return res.status(200).json(AcceptFriendshipResponseBody);
+  return res.status(200).json(acceptFriendshipResponseBody);
 };

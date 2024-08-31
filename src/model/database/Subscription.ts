@@ -25,9 +25,9 @@ export class Subscription extends BaseEntity {
   active: boolean;
 
   @Column({
-    type: "date",
+    type: "bigint",
   })
-  expirationDate: Date;
+  expirationDate: number;
 
   @OneToOne(() => User, (user) => user.subscription, {
     onDelete: "CASCADE",

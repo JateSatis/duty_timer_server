@@ -17,7 +17,13 @@ import { invalidParamType } from "../../utils/validation/invalidParamType";
 //# --- ERRORS ---
 import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 import { USER_ALREADY_FRIEND } from "../../utils/errors/FriendshipErrors";
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  err,
+  FORBIDDEN_ACCESS,
+} from "../../utils/errors/GlobalErrors";
+
+// TODO: Check if the request is already sent
 
 export const sendRequestRoute = async (req: Request, res: Response) => {
   if (invalidParamType(req, res, "recieverId")) return res;
@@ -27,6 +33,10 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
   const recieverId = parseInt(req.params.recieverId);
 
   const user: User = req.body.user;
+
+  if (recieverId == user.id) {
+    return res.status(400).json(err(new FORBIDDEN_ACCESS()));
+  }
 
   let friends;
   try {

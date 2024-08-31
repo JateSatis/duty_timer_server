@@ -26,10 +26,10 @@ export class Settings extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({
+  @Column("text", {
     nullable: true,
   })
-  backgroundImageLink: string;
+  backgroundImageName: string;
 
   @Column({
     type: "enum",

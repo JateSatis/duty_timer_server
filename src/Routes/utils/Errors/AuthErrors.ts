@@ -86,7 +86,7 @@ export class ABSENT_JWT_SUB extends ServerError {
 export class DATA_NOT_FOUND extends ServerError {
   constructor(entitieName: string, criteria: any) {
     const message = `The data (${entitieName}) with these parameters: ${criteria} doesn't exist. Please check that values you're providing are correct.`;
-    super("USER_NOT_FOUND", message);
+    super("DATA_NOT_FOUND", message);
   }
 }
 

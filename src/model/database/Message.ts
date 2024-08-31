@@ -29,7 +29,7 @@ export class Message extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column("text")
   text: string;
 
   @Column({
@@ -45,13 +45,7 @@ export class Message extends BaseEntity {
     type: "boolean",
     default: false,
   })
-  edited: boolean;
-
-  @Column({
-    type: "boolean",
-    default: false,
-  })
-  read: boolean;
+  isEdited: boolean;
 
   @OneToMany(() => Attachment, (attachment) => attachment.message)
   attachments: Attachment[];
@@ -60,7 +54,7 @@ export class Message extends BaseEntity {
     onDelete: "CASCADE",
   })
   @JoinColumn({
-    name: "chat_id",
+    name: "chatId",
   })
   chat: Chat;
 
@@ -72,17 +66,8 @@ export class Message extends BaseEntity {
   })
   sender: User;
 
-  @ManyToMany(() => User, (user) => user.readMessages)
-  @JoinTable({
-    name: "usersReadMessages", // Custom join table name
-    joinColumn: {
-      name: "messageId",
-      referencedColumnName: "id",
-    },
-    inverseJoinColumn: {
-      name: "userId",
-      referencedColumnName: "id",
-    },
+  @Column({
+    type: "boolean",
   })
-  readBy: User[]; // Relation to User entities who read the message
+  isRead: boolean;
 }

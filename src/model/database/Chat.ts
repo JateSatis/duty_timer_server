@@ -5,7 +5,6 @@ import {
   ManyToMany,
   OneToMany,
   PrimaryGeneratedColumn,
-  Long,
 } from "typeorm";
 import { Message } from "./Message";
 import { User } from "./User";
@@ -22,23 +21,6 @@ export class Chat extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({
-    type: "bigint",
-    transformer: {
-      to: (value: number) => value,
-      from: (value: string) => parseInt(value), // Convert string to number
-    },
-  })
-  lastUpdateTime: number;
-
-  @Column({
-    transformer: {
-      to: (value: number) => value,
-      from: (value: string) => parseInt(value), // Convert string to number
-    },
-  })
-  unreadMessagesAmount: number;
-
   @OneToMany(() => Message, (message) => message.chat, {
     cascade: true,
   })
@@ -48,4 +30,12 @@ export class Chat extends BaseEntity {
     onDelete: "CASCADE",
   })
   users: User[];
+
+  @Column("text")
+  name: string;
+
+  @Column("text", {
+    nullable: true,
+  })
+  imageName: string | null;
 }

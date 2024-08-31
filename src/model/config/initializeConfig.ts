@@ -124,6 +124,17 @@ export class DB {
     return user.events;
   };
 
+  static getFriendByUserIds = async (userId: number, friendId: number) => {
+    const friend = await dutyTimerDataSource
+      .getRepository(Friend)
+      .createQueryBuilder("friend")
+      .where("friend.userId = :userId", { userId })
+      .andWhere("friend.friendId = :friendId", { friendId })
+      .getOne();
+
+    return friend;
+  };
+
   static getFriendsByUserId = async (id: number) => {
     const user = (await dutyTimerDataSource
       .getRepository(User)
@@ -198,14 +209,32 @@ export class DB {
     senderId: number,
     recieverId: number
   ) => {
-    const friendshipRequest = await dutyTimerDataSource
+    const friendshipRequests = await dutyTimerDataSource
       .getRepository(FriendshipRequest)
       .createQueryBuilder("friendshipRequest")
-      .where("friendshipRequest.senderId = :senderId", { senderId })
-      .andWhere("friendshipRequest.recieverId = :userId", { recieverId })
-      .getOne();
+      .leftJoinAndSelect("friendshipRequest.sender", "sender")
+      .leftJoinAndSelect("friendshipRequest.reciever", "reciever")
+      .getMany();
+
+    const friendshipRequest = friendshipRequests.find(
+      (requst) =>
+        requst.sender.id === senderId && requst.reciever.id === recieverId
+    );
 
     return friendshipRequest;
+  };
+
+  static getChatById = async (id: number) => {
+    const chat = (await dutyTimerDataSource
+      .getRepository(Chat)
+      .createQueryBuilder("chat")
+      .leftJoinAndSelect("chat.users", "chatUsers")
+      .leftJoinAndSelect("chat.messages", "message")
+      .leftJoinAndSelect("message.sender", "messageSender")
+      .where("chat.id = :chatId", { chatId: id })
+      .getOne())!;
+
+    return chat;
   };
 
   static getChatsByUserId = async (id: number) => {
@@ -213,8 +242,11 @@ export class DB {
       .getRepository(User)
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.chats", "chat")
+      .leftJoinAndSelect("chat.users", "chatUsers")
+      .leftJoinAndSelect("chat.messages", "message")
+      .leftJoinAndSelect("message.sender", "messageSender")
       .where("user.id = :userId", { userId: id })
-      .getOne())!!;
+      .getOne())!;
 
     return user.chats;
   };
@@ -235,13 +267,58 @@ export class DB {
     return chat;
   };
 
+  static getMessageFromId = async (id: number) => {
+    const message = (await dutyTimerDataSource
+      .getRepository(Message)
+      .createQueryBuilder("message")
+      .leftJoinAndSelect("message.sender", "sender")
+      .leftJoinAndSelect("message.chat", "chat")
+      .leftJoinAndSelect("message.attachments", "attachments")
+      .where("message.id = :messageId", { messageId: id })
+      .getOne())!;
+
+    return message;
+  };
+
+  static getMessagesFromUserId = async (id: number) => {
+    const user = (await dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.messages", "message")
+      .leftJoinAndSelect("message.sender", "user")
+      .where("user.id = :userId", { userId: id })
+      .getOne())!!;
+
+    return user.messages;
+  };
+
   static getMessagesFromChatId = async (id: number) => {
     const chat = (await dutyTimerDataSource
       .getRepository(Chat)
       .createQueryBuilder("chat")
       .leftJoinAndSelect("chat.messages", "message")
+      .leftJoinAndSelect("message.sender", "user")
+      .leftJoinAndSelect("message.attachments", "attachment")
       .where("chat.id = :chatId", { chatId: id })
-      .getOne())!!;
+      .getOne())!;
+
+    return chat.messages;
+  };
+
+  static getUnreadMessagesFromChatId = async (id: number) => {
+    const chat = (await dutyTimerDataSource
+      .getRepository(Chat)
+      .createQueryBuilder("chat")
+      .leftJoinAndSelect(
+        "chat.messages",
+        "message",
+        "message.isRead = :isRead",
+        { isRead: false }
+      )
+      .leftJoinAndSelect("message.sender", "user")
+      .leftJoinAndSelect("message.attachments", "attachment")
+      .where("chat.id = :chatId", { chatId: id })
+      .getOne())!;
 
     return chat.messages;
   };

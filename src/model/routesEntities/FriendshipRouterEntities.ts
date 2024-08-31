@@ -1,32 +1,30 @@
 import { Chat } from "../database/Chat";
 import { FriendshipRequest } from "../database/FriendshipRequest";
 import { User } from "../database/User";
+import { ChatResponseBody } from "./MessageRoutesEntities";
 
-type SentFriendshipRequestsInfo = {
+export type SentFriendshipRequestInfo = {
   id: number;
   recieverId: number;
   recieverName: string;
   recieverNickname: string;
-  recieverAvatarImageName: string;
+  recieverAvatarImageName: string | null;
 };
 
-type RecievedFriendshipRequestsInfo = {
+export type RecievedFriendshipRequestInfo = {
   id: number;
   senderId: number;
   senderName: string;
   senderNickname: string;
-  senderAvatarImageName: string;
+  senderAvatarImageName: string | null;
 };
 
 export type GetAllFriendsResponseBody = User[];
 
 export type GetAllSentFriendshipRequestsResponseBody =
-  SentFriendshipRequestsInfo[];
+  SentFriendshipRequestInfo[];
 
-export type GetAllRecievedFriendshipRequestsResponseBody = RecievedFriendshipRequestsInfo[];
+export type GetAllRecievedFriendshipRequestsResponseBody =
+  RecievedFriendshipRequestInfo[];
 
-export type AcceptFriendshipResponseBody = {
-  id: number;
-  lastUpdateTime: number;
-  unreadMessagesAmount: number;
-};
+export type AcceptFriendshipResponseBody = ChatResponseBody;

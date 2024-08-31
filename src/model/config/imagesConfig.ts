@@ -3,7 +3,7 @@ import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
-	DeleteObjectCommand,
+  DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import { v4 as uuidv4 } from "uuid";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -21,8 +21,8 @@ type DownloadImageParams = {
 };
 
 type DeleteImageParams = {
-	Key: string
-}
+  Key: string;
+};
 
 export class S3DataSource {
   private s3 = new S3Client({
@@ -48,21 +48,21 @@ export class S3DataSource {
     imageName: string,
     body: Buffer,
     contentType: string
-	) => {
-		const uniqueImageName = this.generateUniqueImageName(imageName);
+  ) => {
+    const uniqueImageName = this.generateUniqueImageName(imageName);
 
     const params: UploadImageParams = {
       Key: uniqueImageName,
       Body: body,
       ContentType: contentType,
-		};
+    };
 
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
       ...params,
     });
-		await this.s3.send(command);
-		return uniqueImageName
+    await this.s3.send(command);
+    return uniqueImageName;
   };
 
   public getImageUrlFromS3 = async (imageName: string) => {
@@ -72,20 +72,20 @@ export class S3DataSource {
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
       ...params,
-		});
-		
-		const url = await getSignedUrl(this.s3, command, { expiresIn: 3600 })
-		return url
-	};
-	
-	public deleteImageFromS3 = async (imageName: string) => {
-		const params: DeleteImageParams = {
-			Key: imageName
-		}
-		const command = new DeleteObjectCommand({
-			Bucket: this.bucketName,
-			...params
-		})
-		await this.s3.send(command)
-	}
+    });
+
+    const url = await getSignedUrl(this.s3, command, { expiresIn: 3600 });
+    return url;
+  };
+
+  public deleteImageFromS3 = async (imageName: string) => {
+    const params: DeleteImageParams = {
+      Key: imageName,
+    };
+    const command = new DeleteObjectCommand({
+      Bucket: this.bucketName,
+      ...params,
+    });
+    await this.s3.send(command);
+  };
 }

@@ -88,3 +88,12 @@ export class FORBIDDEN_ACCESS extends ServerError {
     );
   }
 }
+
+export class INVALID_FILE_FORMAT extends ServerError {
+  constructor() {
+    super(
+      "INVALID_FILE_FORMAT",
+      "Files that you've provided do not follow a specified format. Please ensure that you've provided files of correct type and amount."
+    );
+  }
+}

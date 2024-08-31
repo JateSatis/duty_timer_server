@@ -49,7 +49,7 @@ const main = async () => {
   }
 
   try {
-    wss.on("connection", (socket, req) => {
+		wss.on("connection", (socket, req) => {
       webSocketOnConnection(socket, req);
     });
   } catch (error) {
