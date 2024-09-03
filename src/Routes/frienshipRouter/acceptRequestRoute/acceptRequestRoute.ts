@@ -112,7 +112,7 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
   if (existingChat) {
     let joinedChat;
     try {
-      joinedChat = await DB.getChatById(existingChat?.id);
+      joinedChat = await DB.getChatById(existingChat.id);
     } catch (error) {
       return res.status(400).json(err(new DATABASE_ERROR(error)));
     }
@@ -128,6 +128,7 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
     users: [sender, user],
     messages: [],
     name: `${sender.name}, ${user.name}`,
+    isGroup: false,
   });
 
   try {

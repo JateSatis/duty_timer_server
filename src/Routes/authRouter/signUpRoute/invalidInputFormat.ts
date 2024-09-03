@@ -24,9 +24,12 @@ export const invalidInputFormat = (
     allowedName.test(signUpRequestBody.name) &&
     allowedNickname.test(nickname) &&
     login.length <= 254 &&
-    password.length <= 128 &&
-    name.length <= 50 &&
-    nickname.length <= 30
+		password.length >= 6 &&
+		password.length <= 128 &&
+		name.length >= 2 &&
+		name.length <= 50 &&
+		nickname.length >= 4 &&
+		nickname.length <= 30
   ) {
     return false;
   }

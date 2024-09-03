@@ -1,5 +1,3 @@
-import { Chat } from "../database/Chat";
-import { FriendshipRequest } from "../database/FriendshipRequest";
 import { User } from "../database/User";
 import { ChatResponseBody } from "./MessageRoutesEntities";
 

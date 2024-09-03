@@ -10,8 +10,8 @@ import { User } from "../../../model/database/User";
 
 //# --- REQUEST ENTITIES ---
 import {
-  updateReadMessagesRequestBody,
-  WebSocketMessage,
+  UpdateAllUnreadMessagesResponseBodyWS,
+  WebSocketChatMessage,
 } from "../../../model/routesEntities/WebSocketRouterEntities";
 
 //# --- VALIDATE REQUEST ---
@@ -26,9 +26,9 @@ import {
 } from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
-import { chatsConnectedUsers } from "../../../sockets/socketsConfig";
+import { webSocketChatsMap } from "../../../sockets/socketsConfig";
 
-export const updateUnreadMessagesRoute = async (
+export const updateAllUnreadMessagesRoute = async (
   req: Request,
   res: Response
 ) => {
@@ -72,22 +72,24 @@ export const updateUnreadMessagesRoute = async (
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  const connectedUsers = chatsConnectedUsers.get(chatId);
+  const connectedUsers = webSocketChatsMap.get(chatId);
 
   if (connectedUsers) {
     const senderSocket = connectedUsers.find(
-      (value) => value.user.id == user.id
+      (value) => value.userId == user.id
     );
 
     if (senderSocket) {
-      const updateReadMessagesRequestBody: updateReadMessagesRequestBody = {
-        chatId: chatId,
+      const updateReadMessagesResponsetBodyWS: UpdateAllUnreadMessagesResponseBodyWS =
+        {
+          chatId: chatId,
+        };
+      const webSocketChatMessage: WebSocketChatMessage = {
+        type: "chat",
+        name: "all_messages_read",
+        data: updateReadMessagesResponsetBodyWS,
       };
-      const socketMessage: WebSocketMessage = {
-        type: "message_read",
-        data: updateReadMessagesRequestBody,
-      };
-      senderSocket.socket.emit("message", JSON.stringify(socketMessage));
+      senderSocket.socket.emit("message", JSON.stringify(webSocketChatMessage));
     }
   }
 

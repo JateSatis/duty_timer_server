@@ -3,6 +3,7 @@ import { Chat } from "../../model/database/Chat";
 import { S3DataSource } from "../../model/config/imagesConfig";
 import { formatDateForMessage } from "./getMessagesFromChatRoute/formatDateForMessage";
 import { User } from "../../model/database/User";
+import { DB } from "src/model/config/initializeConfig";
 
 const s3DataSource = new S3DataSource();
 
@@ -10,56 +11,55 @@ export const transformChatForResponse = async (chat: Chat, user: User) => {
   const isGroupChat = chat.users.length > 2;
 
   let imageLink = null;
+  let isOnline = false;
   if (isGroupChat) {
     const imageName = chat.imageName;
     if (imageName) imageLink = await s3DataSource.getImageUrlFromS3(imageName);
   } else {
+    const companion = chat.users.filter(
+      (participant) => participant.id !== user.id
+    )[0];
     if (chat.users.length === 2) {
-      const companion = chat.users.filter(
-        (participant) => participant.id !== user.id
-      )[0];
       const imageName = companion.avatarImageName;
       if (imageName)
         imageLink = await s3DataSource.getImageUrlFromS3(imageName);
     }
+    isOnline = companion.isOnline;
   }
 
   const messages = chat.messages;
 
-  //# Return predefined message if no messages are in chat yet
-  if (messages.length === 0) {
-    const creationTime = formatDateForMessage(Date.now()).timeFormat;
+  //# Define default values for parameters in case there is no messages in chat
+  let unreadMessagesAmount = 0;
+  let lastMessageText = "В данном чате нет сообщений";
+  let lastMessageCreationTime = formatDateForMessage(Date.now()).timeFormat;
+  let lastMessageSenderName = "ДМБ таймер";
 
-    const chatResponseBody: ChatResponseBody = {
-      id: chat.id,
-      name: chat.name,
-      imageLink,
-      unreadMessagesAmount: 0,
-      lastMessageText: "В данном чате нет сообщений",
-      lastMessageCreationTime: creationTime,
-      lastMessageSenderName: "ДМБ Таймер",
-      isGroupChat,
-    };
+  if (messages.length !== 0) {
+    const unreadMessages = messages.filter(
+      (message) => !message.isRead && message.sender.id !== user.id
+    );
 
-    return chatResponseBody;
+    const lastMessage = messages[messages.length - 1];
+
+    const { timeFormat } = formatDateForMessage(lastMessage.creationTime);
+
+    unreadMessagesAmount = unreadMessages.length;
+    lastMessageText = lastMessage.text;
+    lastMessageCreationTime = timeFormat;
+    lastMessageSenderName = lastMessage.sender.name;
   }
 
-  const unreadMessages = messages.filter(
-    (message) => !message.isRead && message.sender.id !== user.id
-  );
-
-  const lastMessage = messages[messages.length - 1];
-  const { timeFormat } = formatDateForMessage(lastMessage.creationTime);
-
   const chatResponseBody: ChatResponseBody = {
-    id: chat.id,
+    chatId: chat.id,
     name: chat.name,
     imageLink,
-    unreadMessagesAmount: unreadMessages.length,
-    lastMessageText: lastMessage.text,
-    lastMessageCreationTime: timeFormat,
-    lastMessageSenderName: lastMessage.sender.name,
+    unreadMessagesAmount,
+    lastMessageText,
+    lastMessageCreationTime,
+    lastMessageSenderName,
     isGroupChat,
+    isOnline,
   };
 
   return chatResponseBody;

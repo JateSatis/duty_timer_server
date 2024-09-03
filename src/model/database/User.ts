@@ -87,7 +87,10 @@ export class User extends BaseEntity {
     type: "boolean",
     default: "false",
   })
-  online: boolean;
+  isOnline: boolean;
+
+  @Column("bigint")
+  lastSeenOnline: number;
 
   @ManyToOne(() => Timer, (timer) => timer.users)
   @JoinColumn({

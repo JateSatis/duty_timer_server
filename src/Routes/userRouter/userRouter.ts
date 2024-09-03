@@ -23,6 +23,9 @@ import { deleteAvatarRoute } from "./deleteAvatarRoute/deleteAvatarRoute";
 
 export const userRouter = Router();
 
+// TODO: When returning user info, return another field called lastSeenOnline which should be
+// TODO: a string like "Online one minute ago" and so on
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -41,9 +44,3 @@ userRouter.post("/avatar", upload.single("image"), auth, postAvatarRoute);
 userRouter.get("/avatar", auth, getAvatarLinkRoute);
 
 userRouter.delete("/avatar", auth, deleteAvatarRoute);
-
-export const setStatus = async (userId: number, status: boolean) => {
-  const userRepository = dutyTimerDataSource.getRepository(User);
-
-  await userRepository.update(userId, { online: status });
-};

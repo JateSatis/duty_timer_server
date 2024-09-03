@@ -92,7 +92,7 @@ export class DB {
         "user.nickname",
         "user.avatarImageName",
         "user.userType",
-        "user.online",
+        "user.isOnline",
       ])
       .where("user.id = :userId", { userId })
       .getOne())!!;
@@ -259,6 +259,7 @@ export class DB {
       .getRepository(Chat)
       .createQueryBuilder("chat")
       .innerJoin("chat.users", "user")
+      .where("chat.isGroup = :isGroup", { isGroup: false })
       .where("user.id IN (:...userIds)", { userIds: [senderId, recieverId] })
       .groupBy("chat.id")
       .having("COUNT(user.id) = 2")
@@ -285,7 +286,8 @@ export class DB {
       .getRepository(User)
       .createQueryBuilder("user")
       .leftJoinAndSelect("user.messages", "message")
-      .leftJoinAndSelect("message.sender", "user")
+      .leftJoinAndSelect("message.sender", "sender")
+      .leftJoinAndSelect("message.chat", "chat")
       .where("user.id = :userId", { userId: id })
       .getOne())!!;
 

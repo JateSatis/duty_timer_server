@@ -1,7 +1,14 @@
+//# --- LIBS ---
 import { Request, Response } from "express";
-import { S3DataSource } from "../../../model/config/imagesConfig";
+
+//# --- CONFIG ---
 import { dutyTimerDataSource } from "../../../model/config/initializeConfig";
+import { S3DataSource } from "../../../model/config/imagesConfig";
+
+//# --- DATABASE ENTITIES ---
 import { User } from "../../../model/database/User";
+
+//# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,

@@ -13,6 +13,10 @@ import {
   EditMessageRequestBody,
   editMessageRequestBodyProperties,
 } from "../../../model/routesEntities/MessageRoutesEntities";
+import {
+  EditMessageResponseBodyWS,
+  WebSocketChatMessage,
+} from "../../../model/routesEntities/WebSocketRouterEntities";
 
 //# --- VALIDATE REQUEST ---
 import { emptyParam } from "../../utils/validation/emptyParam";
@@ -25,6 +29,9 @@ import {
   err,
   FORBIDDEN_ACCESS,
 } from "../../utils/errors/GlobalErrors";
+import { webSocketChatsMap } from "../../../sockets/socketsConfig";
+
+// TODO: Notify Websocket server when message is edited
 
 export const editMessageRoute = async (req: Request, res: Response) => {
   if (invalidParamType(req, res, "messageId")) return res;
@@ -55,6 +62,29 @@ export const editMessageRoute = async (req: Request, res: Response) => {
     await Message.save(message);
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
+
+  const webSocketChatsMapValue = webSocketChatsMap.get(message.chat.id);
+  if (webSocketChatsMapValue) {
+    const senderSocket = webSocketChatsMapValue.find(
+      (connectedUser) => connectedUser.userId === user.id
+    );
+
+    const editMessageResponseBodyWS: EditMessageResponseBodyWS = {
+      chatId: message.chat.id,
+      messageId: message.id,
+      text: editMessageRequestBody.text,
+    };
+
+    if (senderSocket) {
+      const webSocketChatMessage: WebSocketChatMessage = {
+        type: "chat",
+        name: "message_edited",
+        data: editMessageResponseBodyWS,
+      };
+
+      senderSocket.socket.emit("message", JSON.stringify(webSocketChatMessage));
+    }
   }
 
   return res.sendStatus(200);

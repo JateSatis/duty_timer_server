@@ -2,17 +2,20 @@ import { IncomingMessage } from "http";
 import { WebSocket, Data } from "ws";
 import { User } from "../model/database/User";
 import { authenticateSocket } from "./authSockets";
-import { WebSocketMessage } from "../model/routesEntities/WebSocketRouterEntities";
+import {
+  WebSocketFriendsMapValue,
+  WebSocketChatMessage,
+  WebSocketStatusMessage,
+} from "../model/routesEntities/WebSocketRouterEntities";
 import { err, FORBIDDEN_ACCESS } from "../Routes/utils/errors/GlobalErrors";
+import { WebSocketChatsMapValue } from "../model/routesEntities/WebSocketRouterEntities";
 
-type UserSocket = {
-  user: User;
-  socket: WebSocket;
-};
+// TODO: Check if maps works correctly after users connect and disconnect.
 
 //# Содержит чатрумы и их пользователей. В качестве ключа используется уникальный ключ чата
 //# в качестве значения используется список подключенных к данному чату пользователей
-export const chatsConnectedUsers = new Map<number, UserSocket[]>();
+export const webSocketChatsMap = new Map<number, WebSocketChatsMapValue[]>();
+export const webSocketFriendsMap = new Map<number, WebSocketFriendsMapValue>();
 
 export const webSocketOnConnection = async (
   ws: WebSocket,
@@ -27,32 +30,78 @@ export const webSocketOnConnection = async (
     return;
   }
 
+  connectToFriends(user, ws);
   const chatIds = connectToChatrooms(user, ws);
 
   ws.on("error", console.error);
 
-  ws.on("message", async (message) => {
-    sendMessage(message, ws);
+  ws.on("message", async (data) => {
+    const message = JSON.parse(data.toString());
+    if (message.type === "status") {
+      sendStatusMessage(data);
+    } else if (message.type === "chat") {
+      sendChatMessage(data, ws);
+    }
   });
 
   ws.on("close", () => {
+    disconnectFromFriends(user);
     disconnectFromChatrooms(chatIds, user);
   });
 };
 
+const connectToFriends = (user: User, ws: WebSocket) => {
+  const friendIds = user.friends.map((friend) => friend.friendId);
+
+  const webSocketFriendsMapValue: WebSocketFriendsMapValue = {
+    friendIds,
+    socket: ws,
+  };
+
+  if (!webSocketFriendsMap.get(user.id)) {
+    webSocketFriendsMap.set(user.id, webSocketFriendsMapValue);
+  }
+};
+
+const disconnectFromFriends = (user: User) => {
+  if (webSocketFriendsMap.get(user.id)) {
+    webSocketFriendsMap.delete(user.id);
+  }
+};
+
+const sendStatusMessage = (data: Data) => {
+  const webSocketStatusMessage: WebSocketStatusMessage = JSON.parse(
+    data.toString()
+  );
+
+  const userId = webSocketStatusMessage.data.userId;
+
+  const webSocketFriendsMapValue = webSocketFriendsMap.get(userId);
+
+  if (!webSocketFriendsMapValue) return;
+
+  webSocketFriendsMapValue.friendIds.forEach((friendId) => {
+    const connectedFriend = webSocketFriendsMap.get(friendId);
+
+    if (!connectedFriend) return;
+
+    connectedFriend.socket.send(JSON.stringify(webSocketStatusMessage));
+  });
+};
+
 const connectToChatrooms = (user: User, ws: WebSocket) => {
-  const userSocket: UserSocket = {
-    user: user,
+  const webSocketChatsMapValue: WebSocketChatsMapValue = {
+    userId: user.id,
     socket: ws,
   };
 
   const chatIds = user.chats.map((chat) => chat.id);
   chatIds.forEach((chatId) => {
-    const chatConnectedUsers = chatsConnectedUsers.get(chatId);
+    const chatConnectedUsers = webSocketChatsMap.get(chatId);
     if (chatConnectedUsers) {
-      chatConnectedUsers.push(userSocket);
+      chatConnectedUsers.push(webSocketChatsMapValue);
     } else {
-      chatsConnectedUsers.set(chatId, [userSocket]);
+      webSocketChatsMap.set(chatId, [webSocketChatsMapValue]);
     }
   });
   return chatIds;
@@ -60,19 +109,25 @@ const connectToChatrooms = (user: User, ws: WebSocket) => {
 
 const disconnectFromChatrooms = (chatIds: number[], user: User) => {
   chatIds.forEach((chatId) => {
-    const userSockets = chatsConnectedUsers.get(chatId)!;
-    const filtererdUserSockets = userSockets.filter(
-      (userSocket) => userSocket.user != user
+    const connectedUsers = webSocketChatsMap.get(chatId);
+
+    if (!connectedUsers) return;
+
+    const filtererdConnectedUsers = connectedUsers.filter(
+      (userSocket) => userSocket.userId != user.id
     );
-    if (filtererdUserSockets.length == 0) chatsConnectedUsers.delete(chatId);
+    webSocketChatsMap.set(chatId, filtererdConnectedUsers);
+    if (filtererdConnectedUsers.length == 0) webSocketChatsMap.delete(chatId);
   });
 };
 
-const sendMessage = async (data: Data, ws: WebSocket) => {
-  const webSocketMessage: WebSocketMessage = JSON.parse(data.toString());
+const sendChatMessage = async (data: Data, ws: WebSocket) => {
+  const webSocketChatMessage: WebSocketChatMessage = JSON.parse(
+    data.toString()
+  );
 
-  const chatId = webSocketMessage.data.chatId;
-  const connectedUsers = chatsConnectedUsers.get(chatId);
+  const chatId = webSocketChatMessage.data.chatId;
+  const connectedUsers = webSocketChatsMap.get(chatId);
 
   if (!connectedUsers) {
     return;
@@ -86,6 +141,6 @@ const sendMessage = async (data: Data, ws: WebSocket) => {
 
   connectedUsers.forEach((userSocket) => {
     if (userSocket.socket != ws)
-      userSocket.socket.send(JSON.stringify(webSocketMessage));
+      userSocket.socket.send(JSON.stringify(webSocketChatMessage));
   });
 };

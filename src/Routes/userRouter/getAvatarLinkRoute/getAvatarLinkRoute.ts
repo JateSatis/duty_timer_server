@@ -1,6 +1,13 @@
+//# --- LIBS ---
 import { Request, Response } from "express";
+
+//# --- CONFIG ---
 import { S3DataSource } from "../../../model/config/imagesConfig";
+
+//# --- ERRORS ---
 import { GetAvatarLinkResponseBody } from "../../../model/routesEntities/UserRouterEntities";
+
+//# --- ERRORS ---
 import { err, S3_STORAGE_ERROR } from "../../utils/errors/GlobalErrors";
 
 export const getAvatarLinkRoute = async (req: Request, res: Response) => {

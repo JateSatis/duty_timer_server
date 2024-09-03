@@ -37,7 +37,7 @@ export const transformMessageForResponse = async (
   const isSender = message.sender.id === user.id;
 
   const messageResponseBody: MessageResponseBody = {
-    id: message.id,
+    messageId: message.id,
     chatId: chat.id,
     senderId: message.sender.id,
     senderName: message.sender.name,

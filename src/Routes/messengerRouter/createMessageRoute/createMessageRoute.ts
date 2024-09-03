@@ -15,7 +15,10 @@ import {
   CreateMessageResponseBody,
   MessageResponseBody,
 } from "../../../model/routesEntities/MessageRoutesEntities";
-import { WebSocketMessage } from "../../../model/routesEntities/WebSocketRouterEntities";
+import {
+  CreateMessageResponseBodyWS,
+  WebSocketChatMessage,
+} from "../../../model/routesEntities/WebSocketRouterEntities";
 
 //# --- VALIDATE REQUEST ---
 import { invalidParamType } from "../../utils/validation/invalidParamType";
@@ -33,7 +36,7 @@ import {
 //# --- UTILS ---
 import { compressFile } from "./compressFile";
 import { transformMessageForResponse } from "../transformMessageForResponse";
-import { chatsConnectedUsers } from "../../../sockets/socketsConfig";
+import { webSocketChatsMap } from "../../../sockets/socketsConfig";
 
 const s3DataSource = new S3DataSource();
 
@@ -119,7 +122,7 @@ export const createMessageRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  const connectedUsers = chatsConnectedUsers.get(chatId);
+  const connectedUsers = webSocketChatsMap.get(chatId);
   let messageResponseBody: MessageResponseBody;
   try {
     messageResponseBody = await transformMessageForResponse(
@@ -133,18 +136,21 @@ export const createMessageRoute = async (req: Request, res: Response) => {
 
   if (connectedUsers) {
     const senderSocket = connectedUsers.find(
-      (value) => value.user.id == user.id
+      (value) => value.userId == user.id
     );
 
+    const createMessageResponseBodyWS: CreateMessageResponseBodyWS = {
+      ...messageResponseBody,
+      isSender: false,
+    };
+
     if (senderSocket) {
-      const socketMessage: WebSocketMessage = {
-        type: "send_message",
-        data: {
-          ...messageResponseBody,
-          isSender: false,
-        },
+      const webSocketChatMessage: WebSocketChatMessage = {
+        type: "chat",
+        name: "message_sent",
+        data: createMessageResponseBodyWS,
       };
-      senderSocket.socket.emit("message", JSON.stringify(socketMessage));
+      senderSocket.socket.emit("message", JSON.stringify(webSocketChatMessage));
     }
   }
 

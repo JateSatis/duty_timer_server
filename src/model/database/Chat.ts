@@ -38,4 +38,9 @@ export class Chat extends BaseEntity {
     nullable: true,
   })
   imageName: string | null;
+
+  @Column("boolean", {
+    nullable: false,
+  })
+  isGroup: boolean;
 }

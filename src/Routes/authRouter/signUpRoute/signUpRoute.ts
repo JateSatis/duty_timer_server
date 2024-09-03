@@ -75,6 +75,8 @@ export const signUpRoute = async (req: Request, res: Response) => {
     passwordHash: passwordHash.hash,
     passwordSalt: passwordHash.salt,
     timer: timer,
+    isOnline: true,
+    lastSeenOnline: Date.now(),
   });
 
   try {

@@ -39,6 +39,8 @@ export const deleteChatRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new FORBIDDEN_ACCESS()));
   }
 
+
+	// TODO: Поменять вообще логику удаления чата, учитывая новое поле isGroup
   try {
     if (chat.users.length <= 2) {
       await Chat.delete({ id: chatId });

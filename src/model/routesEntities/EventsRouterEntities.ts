@@ -1,5 +1,3 @@
-import { Event } from "../database/Event";
-
 type ResponseEvent = {
   id: number;
   title: string;

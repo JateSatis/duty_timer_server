@@ -1,7 +1,7 @@
 export type MessageResponseBody = {
-  id: number;
-	chatId: number;
-	senderId: number;
+  messageId: number;
+  chatId: number;
+  senderId: number;
   senderName: string;
   senderAvatarLink: string | null;
   text: string;
@@ -14,7 +14,7 @@ export type MessageResponseBody = {
 };
 
 export type ChatResponseBody = {
-  id: number;
+  chatId: number;
   name: string;
   imageLink: string | null;
   lastMessageText: string | null;
@@ -22,6 +22,7 @@ export type ChatResponseBody = {
   lastMessageSenderName: string | null;
   unreadMessagesAmount: number | null;
   isGroupChat: boolean;
+  isOnline: boolean;
 };
 
 export type GetAllChatsResponseBody = ChatResponseBody[];
