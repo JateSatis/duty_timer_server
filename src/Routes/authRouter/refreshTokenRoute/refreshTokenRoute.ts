@@ -23,14 +23,15 @@ import {
   REFRESH_TOKEN_REVOKED,
 } from "../../utils/errors/AuthErrors";
 import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
+import { User } from "../../../model/database/User";
 
 export const refreshTokenRoute = async (req: Request, res: Response) => {
   const refreshToken = req.body.refreshToken;
-  const userId = req.body.user.id;
+  const user: User = req.body.user;
 
   let refreshTokenDB: RefreshToken;
   try {
-    refreshTokenDB = await DB.getRefreshTokenByUserId(userId);
+    refreshTokenDB = await DB.getRefreshTokenByUserId(user.id);
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
@@ -43,11 +44,11 @@ export const refreshTokenRoute = async (req: Request, res: Response) => {
     return res.status(401).json(err(new OUTDATED_REFRESH_TOKEN()));
   }
 
-  const newAccessToken = issueAccessToken(userId);
-  const newRefreshToken = issueRefreshToken(userId);
+  const newAccessToken = issueAccessToken(user.id);
+  const newRefreshToken = issueRefreshToken(user.id);
 
   try {
-    await RefreshToken.update(refreshToken.id, {
+    await RefreshToken.update(refreshTokenDB.id, {
       token: newRefreshToken.token,
       isRevoked: false,
     });

@@ -62,8 +62,8 @@ const refreshAuthMiddleware = (
         //# Если ошибки не произошло, добавляем в тело запроса токен, чтобы использовать его в следующих
         //# middleware
         if (decoded && typeof decoded !== "string") {
-          if (decoded.exp!! < Date.now()) {
-            return res.status(401).json(err(new TOKEN_EXPIRED()));
+          if (decoded.iat!! > Date.now()) {
+            return res.status(401).json(err(new NOT_BEFORE_ERROR()));
           }
           if (decoded.exp!! < Date.now())
             return res.status(401).json(err(new TOKEN_EXPIRED()));
@@ -77,7 +77,9 @@ const refreshAuthMiddleware = (
           });
 
           if (!user)
-            return res.status(401).json(err(new DATA_NOT_FOUND("user", `id = ${userId}`)));
+            return res
+              .status(401)
+              .json(err(new DATA_NOT_FOUND("user", `id = ${userId}`)));
 
           req.body.user = user;
           req.body.refreshToken = token;
