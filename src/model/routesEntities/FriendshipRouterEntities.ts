@@ -1,12 +1,13 @@
 import { User } from "../database/User";
 import { ChatResponseBody } from "./MessageRoutesEntities";
+import { ForeignUserInfoResponseBody } from "./UserRouterEntities";
 
 export type SentFriendshipRequestInfo = {
   id: number;
   recieverId: number;
   recieverName: string;
   recieverNickname: string;
-  recieverAvatarImageName: string | null;
+  recieverAvatarLink: string | null;
 };
 
 export type RecievedFriendshipRequestInfo = {
@@ -14,10 +15,10 @@ export type RecievedFriendshipRequestInfo = {
   senderId: number;
   senderName: string;
   senderNickname: string;
-  senderAvatarImageName: string | null;
+  senderAvatarLink: string | null;
 };
 
-export type GetAllFriendsResponseBody = User[];
+export type GetAllFriendsResponseBody = ForeignUserInfoResponseBody[];
 
 export type GetAllSentFriendshipRequestsResponseBody =
   SentFriendshipRequestInfo[];

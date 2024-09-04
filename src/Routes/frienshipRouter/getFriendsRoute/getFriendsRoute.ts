@@ -11,7 +11,12 @@ import { User } from "../../../model/database/User";
 import { GetAllFriendsResponseBody } from "../../../model/routesEntities/FriendshipRouterEntities";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  err,
+  S3_STORAGE_ERROR,
+} from "../../utils/errors/GlobalErrors";
+import { transformUsersForResponse } from "./transformUsersForResponse";
 
 export const getFriendsRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
@@ -35,6 +40,12 @@ export const getFriendsRoute = async (req: Request, res: Response) => {
     friendsInfo = await DB.getFriendsInfoByIds(friendIds);
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
+
+  try {
+    friendsInfo = await transformUsersForResponse(friendsInfo);
+  } catch (error) {
+    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
   }
 
   const getAllFriendsResponseBody: GetAllFriendsResponseBody =

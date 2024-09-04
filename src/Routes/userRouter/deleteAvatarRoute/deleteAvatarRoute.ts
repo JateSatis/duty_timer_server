@@ -16,7 +16,7 @@ import {
 } from "../../utils/errors/GlobalErrors";
 
 export const deleteAvatarRoute = async (req: Request, res: Response) => {
-  const user = req.body.user.id;
+  const user: User = req.body.user;
 
   const avatarImageName = user.avatarImageName;
 

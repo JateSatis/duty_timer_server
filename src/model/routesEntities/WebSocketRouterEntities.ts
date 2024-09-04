@@ -29,6 +29,7 @@ export type WebSocketChatMessage = {
     | "user_stopped_typing";
   data:
     | CreateMessageResponseBodyWS
+    | EditMessageResponseBodyWS
     | DeleteMessageResponseBodyWS
     | UpdateAllUnreadMessagesResponseBodyWS
     | UserTypingResponseBodyWS

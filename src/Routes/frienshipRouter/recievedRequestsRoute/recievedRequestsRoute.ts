@@ -14,7 +14,10 @@ import {
 } from "../../../model/routesEntities/FriendshipRouterEntities";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err, S3_STORAGE_ERROR } from "../../utils/errors/GlobalErrors";
+
+//# --- UTILS ---
+import { transformRequestsForResponse } from "./transformRequestsForResponse";
 
 export const recievedRequestRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
@@ -43,17 +46,13 @@ export const recievedRequestRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  const getAllRecievedFriendshipRequestsResponse: GetAllRecievedFriendshipRequestsResponseBody =
-    recievedFriendshipRequestsInfo.map((request) => {
-      const recievedFriendshipRequestInfo: RecievedFriendshipRequestInfo = {
-        id: request.id,
-        senderId: request.sender.id,
-        senderName: request.sender.name,
-        senderNickname: request.sender.nickname,
-        senderAvatarImageName: request.sender.avatarImageName,
-      };
-      return recievedFriendshipRequestInfo;
-    }) || [];
+  let getAllRecievedFriendshipRequestsResponse: GetAllRecievedFriendshipRequestsResponseBody;
+  try {
+    getAllRecievedFriendshipRequestsResponse =
+      await transformRequestsForResponse(recievedFriendshipRequestsInfo);
+  } catch (error) {
+    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
+  }
 
   return res.status(200).send(getAllRecievedFriendshipRequestsResponse);
 };

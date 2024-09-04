@@ -8,13 +8,17 @@ import { DB } from "../../../model/config/initializeConfig";
 import { User } from "../../../model/database/User";
 
 //# --- REQUEST ENTITIES ---
-import {
-  GetAllSentFriendshipRequestsResponseBody,
-  SentFriendshipRequestInfo,
-} from "../../../model/routesEntities/FriendshipRouterEntities";
+import { GetAllSentFriendshipRequestsResponseBody } from "../../../model/routesEntities/FriendshipRouterEntities";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  err,
+  S3_STORAGE_ERROR,
+} from "../../utils/errors/GlobalErrors";
+
+//# --- UTILS ---
+import { transformRequestsForResponse } from "./transfrormRequestsForResponse";
 
 export const getSentRequestsRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
@@ -43,17 +47,14 @@ export const getSentRequestsRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  const getAllSentFriendshipRequestsResponse: GetAllSentFriendshipRequestsResponseBody =
-    sentFriendshipRequestsInfo.map((request) => {
-      const sentFriendshipRequestInfo: SentFriendshipRequestInfo = {
-        id: request.id,
-        recieverId: request.reciever.id,
-        recieverName: request.reciever.name,
-        recieverNickname: request.reciever.nickname,
-        recieverAvatarImageName: request.reciever.avatarImageName,
-      };
-      return sentFriendshipRequestInfo;
-    }) || [];
+  let getAllSentFriendshipRequestsResponse: GetAllSentFriendshipRequestsResponseBody;
+  try {
+    getAllSentFriendshipRequestsResponse = await transformRequestsForResponse(
+      sentFriendshipRequestsInfo
+    );
+  } catch (error) {
+    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
+  }
 
   return res.status(200).send(getAllSentFriendshipRequestsResponse);
 };
