@@ -21,7 +21,10 @@ export const invalidInputFormat = (
 
   const dateLimitMillis = Date.now();
 
-  if (parseInt(endTimeMillis) < dateLimitMillis) {
+  if (
+    parseInt(endTimeMillis) < dateLimitMillis ||
+    parseInt(startTimeMillis) > dateLimitMillis
+  ) {
     res.status(400).json(err(new INVALID_INPUT_FORMAT()));
     return true;
   }
