@@ -30,7 +30,9 @@ export const getAllChatsRoute = async (req: Request, res: Response) => {
   let getAllChatsResponseBody: GetAllChatsResponseBody;
   try {
     getAllChatsResponseBody = await Promise.all(
-      chats.map(async (chat) => await transformChatForResponse(chat, user))
+      chats
+        .sort((a, b) => a.lastUpdateTime - b.lastUpdateTime)
+        .map(async (chat) => await transformChatForResponse(chat, user))
     );
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));

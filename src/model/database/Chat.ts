@@ -43,4 +43,9 @@ export class Chat extends BaseEntity {
     nullable: false,
   })
   isGroup: boolean;
+
+  @Column("bigint", {
+    nullable: false,
+  })
+  lastUpdateTime: number;
 }
