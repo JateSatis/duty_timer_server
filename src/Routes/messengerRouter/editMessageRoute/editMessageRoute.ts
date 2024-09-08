@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 
 //# --- CONFIG ---
 import { DB } from "../../../model/config/initializeConfig";
+import { webSocketChatsMap } from "../../../sockets/socketsConfig";
 
 //# --- DATABASE ENTITIES ---
 import { Message } from "../../../model/database/Message";
@@ -22,6 +23,8 @@ import {
 import { emptyParam } from "../../utils/validation/emptyParam";
 import { invalidParamType } from "../../utils/validation/invalidParamType";
 import { missingRequestField } from "../../utils/validation/missingRequestField";
+import { invalidInputFormat } from "./invalidInputFormat";
+import { emptyField } from "../../utils/validation/emptyField";
 
 //# --- ERRORS ---
 import {
@@ -29,19 +32,19 @@ import {
   err,
   FORBIDDEN_ACCESS,
 } from "../../utils/errors/GlobalErrors";
-import { webSocketChatsMap } from "../../../sockets/socketsConfig";
-
-// TODO: Notify Websocket server when message is edited
 
 export const editMessageRoute = async (req: Request, res: Response) => {
   if (invalidParamType(req, res, "messageId")) return res;
   if (emptyParam(req, res, "messageId")) return res;
   const messageId = parseInt(req.params.messageId);
 
-  // TODO: Add check for valid format
   if (missingRequestField(req, res, editMessageRequestBodyProperties))
     return res;
+
+  if (emptyField(req, res, editMessageRequestBodyProperties)) return res;
   const editMessageRequestBody: EditMessageRequestBody = req.body;
+
+  if (invalidInputFormat(res, editMessageRequestBody)) return res;
 
   const user: User = req.body.user;
 

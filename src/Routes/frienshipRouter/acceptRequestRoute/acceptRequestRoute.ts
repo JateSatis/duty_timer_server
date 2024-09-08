@@ -129,6 +129,8 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
     messages: [],
     name: `${sender.name}, ${user.name}`,
     isGroup: false,
+    creationTime: Date.now(),
+    lastUpdateTimeMillis: Date.now(),
   });
 
   try {

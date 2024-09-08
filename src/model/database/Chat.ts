@@ -47,5 +47,10 @@ export class Chat extends BaseEntity {
   @Column("bigint", {
     nullable: false,
   })
-  lastUpdateTime: number;
+  creationTime: number;
+
+  @Column("bigint", {
+    nullable: false,
+  })
+  lastUpdateTimeMillis: number;
 }

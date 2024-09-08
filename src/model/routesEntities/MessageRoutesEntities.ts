@@ -29,6 +29,12 @@ export type GetAllChatsResponseBody = ChatResponseBody[];
 
 export type GetMessagesFromChatResponseBody = MessageResponseBody[];
 
+export type CreateMessageRequestBody = {
+  data: string;
+};
+
+export const createMessageRequestBodyProperties = ["data"];
+
 export type CreateMessageResponseBody = MessageResponseBody;
 
 export type EditMessageRequestBody = {

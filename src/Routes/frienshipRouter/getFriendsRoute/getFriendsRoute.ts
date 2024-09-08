@@ -25,7 +25,6 @@ export const getFriendsRoute = async (req: Request, res: Response) => {
   try {
     friends = await DB.getFriendsByUserId(user.id);
   } catch (error) {
-    console.log(error);
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 

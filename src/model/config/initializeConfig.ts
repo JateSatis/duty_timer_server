@@ -246,6 +246,7 @@ export class DB {
       .leftJoinAndSelect("chat.messages", "message")
       .leftJoinAndSelect("message.sender", "messageSender")
       .where("user.id = :userId", { userId: id })
+      .orderBy("chat.lastUpdateTimeMillis", "DESC")
       .getOne())!;
 
     return user.chats;
@@ -282,47 +283,46 @@ export class DB {
   };
 
   static getMessagesFromUserId = async (id: number) => {
-    const user = (await dutyTimerDataSource
-      .getRepository(User)
-      .createQueryBuilder("user")
-      .leftJoinAndSelect("user.messages", "message")
+    const messages = (await dutyTimerDataSource
+      .getRepository(Message)
+      .createQueryBuilder("message")
       .leftJoinAndSelect("message.sender", "sender")
       .leftJoinAndSelect("message.chat", "chat")
-      .where("user.id = :userId", { userId: id })
-      .getOne())!!;
+      .leftJoinAndSelect("message.attachments", "attachments")
+      .where("message.userId = :userId", { userId: id })
+      .orderBy("message.creationTime", "DESC")
+      .getMany())!;
 
-    return user.messages;
+    return messages;
   };
 
   static getMessagesFromChatId = async (id: number) => {
-    const chat = (await dutyTimerDataSource
-      .getRepository(Chat)
-      .createQueryBuilder("chat")
-      .leftJoinAndSelect("chat.messages", "message")
+    const messages = (await dutyTimerDataSource
+      .getRepository(Message)
+      .createQueryBuilder("message")
       .leftJoinAndSelect("message.sender", "user")
+      .leftJoinAndSelect("message.chat", "chat")
       .leftJoinAndSelect("message.attachments", "attachment")
-      .where("chat.id = :chatId", { chatId: id })
-      .getOne())!;
+      .orderBy("message.creationTime", "DESC")
+      .where("message.chatId = :chatId", { chatId: id })
+      .getMany())!;
 
-    return chat.messages;
+    return messages;
   };
 
   static getUnreadMessagesFromChatId = async (id: number) => {
-    const chat = (await dutyTimerDataSource
-      .getRepository(Chat)
-      .createQueryBuilder("chat")
-      .leftJoinAndSelect(
-        "chat.messages",
-        "message",
-        "message.isRead = :isRead",
-        { isRead: false }
-      )
+    const messages = (await dutyTimerDataSource
+      .getRepository(Message)
+      .createQueryBuilder("message")
       .leftJoinAndSelect("message.sender", "user")
+      .leftJoinAndSelect("message.chat", "chat")
       .leftJoinAndSelect("message.attachments", "attachment")
       .where("chat.id = :chatId", { chatId: id })
-      .getOne())!;
+      .andWhere("message.isRead = :isRead", { isRead: false })
+      .orderBy("message.creationTime", "DESC")
+      .getMany())!;
 
-    return chat.messages;
+    return messages;
   };
 
   static getTimerByUserId = async (id: number) => {

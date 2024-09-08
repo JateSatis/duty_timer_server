@@ -56,12 +56,10 @@ export const getMessagesFromChatRoute = async (req: Request, res: Response) => {
   let getMessagesFromChatResponseBody: GetMessagesFromChatResponseBody;
   try {
     getMessagesFromChatResponseBody = await Promise.all(
-      messages
-        .sort((a, b) => a.creationTime - b.creationTime)
-        .map(
-          async (message) =>
-            await transformMessageForResponse(message, user, chat)
-        )
+      messages.map(
+        async (message) =>
+          await transformMessageForResponse(message, user, chat)
+      )
     );
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));

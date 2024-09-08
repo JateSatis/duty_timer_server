@@ -13,6 +13,7 @@ import {
 //# --- DATABASE ENTITIES ---
 import { User } from "../../../model/database/User";
 import { Message } from "../../../model/database/Message";
+import { Chat } from "../../../model/database/Chat";
 
 //# --- VALIDATE REQUEST ---
 import { emptyParam } from "../../utils/validation/emptyParam";
@@ -25,8 +26,6 @@ import {
   FORBIDDEN_ACCESS,
 } from "../../utils/errors/GlobalErrors";
 import { webSocketChatsMap } from "../../../sockets/socketsConfig";
-
-// TODO: Notify Websocket server when message is deleted
 
 export const deleteMessageRoute = async (req: Request, res: Response) => {
   if (invalidParamType(req, res, "messageId")) return res;
@@ -74,6 +73,21 @@ export const deleteMessageRoute = async (req: Request, res: Response) => {
 
       senderSocket.socket.emit("message", JSON.stringify(webSocketChatMessage));
     }
+  }
+
+  const chat = message.chat;
+  try {
+    if (messages.length == 1) {
+      //# If there was only one message and it is deleted now
+      chat.lastUpdateTimeMillis = chat.creationTime;
+      await Chat.save(chat);
+    } else {
+      const lastMessage = messages[messages.length - 1];
+      chat.lastUpdateTimeMillis = lastMessage.creationTime;
+      await Chat.save(chat);
+    }
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   return res.sendStatus(200);

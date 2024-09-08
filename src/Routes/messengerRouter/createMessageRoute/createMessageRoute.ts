@@ -9,9 +9,12 @@ import { S3DataSource } from "../../../model/config/imagesConfig";
 import { Message } from "../../../model/database/Message";
 import { User } from "../../../model/database/User";
 import { Attachment } from "../../../model/database/Attachment";
+import { Chat } from "../../../model/database/Chat";
 
 //# --- REQUEST ENTITIES ---
 import {
+  CreateMessageRequestBody,
+  createMessageRequestBodyProperties,
   CreateMessageResponseBody,
   MessageResponseBody,
 } from "../../../model/routesEntities/MessageRoutesEntities";
@@ -24,6 +27,8 @@ import {
 import { invalidParamType } from "../../utils/validation/invalidParamType";
 import { emptyParam } from "../../utils/validation/emptyParam";
 import { missingRequestField } from "../../utils/validation/missingRequestField";
+import { invalidInputFormat } from "./invalidInputFormat";
+import { emptyField } from "../../utils/validation/emptyField";
 
 //# --- ERRORS ---
 import {
@@ -46,8 +51,13 @@ export const createMessageRoute = async (req: Request, res: Response) => {
   if (emptyParam(req, res, "chatId")) return res;
   const chatId = parseInt(req.params.chatId);
 
-  // TODO: Add checks for valid input format
-  const text = req.body.data;
+  if (missingRequestField(req, res, createMessageRequestBodyProperties))
+    return res;
+
+  if (emptyField(req, res, createMessageRequestBodyProperties)) return res;
+  const createMessageRequestBody: CreateMessageRequestBody = req.body;
+
+  if (invalidInputFormat(res, createMessageRequestBody)) return res;
 
   const user: User = req.body.user;
 
@@ -87,7 +97,7 @@ export const createMessageRoute = async (req: Request, res: Response) => {
   }
 
   const message = Message.create({
-    text: text,
+    text: createMessageRequestBody.data,
     chat: chat,
     sender: user,
     creationTime: Date.now(),
@@ -152,6 +162,17 @@ export const createMessageRoute = async (req: Request, res: Response) => {
       };
       senderSocket.socket.emit("message", JSON.stringify(webSocketChatMessage));
     }
+  }
+
+  try {
+    await Chat.update(
+      { id: chatId },
+      {
+        lastUpdateTimeMillis: message.creationTime,
+      }
+    );
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   const createMessageResponseBody: CreateMessageResponseBody =

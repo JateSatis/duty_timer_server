@@ -3,7 +3,6 @@ import { Chat } from "../../model/database/Chat";
 import { S3DataSource } from "../../model/config/imagesConfig";
 import { formatDateForMessage } from "./getMessagesFromChatRoute/formatDateForMessage";
 import { User } from "../../model/database/User";
-import { DB } from "src/model/config/initializeConfig";
 
 const s3DataSource = new S3DataSource();
 
@@ -12,6 +11,7 @@ export const transformChatForResponse = async (chat: Chat, user: User) => {
 
   let imageLink = null;
   let isOnline = false;
+  let name = chat.name;
   if (isGroupChat) {
     const imageName = chat.imageName;
     if (imageName) imageLink = await s3DataSource.getImageUrlFromS3(imageName);
@@ -25,6 +25,7 @@ export const transformChatForResponse = async (chat: Chat, user: User) => {
         imageLink = await s3DataSource.getImageUrlFromS3(imageName);
     }
     isOnline = companion.isOnline;
+    name = companion.name;
   }
 
   const messages = chat.messages;
@@ -52,7 +53,7 @@ export const transformChatForResponse = async (chat: Chat, user: User) => {
 
   const chatResponseBody: ChatResponseBody = {
     chatId: chat.id,
-    name: chat.name,
+    name,
     imageLink,
     unreadMessagesAmount,
     lastMessageText,
