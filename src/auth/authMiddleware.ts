@@ -12,8 +12,9 @@ import {
   TOKEN_EXPIRED,
   UNKNOWN_AUTH_ERROR,
   DATA_NOT_FOUND,
+  ACCOUNT_NOT_VERIFIED,
 } from "../Routes/utils/errors/AuthErrors";
-import { dutyTimerDataSource } from "../model/config/initializeConfig";
+import { DB, dutyTimerDataSource } from "../model/config/initializeConfig";
 import { User } from "../model/database/User";
 
 export const pathToPublicAcessKey = path.join(
@@ -78,9 +79,7 @@ const authMiddleware = async (
             return res.status(401).json(err(new ABSENT_JWT_SUB()));
 
           const userId = parseInt(decoded.sub);
-          const user = await dutyTimerDataSource.getRepository(User).findOneBy({
-            id: userId,
-          });
+          const user = await DB.getUserBy("id", userId);
 
           if (!user)
             return res

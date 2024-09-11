@@ -20,6 +20,7 @@ import { Subscription } from "./Subscription";
 import { UserType } from "../utils/Enums";
 import { FriendshipRequest } from "./FriendshipRequest";
 import { RefreshToken } from "./RefreshToken";
+import { OTPVerification } from "./OTPVerification";
 
 //# СУЩНОСТЬ ПОЛЬЗОВАТЕЛЬ (User)
 //# - Идентификатор: GeneratedId
@@ -44,6 +45,15 @@ import { RefreshToken } from "./RefreshToken";
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({
+    type: "bigint",
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseInt(value), // Convert string to number
+    },
+  })
+  verificationExpiresAt: number;
 
   @OneToOne(() => RefreshToken, (refreshToken) => refreshToken.user, {
     cascade: true,
@@ -73,14 +83,10 @@ export class User extends BaseEntity {
   })
   userType: UserType;
 
-  @Column("text", {
-    unique: true,
-  })
+  @Column("text")
   passwordHash: string;
 
-  @Column("text", {
-    unique: true,
-  })
+  @Column("text")
   passwordSalt: string;
 
   @Column({
@@ -91,6 +97,16 @@ export class User extends BaseEntity {
 
   @Column("bigint")
   lastSeenOnline: number;
+
+  // TODO: Check again what the hell does all this cascading mean and do I use it correctly
+  @OneToOne(() => OTPVerification, (otpVerification) => otpVerification.user, {
+    cascade: true,
+    onDelete: "SET NULL",
+  })
+  @JoinColumn({
+    name: "otpVerificationId",
+  })
+  otpVerification: OTPVerification | null;
 
   @ManyToOne(() => Timer, (timer) => timer.users)
   @JoinColumn({

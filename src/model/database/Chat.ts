@@ -44,12 +44,22 @@ export class Chat extends BaseEntity {
   })
   isGroup: boolean;
 
-  @Column("bigint", {
+  @Column({
+    type: "bigint",
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseInt(value), // Convert string to number
+    },
     nullable: false,
   })
   creationTime: number;
 
-  @Column("bigint", {
+  @Column({
+    type: "bigint",
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseInt(value), // Convert string to number
+    },
     nullable: false,
   })
   lastUpdateTimeMillis: number;

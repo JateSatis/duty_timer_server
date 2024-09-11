@@ -1,4 +1,3 @@
-import { User } from "../database/User";
 import { UserType } from "../utils/Enums";
 
 export type ForeignUserInfoResponseBody = {

@@ -18,7 +18,6 @@ import { invalidInputFormat } from "./invalidInputFormat";
 import {
   SignUpRequestBody,
   signUpRequestBodyProperties,
-  SignUpResponseBody,
 } from "../../../model/routesEntities/AuthRouterEntities";
 
 //# --- DATABASE ENTITIES ---
@@ -30,9 +29,9 @@ import { emptyField } from "../../../Routes/utils/validation/emptyField";
 //# --- ERRORS ---
 import { err } from "../../utils/errors/GlobalErrors";
 import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
+import { sendOtpVerification } from "../sendOtpVerification";
 
 // TODO: Connect to the Global chat when initializing user
-
 export const signUpRoute = async (req: Request, res: Response) => {
   //# Check if all fields of json object are present in request
   if (missingRequestField(req, res, signUpRequestBodyProperties)) return res;
@@ -77,6 +76,7 @@ export const signUpRoute = async (req: Request, res: Response) => {
     timer: timer,
     isOnline: true,
     lastSeenOnline: Date.now(),
+    verificationExpiresAt: Date.now(),
   });
 
   try {
@@ -85,27 +85,7 @@ export const signUpRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  const accessToken = issueAccessToken(user.id);
-  const refreshToken = issueRefreshToken(user.id);
+  await sendOtpVerification(user.login, user);
 
-  const refreshTokenDB = RefreshToken.create({
-    token: refreshToken.token,
-    isRevoked: false,
-    user,
-  });
-
-  try {
-    await refreshTokenDB.save();
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
-  }
-
-  const signUpResponseBody: SignUpResponseBody = {
-    accessToken: accessToken.token,
-    accessTokenExpiresAt: accessToken.expiresAt,
-    refreshToken: refreshToken.token,
-    refreshTokenExpiresAt: refreshToken.expiresAt,
-  };
-
-  return res.status(200).json(signUpResponseBody);
+  return res.sendStatus(200);
 };

@@ -1,4 +1,4 @@
-import { SentFriendshipRequestInfo } from "src/model/routesEntities/FriendshipRouterEntities";
+import { SentFriendshipRequestInfo } from "../../../model/routesEntities/FriendshipRouterEntities";
 import { S3DataSource } from "../../../model/config/imagesConfig";
 import { FriendshipRequest } from "../../../model/database/FriendshipRequest";
 

@@ -113,3 +113,9 @@ export class INCORRECT_PASSWORD extends ServerError {
     super("INCORRECT_PASSWORD", "The password is incorrect");
   }
 }
+
+export class ACCOUNT_NOT_VERIFIED extends ServerError {
+  constructor() {
+    super("ACCOUNT_NOT_VERIFIED", "This account is not verified");
+  }
+}

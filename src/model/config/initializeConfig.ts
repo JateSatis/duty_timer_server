@@ -12,6 +12,7 @@ import { Friend } from "../database/Friend";
 import { FriendshipRequest } from "../database/FriendshipRequest";
 import { Attachment } from "../database/Attachment";
 import { RefreshToken } from "../database/RefreshToken";
+import { OTPVerification } from "../database/OTPVerification";
 
 dotenv.config();
 
@@ -51,12 +52,40 @@ export const dutyTimerDataSource = new DataSource({
     Attachment,
     Subscription,
     RefreshToken,
+    OTPVerification,
   ],
   synchronize: true,
 });
 
 export class DB {
   static dutyTimerDataSource: DataSource = dutyTimerDataSource;
+
+  static getUserBy = async (parameter: string, value: any) => {
+    const user = await dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.otpVerification", "verification")
+      .leftJoinAndSelect("user.refreshToken", "refreshToken")
+      .leftJoinAndSelect("user.timer", "timer")
+      .leftJoinAndSelect("user.events", "events")
+      .leftJoinAndSelect(
+        "user.sentFriendshipRequests",
+        "sentFriendshipRequests"
+      )
+      .leftJoinAndSelect(
+        "user.recievedFriendshipRequests",
+        "recievedFriendshipRequests"
+      )
+      .leftJoinAndSelect("user.friends", "friends")
+      .leftJoinAndSelect("user.settings", "settings")
+      .leftJoinAndSelect("user.chats", "chats")
+      .leftJoinAndSelect("user.messages", "messages")
+      .leftJoinAndSelect("user.subscription", "subscription")
+      .where(`user.${parameter} = :criteria`, { criteria: value })
+      .getOne();
+
+    return user;
+  };
 
   static getRefreshTokenByUserId = async (
     userId: number
@@ -69,16 +98,6 @@ export class DB {
       .getOne())!!;
 
     return userWithRefreshToken.refreshToken;
-  };
-
-  static getUserByLogin = async (login: string): Promise<User | null> => {
-    const user = await dutyTimerDataSource
-      .getRepository(User)
-      .createQueryBuilder("user")
-      .leftJoinAndSelect("user.refreshToken", "refreshToken")
-      .where("user.login = :login", { login })
-      .getOne();
-    return user;
   };
 
   static getUserInfoById = async (userId: number): Promise<User> => {

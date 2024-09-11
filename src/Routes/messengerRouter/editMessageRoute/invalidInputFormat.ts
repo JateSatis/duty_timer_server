@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { err } from "../../utils/errors/GlobalErrors";
 import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
-import { EditMessageRequestBody } from "src/model/routesEntities/MessageRoutesEntities";
+import { EditMessageRequestBody } from "../../../model/routesEntities/MessageRoutesEntities";
 
 export const invalidInputFormat = (
   res: Response,

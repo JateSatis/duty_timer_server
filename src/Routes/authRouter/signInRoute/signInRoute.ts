@@ -19,6 +19,7 @@ import {
   SignInRequestBody,
   signInRequestBodyProperties,
   SignInResponseBody,
+  TokenData,
 } from "../../../model/routesEntities/AuthRouterEntities";
 
 //# --- DATABASE ENTITIES ---
@@ -31,12 +32,13 @@ import { invalidInputFormat } from "./invalidInputFormat";
 import { emptyField } from "../../utils/validation/emptyField";
 
 //# --- ERRORS ---
-import { err } from "../../utils/errors/GlobalErrors";
+import { err, FORBIDDEN_ACCESS } from "../../utils/errors/GlobalErrors";
 import {
   INCORRECT_PASSWORD,
   DATA_NOT_FOUND,
 } from "../../utils/errors/AuthErrors";
 import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
+import { sendOtpVerification } from "../sendOtpVerification";
 
 export const signInRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, signInRequestBodyProperties)) return res;
@@ -48,7 +50,7 @@ export const signInRoute = async (req: Request, res: Response) => {
 
   let user: User | null;
   try {
-    user = await DB.getUserByLogin(signInRequestBody.login);
+    user = await DB.getUserBy("login", signInRequestBody.login);
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
@@ -59,6 +61,17 @@ export const signInRoute = async (req: Request, res: Response) => {
       .json(
         err(new DATA_NOT_FOUND("user", `login = ${signInRequestBody.login}`))
       );
+  }
+
+  if (user.otpVerification || user.verificationExpiresAt < Date.now()) {
+    const signInResponseBody: SignInResponseBody = {
+      status: "email_verification_needed",
+      data: null,
+    };
+
+    await sendOtpVerification(user.login, user);
+
+    return res.status(200).json(signInResponseBody);
   }
 
   const passwordIsValid = validatePassword(
@@ -84,11 +97,16 @@ export const signInRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  const signInResponseBody: SignInResponseBody = {
+  const tokenData: TokenData = {
     accessToken: accessToken.token,
     accessTokenExpiresAt: accessToken.expiresAt,
     refreshToken: refreshToken.token,
     refreshTokenExpiresAt: refreshToken.expiresAt,
+  };
+
+  const signInResponseBody: SignInResponseBody = {
+    status: "success",
+    data: tokenData,
   };
 
   return res.status(200).json(signInResponseBody);

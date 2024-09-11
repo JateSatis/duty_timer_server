@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 //# --- CONFIG ---
 import { DB } from "../../../model/config/initializeConfig";
 import { S3DataSource } from "../../../model/config/imagesConfig";
+import { webSocketChatsMap } from "../../../sockets/socketsConfig";
 
 //# --- DATABASE ENTITIES ---
 import { Message } from "../../../model/database/Message";
@@ -41,7 +42,6 @@ import {
 //# --- UTILS ---
 import { compressFile } from "./compressFile";
 import { transformMessageForResponse } from "../transformMessageForResponse";
-import { webSocketChatsMap } from "../../../sockets/socketsConfig";
 
 const s3DataSource = new S3DataSource();
 

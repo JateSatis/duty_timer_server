@@ -12,8 +12,14 @@ export const signUpRequestBodyProperties = [
   "nickname",
 ];
 
-//# --- SIGN UP RESPONSE ---
-export type SignUpResponseBody = {
+//# --- VERFIY EMAIL REQUEST ---
+export type VerifyEmailRequestBody = {
+  email: string;
+  otp: number;
+};
+
+//# --- VERIFY EMAIL RESPONSE ---
+export type VerifyEmailResponseBody = {
   accessToken: string;
   refreshToken: string;
   accessTokenExpiresAt: number;
@@ -28,7 +34,22 @@ export type SignInRequestBody = {
 export const signInRequestBodyProperties = ["login", "password"];
 
 //# --- SIGN IN RESPONSE ---
-export type SignInResponseBody = SignUpResponseBody;
+export type TokenData = {
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresAt: number;
+  refreshTokenExpiresAt: number;
+};
+
+export type SignInResponseBody = {
+  status: "success" | "email_verification_needed";
+  data: TokenData | null;
+};
 
 //# --- REFRESH TOKEN RESPONSE ---
-export type RefreshTokenResponseBody = SignUpResponseBody;
+export type RefreshTokenResponseBody = {
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresAt: number;
+  refreshTokenExpiresAt: number;
+};

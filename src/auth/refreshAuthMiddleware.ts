@@ -12,9 +12,11 @@ import {
   NOT_BEFORE_ERROR,
   TOKEN_EXPIRED,
   UNKNOWN_AUTH_ERROR,
+  ACCOUNT_NOT_VERIFIED,
 } from "../Routes/utils/errors/AuthErrors";
-import { dutyTimerDataSource } from "../model/config/initializeConfig";
+import { DB, dutyTimerDataSource } from "../model/config/initializeConfig";
 import { User } from "../model/database/User";
+import { env } from "process";
 
 export const pathToPublicRefreshKey = path.join(
   __dirname,
@@ -72,15 +74,13 @@ const refreshAuthMiddleware = (
             return res.status(401).json(err(new ABSENT_JWT_SUB()));
 
           const userId = parseInt(decoded.sub);
-          const user = await dutyTimerDataSource.getRepository(User).findOneBy({
-            id: userId,
-          });
+          const user = await DB.getUserBy("id", userId);
 
           if (!user)
             return res
               .status(401)
               .json(err(new DATA_NOT_FOUND("user", `id = ${userId}`)));
-
+					
           req.body.user = user;
           req.body.refreshToken = token;
           next();
