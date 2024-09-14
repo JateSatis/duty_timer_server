@@ -3,10 +3,6 @@ import { Request, Response } from "express";
 
 //# --- AUTH ---
 import { generatePasswordHash } from "../../../auth/jwt/passwordHandler";
-import {
-  issueAccessToken,
-  issueRefreshToken,
-} from "../../../auth/jwt/issueJWT";
 
 //# --- VALIDATE REQUEST ---
 import { missingRequestField } from "../../utils/validation/missingRequestField";
@@ -23,7 +19,9 @@ import {
 //# --- DATABASE ENTITIES ---
 import { User } from "../../../model/database/User";
 import { Timer } from "../../../model/database/Timer";
-import { RefreshToken } from "../../../model/database/RefreshToken";
+import { Settings } from "../../../model/database/Settings";
+
+//# --- VERIFY REQUEST ---
 import { emptyField } from "../../../Routes/utils/validation/emptyField";
 
 //# --- ERRORS ---
@@ -67,6 +65,14 @@ export const signUpRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
+  const settings = Settings.create();
+
+  try {
+    await settings.save();
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
+
   const user = User.create({
     login: signUpRequestBody.login,
     name: signUpRequestBody.name,
@@ -74,6 +80,7 @@ export const signUpRoute = async (req: Request, res: Response) => {
     passwordHash: passwordHash.hash,
     passwordSalt: passwordHash.salt,
     timer: timer,
+    settings: settings,
     isOnline: true,
     lastSeenOnline: Date.now(),
     verificationExpiresAt: Date.now(),

@@ -5,21 +5,19 @@ import { Router } from "express";
 //# --- AUTH ---
 import { auth } from "../../auth/authMiddleware";
 
-//# --- CONFIG ---
-import { dutyTimerDataSource } from "../../model/config/initializeConfig";
-
-//# --- DATABASE ENTITIES
-import { User } from "../../model/database/User";
-
 //# --- ROUTES ---
-import { getUserByIdRoute } from "./getUserByIdRoute/getUserByIdRoute";
-import { getUserInfoRoute } from "./getUserInfoRoute/getUserInfoRoute";
-import { setStatusOnlineRoute } from "./setStatusOnlineRoute.ts/setStatusOnlineRoute";
-import { setStatusOfflineRoute } from "./setStatusOfflineRoute/setStatusOfflineRoute";
-import { getUsersByNameRoute } from "./getUsersByNameRoute/getUsersByNameRoute";
-import { postAvatarRoute } from "./postAvatarRoute/postAvatarRoute";
-import { getAvatarLinkRoute } from "./getAvatarLinkRoute/getAvatarLinkRoute";
-import { deleteAvatarRoute } from "./deleteAvatarRoute/deleteAvatarRoute";
+import { getUserByIdRoute } from "./getUserById/getUserById";
+import { getUserInfoRoute } from "./getUserInfo/getUserInfo";
+import { setStatusOnlineRoute } from "./setStatusOnline/setStatusOnline";
+import { setStatusOfflineRoute } from "./setStatusOffline/setStatusOffline";
+import { getUsersByNameRoute } from "./getUsersByName/getUsersByName";
+import { postAvatarRoute } from "./postAvatar/postAvatar";
+import { getAvatarLinkRoute } from "./getAvatarLink/getAvatarLink";
+import { deleteAvatarRoute } from "./deleteAvatar/deleteAvatar";
+import { updateSettings } from "./updateSettings.ts/updateSettings";
+import { getSettings } from "./getSettings/getSettings";
+import { handleFile } from "../utils/validation/handleFileMiddleware";
+import { uploadBackgroundImage } from "./uploadBackgroundImage/uploadBackgroundImage";
 
 export const userRouter = Router();
 
@@ -39,8 +37,14 @@ userRouter.get("/id/:userId", getUserByIdRoute);
 
 userRouter.get("/name/:userName", auth, getUsersByNameRoute);
 
-userRouter.post("/avatar", upload.single("image"), auth, postAvatarRoute);
+userRouter.post("/avatar", handleFile, auth, postAvatarRoute);
 
 userRouter.get("/avatar", auth, getAvatarLinkRoute);
 
 userRouter.delete("/avatar", auth, deleteAvatarRoute);
+
+userRouter.get("/settings", auth, getSettings);
+
+userRouter.put("/settings", auth, updateSettings);
+
+userRouter.post("/background-image", handleFile, auth, uploadBackgroundImage);

@@ -7,6 +7,13 @@ import { User } from "../../model/database/User";
 const s3DataSource = new S3DataSource();
 
 export const transformChatForResponse = async (chat: Chat, user: User) => {
+  const companions = chat.users.filter(
+    (participant) => participant.id !== user.id
+  );
+
+  const companionIds = companions.map((user) => user.id);
+  const companionNicknames = companions.map((user) => user.nickname);
+
   const isGroupChat = chat.users.length > 2;
 
   let imageLink = null;
@@ -16,9 +23,7 @@ export const transformChatForResponse = async (chat: Chat, user: User) => {
     const imageName = chat.imageName;
     if (imageName) imageLink = await s3DataSource.getImageUrlFromS3(imageName);
   } else {
-    const companion = chat.users.filter(
-      (participant) => participant.id !== user.id
-    )[0];
+    const companion = companions[0];
     if (chat.users.length === 2) {
       const imageName = companion.avatarImageName;
       if (imageName)
@@ -53,6 +58,8 @@ export const transformChatForResponse = async (chat: Chat, user: User) => {
 
   const chatResponseBody: ChatResponseBody = {
     chatId: chat.id,
+    companionIds,
+    companionNicknames,
     name,
     imageLink,
     unreadMessagesAmount,

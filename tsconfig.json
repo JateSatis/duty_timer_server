@@ -24,5 +24,10 @@
     "baseUrl": "."
   },
   "exclude": ["node_modules"],
-  "include": ["./src/**/*.tsx", "./src/**/*.ts", "socketRouter.ts"]
+  "include": [
+    "./src/**/*.tsx",
+    "./src/**/*.ts",
+    "socketRouter.ts",
+    "src/Routes/userRouter/setStatusOnline"
+, "src/Routes/messengerRouter/sendBackgroundImage"  ]
 }

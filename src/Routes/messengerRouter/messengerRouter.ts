@@ -15,6 +15,8 @@ import { deleteChatRoute } from "./deleteChatRoute/deleteChatRoute";
 
 ///# --- UTILS ---
 import { handleFiles } from "./handleFilesMiddleware";
+import { handleFile } from "../utils/validation/handleFileMiddleware";
+import { sendBackgroundImage } from "./sendBackgroundImage/sendBackgroundImage";
 
 export const messageRouter = Router();
 
@@ -49,3 +51,10 @@ messageRouter.put("/edit-message/:messageId", auth, editMessageRoute);
 messageRouter.delete("/delete-message/:messageId", auth, deleteMessageRoute);
 
 messageRouter.delete("/delete-chat/:chatId", auth, deleteChatRoute);
+
+messageRouter.post(
+  "/background-image/:recieverId",
+  handleFile,
+  auth,
+  sendBackgroundImage
+);

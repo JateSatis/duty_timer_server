@@ -31,3 +31,16 @@ export type UploadAvatarResponseBody = {
 export type GetAvatarLinkResponseBody = {
   imageUrl: string | null;
 };
+
+export type UpdateSettingsRequestBody = {
+  language: string;
+  theme: string;
+};
+
+export const updateSettingsRequestBodyProperties = ["language", "theme"];
+
+export type GetSettingsResponseBody = {
+  backgroundImageLink: string | null;
+  theme: string;
+  language: string;
+};

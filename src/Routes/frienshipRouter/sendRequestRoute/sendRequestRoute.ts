@@ -34,6 +34,17 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
 
   const user: User = req.body.user;
 
+  const existingRequest = await DB.getRequestBySenderAndReciever(
+    user.id,
+    recieverId
+  );
+
+  //# If friendship request is already sent to this user, return error
+  if (existingRequest) {
+    return res.status(400).json(err(new FORBIDDEN_ACCESS()));
+  }
+
+  //# If reciever of the request is the user himself, return error
   if (recieverId == user.id) {
     return res.status(400).json(err(new FORBIDDEN_ACCESS()));
   }

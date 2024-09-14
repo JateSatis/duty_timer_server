@@ -15,6 +15,8 @@ export type MessageResponseBody = {
 
 export type ChatResponseBody = {
   chatId: number;
+  companionIds: number[];
+  companionNicknames: string[];
   name: string;
   imageLink: string | null;
   lastMessageText: string | null;

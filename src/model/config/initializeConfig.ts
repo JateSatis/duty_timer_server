@@ -228,17 +228,14 @@ export class DB {
     senderId: number,
     recieverId: number
   ) => {
-    const friendshipRequests = await dutyTimerDataSource
+    const friendshipRequest = await dutyTimerDataSource
       .getRepository(FriendshipRequest)
       .createQueryBuilder("friendshipRequest")
-      .leftJoinAndSelect("friendshipRequest.sender", "sender")
-      .leftJoinAndSelect("friendshipRequest.reciever", "reciever")
-      .getMany();
-
-    const friendshipRequest = friendshipRequests.find(
-      (requst) =>
-        requst.sender.id === senderId && requst.reciever.id === recieverId
-    );
+      .where("friendshipRequest.senderId = :senderId", { senderId })
+      .where("friendshipRequest.recieverId = :recieverId", {
+        recieverId,
+      })
+      .getOne();
 
     return friendshipRequest;
   };

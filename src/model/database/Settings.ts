@@ -28,22 +28,27 @@ export class Settings extends BaseEntity {
 
   @Column("text", {
     nullable: true,
+    default: null,
   })
-  backgroundImageName: string;
+  backgroundImageName: string | null;
 
-  @Column({
-    type: "enum",
-    enum: Theme,
-    default: Theme.WHITE,
-  })
-  theme: Theme;
-
-  @Column({
-    type: "enum",
-    enum: BackgroundTint,
+  @Column("text", {
     nullable: true,
+    default: null,
   })
-  backgroundTint: BackgroundTint;
+  recievedBackgroundImageName: string | null;
+
+  @Column({
+    type: "text",
+    default: "WHITE",
+  })
+  theme: string;
+
+  @Column({
+    type: "text",
+    default: null,
+  })
+  backgroundTint: string | null;
 
   @Column({
     default: 50,
@@ -62,18 +67,16 @@ export class Settings extends BaseEntity {
   backgroundAnimation: Boolean;
 
   @Column({
-    type: "enum",
-    enum: NicknameColor,
-    default: NicknameColor.BLACK,
+    type: "text",
+    default: "BLACK",
   })
-  nicknameColor: NicknameColor;
+  nicknameColor: string;
 
   @Column({
-    type: "enum",
-    enum: Language,
-    default: Language.RUSSIAN,
+    type: "text",
+    default: "RUSSIAN",
   })
-  language = Language;
+  language: string;
 
   @OneToOne(() => User, (user) => user.settings, {
     onDelete: "CASCADE",

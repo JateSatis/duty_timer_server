@@ -64,25 +64,6 @@ export const createMessageRoute = async (req: Request, res: Response) => {
   const files = (req.files as Express.Multer.File[]) || [];
   const imageNames: string[] = [];
 
-  try {
-    await Promise.all(
-      files.map(async (file) => {
-        const imageName = file.originalname;
-        const contentType = file.mimetype;
-        const buffer = await compressFile(file.buffer, contentType);
-
-        const s3ImageName = await s3DataSource.uploadImageToS3(
-          imageName,
-          buffer,
-          contentType
-        );
-        imageNames.push(s3ImageName);
-      })
-    );
-  } catch (error) {
-    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
-  }
-
   let chats;
   try {
     chats = await DB.getChatsByUserId(user.id);
@@ -109,6 +90,25 @@ export const createMessageRoute = async (req: Request, res: Response) => {
     await message.save();
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
+
+  try {
+    await Promise.all(
+      files.map(async (file) => {
+        const imageName = file.originalname;
+        const contentType = file.mimetype;
+        const buffer = await compressFile(file.buffer, contentType);
+
+        const s3ImageName = await s3DataSource.uploadImageToS3(
+          imageName,
+          buffer,
+          contentType
+        );
+        imageNames.push(s3ImageName);
+      })
+    );
+  } catch (error) {
+    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
   }
 
   try {
