@@ -11,10 +11,8 @@ export const getSettings = async (req: Request, res: Response) => {
 
   let backgroundImageLink = null;
   if (settings.backgroundImageName) {
-    const s3DataSource = new S3DataSource();
-
     try {
-      backgroundImageLink = await s3DataSource.getImageUrlFromS3(
+      backgroundImageLink = await S3DataSource.getImageUrlFromS3(
         settings.backgroundImageName
       );
     } catch (error) {

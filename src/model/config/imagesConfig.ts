@@ -25,7 +25,7 @@ type DeleteImageParams = {
 };
 
 export class S3DataSource {
-  private s3 = new S3Client({
+  private static s3 = new S3Client({
     credentials: {
       accessKeyId: process.env.S3_ACCESS_KEY!!,
       secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!!,
@@ -35,16 +35,16 @@ export class S3DataSource {
     apiVersion: "latest",
   });
 
-  private bucketName = process.env.S3_BUCKET_NAME;
+  private static bucketName = process.env.S3_BUCKET_NAME;
 
-  public generateUniqueImageName = (imageName: string) => {
+  static generateUniqueImageName = (imageName: string) => {
     const timestamp = new Date().getTime();
     const randomString = uuidv4().replace(/-/g, ""); // Generating a random string without dashes
     const extension = imageName.split(".").pop(); // Extract extension from original file name
     return `${timestamp}_${randomString}.${extension}`;
   };
 
-  public uploadImageToS3 = async (
+  static uploadImageToS3 = async (
     imageName: string,
     body: Buffer,
     contentType: string
@@ -65,7 +65,7 @@ export class S3DataSource {
     return uniqueImageName;
   };
 
-  public getImageUrlFromS3 = async (imageName: string) => {
+  static getImageUrlFromS3 = async (imageName: string) => {
     const params: DownloadImageParams = {
       Key: imageName,
     };
@@ -78,7 +78,7 @@ export class S3DataSource {
     return url;
   };
 
-  public deleteImageFromS3 = async (imageName: string) => {
+  static deleteImageFromS3 = async (imageName: string) => {
     const params: DeleteImageParams = {
       Key: imageName,
     };
@@ -87,5 +87,10 @@ export class S3DataSource {
       ...params,
     });
     await this.s3.send(command);
+  };
+
+  static getUserAvatarLink = async (avatarImageName: string | null) => {
+    if (!avatarImageName) return null;
+    return await this.getImageUrlFromS3(avatarImageName);
   };
 }

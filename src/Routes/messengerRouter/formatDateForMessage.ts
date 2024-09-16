@@ -7,8 +7,12 @@ export const formatDateForMessage = (milliseconds: number) => {
   const timeFormat = `${hours}:${minutes}`;
 
   // Format "<month name> <date>, <year>" in Russian
-  const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "long", day: "numeric" };
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
   const dateFormat = date.toLocaleDateString("ru-RU", options);
 
   return { timeFormat, dateFormat };
-}
+};

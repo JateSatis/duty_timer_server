@@ -1,9 +1,6 @@
 //# --- LIBS ---
 import { Request, Response } from "express";
 
-//# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
-
 //# --- DATABASE ENTITIES ---
 import { Chat } from "../../../model/database/Chat";
 import { User } from "../../../model/database/User";
@@ -26,32 +23,34 @@ export const deleteChatRoute = async (req: Request, res: Response) => {
 
   const user: User = req.body.user;
 
-  let chats;
-  try {
-    chats = await DB.getChatsByUserId(user.id);
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
-  }
-
-  const chat = chats.find((chat) => chat.id === chatId);
+  const chat = user.chats.find((chat) => chat.id === chatId);
 
   if (!chat) {
     return res.status(400).json(err(new FORBIDDEN_ACCESS()));
   }
 
-
-	// TODO: Поменять вообще логику удаления чата, учитывая новое поле isGroup
-  try {
-    if (chat.users.length <= 2) {
+  //# If it's a direct chat, delete it entirely
+  if (!chat.isGroup) {
+    try {
       await Chat.delete({ id: chatId });
       return res.sendStatus(200);
+    } catch (error) {
+      return res.status(400).json(err(new DATABASE_ERROR(error)));
     }
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  user.chats = user.chats.filter((chat) => chat.id !== chatId);
+  //# If user is the last one in the group chat, delete the chat entirely
+  if (chat.users.length == 1) {
+    try {
+      await Chat.delete({ id: chatId });
+      return res.sendStatus(200);
+    } catch (error) {
+      return res.status(400).json(err(new DATABASE_ERROR(error)));
+    }
+  }
 
+  //# The user leaves this chat
+  user.chats = user.chats.filter((chat) => chat.id !== chatId);
   try {
     await User.save(user);
   } catch (error) {

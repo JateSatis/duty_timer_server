@@ -45,12 +45,10 @@ export const getUserByIdRoute = async (req: Request, res: Response) => {
       .json(err(new DATA_NOT_FOUND("user", `id = ${userId}`)));
   }
 
-  const s3DataSource = new S3DataSource();
-
   let avatarLink = null;
   try {
     if (user.avatarImageName) {
-      avatarLink = await s3DataSource.getImageUrlFromS3(user.avatarImageName);
+      avatarLink = await S3DataSource.getImageUrlFromS3(user.avatarImageName);
     }
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));

@@ -22,10 +22,9 @@ export const getAvatarLinkRoute = async (req: Request, res: Response) => {
     return res.status(200).json(getAvatarLinkResponseBody);
   }
 
-  const s3DataSource = new S3DataSource();
   let url;
   try {
-    url = await s3DataSource.getImageUrlFromS3(avatarImageName);
+    url = await S3DataSource.getImageUrlFromS3(avatarImageName);
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error.message)));
   }

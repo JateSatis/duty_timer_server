@@ -29,11 +29,9 @@ export const postAvatarRoute = async (req: Request, res: Response) => {
   const contentType = req.file.mimetype;
   const body = req.file.buffer;
 
-  const s3DataSource = new S3DataSource();
-
   let s3ImageName;
   try {
-    s3ImageName = await s3DataSource.uploadImageToS3(
+    s3ImageName = await S3DataSource.uploadImageToS3(
       imageName,
       body,
       contentType
@@ -50,7 +48,7 @@ export const postAvatarRoute = async (req: Request, res: Response) => {
 
   let avatarLink;
   try {
-    avatarLink = await s3DataSource.getImageUrlFromS3(s3ImageName);
+    avatarLink = await S3DataSource.getImageUrlFromS3(s3ImageName);
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error.message)));
   }

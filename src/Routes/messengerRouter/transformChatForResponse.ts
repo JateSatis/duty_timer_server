@@ -1,18 +1,13 @@
 import { ChatResponseBody } from "../../model/routesEntities/MessageRoutesEntities";
 import { Chat } from "../../model/database/Chat";
 import { S3DataSource } from "../../model/config/imagesConfig";
-import { formatDateForMessage } from "./getMessagesFromChatRoute/formatDateForMessage";
 import { User } from "../../model/database/User";
-
-const s3DataSource = new S3DataSource();
+import { formatDateForMessage } from "./formatDateForMessage";
 
 export const transformChatForResponse = async (chat: Chat, user: User) => {
   const companions = chat.users.filter(
     (participant) => participant.id !== user.id
   );
-
-  const companionIds = companions.map((user) => user.id);
-  const companionNicknames = companions.map((user) => user.nickname);
 
   const isGroupChat = chat.users.length > 2;
 
@@ -21,13 +16,13 @@ export const transformChatForResponse = async (chat: Chat, user: User) => {
   let name = chat.name;
   if (isGroupChat) {
     const imageName = chat.imageName;
-    if (imageName) imageLink = await s3DataSource.getImageUrlFromS3(imageName);
+    if (imageName) imageLink = await S3DataSource.getImageUrlFromS3(imageName);
   } else {
     const companion = companions[0];
     if (chat.users.length === 2) {
       const imageName = companion.avatarImageName;
       if (imageName)
-        imageLink = await s3DataSource.getImageUrlFromS3(imageName);
+        imageLink = await S3DataSource.getImageUrlFromS3(imageName);
     }
     isOnline = companion.isOnline;
     name = companion.name;
@@ -58,8 +53,6 @@ export const transformChatForResponse = async (chat: Chat, user: User) => {
 
   const chatResponseBody: ChatResponseBody = {
     chatId: chat.id,
-    companionIds,
-    companionNicknames,
     name,
     imageLink,
     unreadMessagesAmount,

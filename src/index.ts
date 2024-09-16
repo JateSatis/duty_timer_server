@@ -10,7 +10,7 @@ import { authRouter } from "./Routes/authRouter/authRouter";
 import { friendshipRouter } from "./Routes/frienshipRouter/friendshipRouter";
 import { eventsRouter } from "./Routes/eventsRouter/eventsRouter";
 import { timerRouter } from "./Routes/timerRouter/timerRouter";
-import { messageRouter } from "./Routes/messengerRouter/messengerRouter";
+import { messengerRouter } from "./Routes/messengerRouter/messengerRouter";
 import { webSocketOnConnection } from "./sockets/socketsConfig";
 import { WebSocketServer } from "ws";
 
@@ -33,7 +33,7 @@ app.use("/auth", authRouter);
 app.use("/friendship", friendshipRouter);
 app.use("/event", eventsRouter);
 app.use("/timer", timerRouter);
-app.use("/messenger", messageRouter);
+app.use("/messenger", messengerRouter);
 
 const initalizeDatabaseConnection = async () => {
   await dutyTimerDataSource.initialize();
@@ -49,7 +49,7 @@ const main = async () => {
   }
 
   try {
-		wss.on("connection", (socket, req) => {
+    wss.on("connection", (socket, req) => {
       webSocketOnConnection(socket, req);
     });
   } catch (error) {

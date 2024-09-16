@@ -36,9 +36,8 @@ export const deleteAvatarRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  const s3DataSource = new S3DataSource();
   try {
-    await s3DataSource.deleteImageFromS3(avatarImageName);
+    await S3DataSource.deleteImageFromS3(avatarImageName);
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error.message)));
   }

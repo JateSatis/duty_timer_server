@@ -49,16 +49,8 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new FORBIDDEN_ACCESS()));
   }
 
-  let friends;
-  try {
-    friends = await DB.getFriendsByUserId(user.id);
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
-  }
-
   //# Check if there is already a friendship between user and friend
-  const friendIds = friends.map((friend) => friend.friendId);
-  if (friendIds.includes(recieverId))
+  if (user.friends.find(friend => friend.friendId === recieverId))
     return res.status(401).send(err(new USER_ALREADY_FRIEND()));
 
   let reciever;

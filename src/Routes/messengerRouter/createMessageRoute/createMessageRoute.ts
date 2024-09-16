@@ -43,8 +43,6 @@ import {
 import { compressFile } from "./compressFile";
 import { transformMessageForResponse } from "../transformMessageForResponse";
 
-const s3DataSource = new S3DataSource();
-
 export const createMessageRoute = async (req: Request, res: Response) => {
   if (invalidParamType(req, res, "chatId")) return res;
 
@@ -99,7 +97,7 @@ export const createMessageRoute = async (req: Request, res: Response) => {
         const contentType = file.mimetype;
         const buffer = await compressFile(file.buffer, contentType);
 
-        const s3ImageName = await s3DataSource.uploadImageToS3(
+        const s3ImageName = await S3DataSource.uploadImageToS3(
           imageName,
           buffer,
           contentType
@@ -132,18 +130,25 @@ export const createMessageRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  const connectedUsers = webSocketChatsMap.get(chatId);
+  let senderAvatarLink = null;
+  if (user.avatarImageName) {
+    senderAvatarLink = await S3DataSource.getImageUrlFromS3(
+      user.avatarImageName
+    );
+  }
   let messageResponseBody: MessageResponseBody;
   try {
     messageResponseBody = await transformMessageForResponse(
       joinedMessage,
+      chat,
       user,
-      chat
+      senderAvatarLink
     );
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
   }
 
+  const connectedUsers = webSocketChatsMap.get(chatId);
   if (connectedUsers) {
     const senderSocket = connectedUsers.find(
       (value) => value.userId == user.id

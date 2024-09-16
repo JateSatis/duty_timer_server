@@ -5,13 +5,11 @@ import { FriendshipRequest } from "../../../model/database/FriendshipRequest";
 export const transformRequestsForResponse = async (
   requests: FriendshipRequest[]
 ) => {
-  const s3DataSource = new S3DataSource();
-
   const usersInfo = await Promise.all(
     requests.map(async (request) => {
       let avatarLink = null;
       if (request.reciever.avatarImageName) {
-        avatarLink = await s3DataSource.getImageUrlFromS3(
+        avatarLink = await S3DataSource.getImageUrlFromS3(
           request.reciever.avatarImageName
         );
       }
