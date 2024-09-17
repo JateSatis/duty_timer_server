@@ -67,21 +67,21 @@ export const signInRoute = async (req: Request, res: Response) => {
       );
   }
 
-  if (user.accountInfo.verificationExpiresAt < Date.now()) {
+  if (user.accountInfo!.verificationExpiresAt < Date.now()) {
     const signInResponseBody: SignInResponseBody = {
       status: "email_verification_needed",
       data: null,
     };
 
-    await sendOtpVerification(user.accountInfo.email, user.accountInfo);
+    await sendOtpVerification(user.accountInfo!.email, user.accountInfo!);
 
     return res.status(200).json(signInResponseBody);
   }
 
   const passwordIsValid = validatePassword(
     signInRequestBody.password,
-    user.accountInfo.passwordHash,
-    user.accountInfo.passwordSalt
+    user.accountInfo!.passwordHash,
+    user.accountInfo!.passwordSalt
   );
 
   if (!passwordIsValid)
@@ -93,12 +93,14 @@ export const signInRoute = async (req: Request, res: Response) => {
   let refreshTokenId;
   if (user.refreshToken) {
     refreshTokenId = user.refreshToken.id;
-  }
+	} else {
+		
+	}
 
   try {
     await prisma.refreshToken.update({
       where: {
-        id: user.refreshToken?.id,
+        id: refreshTokenId,
       },
     });
   } catch (error) {

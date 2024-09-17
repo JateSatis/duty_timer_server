@@ -41,7 +41,7 @@ export const verifyAccountRoute = async (req: Request, res: Response) => {
       );
   }
 
-  const otpVerification = user.accountInfo.otpVerification;
+  const otpVerification = user.accountInfo!.otpVerification;
 
   // TODO: Handle this error
   if (!otpVerification) {
@@ -65,6 +65,7 @@ export const verifyAccountRoute = async (req: Request, res: Response) => {
   try {
     refreshTokenDB = await prisma.refreshToken.create({
       data: {
+        userId: user.id,
         token: refreshToken.token,
         isRevoked: false,
       },
@@ -79,10 +80,16 @@ export const verifyAccountRoute = async (req: Request, res: Response) => {
         id: user.id,
       },
       data: {
-        refreshTokenId: refreshTokenDB.id,
+        refreshToken: {
+          connect: {
+            id: refreshTokenDB.id,
+          },
+        },
       },
     });
-  } catch (error) {}
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
 
   const verifyEmailResponseBody: VerifyEmailResponseBody = {
     accessToken: accessToken.token,
