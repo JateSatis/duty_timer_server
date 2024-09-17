@@ -306,8 +306,8 @@ export class DB {
       .getRepository(Chat)
       .createQueryBuilder("chat")
       .innerJoin("chat.users", "user")
-      .where("chat.isGroup = :isGroup", { isGroup: false })
       .where("user.id IN (:...userIds)", { userIds: [senderId, recieverId] })
+      .andWhere("chat.isGroup = :isGroup", { isGroup: false })
       .groupBy("chat.id")
       .having("COUNT(user.id) = 2")
       .getOne();

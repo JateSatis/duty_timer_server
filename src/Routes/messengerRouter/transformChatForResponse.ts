@@ -9,12 +9,11 @@ export const transformChatForResponse = async (chat: Chat, user: User) => {
     (participant) => participant.id !== user.id
   );
 
-  const isGroupChat = chat.users.length > 2;
 
   let imageLink = null;
   let isOnline = false;
   let name = chat.name;
-  if (isGroupChat) {
+  if (chat.isGroup) {
     const imageName = chat.imageName;
     if (imageName) imageLink = await S3DataSource.getImageUrlFromS3(imageName);
   } else {
@@ -59,7 +58,7 @@ export const transformChatForResponse = async (chat: Chat, user: User) => {
     lastMessageText,
     lastMessageCreationTime,
     lastMessageSenderName,
-    isGroupChat,
+    isGroupChat: chat.isGroup,
     isOnline,
   };
 

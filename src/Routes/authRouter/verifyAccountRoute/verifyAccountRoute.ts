@@ -14,6 +14,7 @@ import { User } from "../../../model/database/User";
 import { DB } from "../../../model/config/initializeConfig";
 import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 import { OTPVerification } from "../../../model/database/OTPVerification";
+import { Chat } from "../../../model/database/Chat";
 
 export const verifyAccountRoute = async (req: Request, res: Response) => {
   const verifyEmailRequestBody: VerifyEmailRequestBody = req.body;
@@ -65,6 +66,16 @@ export const verifyAccountRoute = async (req: Request, res: Response) => {
 
   try {
     await refreshTokenDB.save();
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
+
+  try {
+    const globalChat = await DB.getChatBy("id", 1);
+    if (globalChat) {
+      globalChat.users.push(user);
+      Chat.save(globalChat);
+    }
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }

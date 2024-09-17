@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { MessageResponseBody } from "./MessageRoutesEntities";
+import { GroupMessageResponseBody } from "./MessageRoutesEntities";
 
 export type WebSocketChatsMapValue = {
   userId: number;
@@ -44,7 +44,7 @@ export type UserOfflineResponseBodyWS = {
   userId: number;
 };
 
-export type CreateMessageResponseBodyWS = MessageResponseBody;
+export type CreateMessageResponseBodyWS = GroupMessageResponseBody;
 
 export type DeleteMessageResponseBodyWS = {
   chatId: number;

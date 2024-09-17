@@ -13,6 +13,8 @@ import { timerRouter } from "./Routes/timerRouter/timerRouter";
 import { messengerRouter } from "./Routes/messengerRouter/messengerRouter";
 import { webSocketOnConnection } from "./sockets/socketsConfig";
 import { WebSocketServer } from "ws";
+import { DataSource } from "typeorm";
+import { Chat } from "./model/database/Chat";
 
 dotenv.config();
 
@@ -37,6 +39,7 @@ app.use("/messenger", messengerRouter);
 
 const initalizeDatabaseConnection = async () => {
   await dutyTimerDataSource.initialize();
+  await createGlobalChat();
 
   console.log("Connected to DB");
 };
@@ -63,3 +66,19 @@ const main = async () => {
 };
 
 main();
+
+const createGlobalChat = async () => {
+  const existingGlobalChat = await Chat.findOneBy({
+    id: 1,
+  });
+
+  if (!existingGlobalChat) {
+    await Chat.create({
+      id: 1,
+      creationTime: Date.now(),
+      isGroup: true,
+      lastUpdateTimeMillis: Date.now(),
+      name: "Общий чат",
+    }).save();
+  }
+};

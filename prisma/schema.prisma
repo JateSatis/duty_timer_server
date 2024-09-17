@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model OtpVerification {
+  id               String      @id() @default(uuid())
+  otpHash          String
+  otpSalt          String
+  email            String
+  otpExpiresAt     BigInt
+  accountExpiresAt BigInt
+  accountId        String      @unique()
+  account          AccountInfo @relation(fields: [accountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model User {
+  id                         String              @id() @default(uuid())
+  accountInfo                AccountInfo?
+  refreshToken               RefreshToken?
+  settings                   Settings?
+  subscription               Subscription?
+  timer                      Timer?
+  events                     Event[]
+  friends                    Frienship[]         @relation("user1")
+  friendOf                   Frienship[]         @relation("user2")
+  sentFriendshipRequests     FriendshipRequest[] @relation("sender")
+  recievedFriendshipRequests FriendshipRequest[] @relation("reciever")
+  chats                      Chat[]
+  message                    Message[]
+}
+
+model AccountInfo {
+  id                    String           @id() @default(uuid())
+  verificationExpiresAt BigInt
+  email                 String
+  name                  String
+  nickname              String           @unique()
+  avatarImageName       String?
+  userType              UserType         @default(DEFAULT)
+  passwordHash          String
+  passwordSalt          String
+  isOnline              Boolean          @default(false)
+  lastSeenOnline        BigInt
+  userId                String           @unique
+  user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  otpVerification       OtpVerification?
+}
+
+enum UserType {
+  SOLDIER
+  OFFICER
+  CADET
+  RELATIVE
+  DEFAULT
+}
+
+model RefreshToken {
+  id        String  @id() @default(uuid())
+  token     String
+  isRevoked Boolean @default(false)
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Settings {
+  id                          String        @id() @default(uuid())
+  backgroundImageName         String?
+  recievedBackgroundImageName String?
+  backgroundTint              String?
+  backgroundTintOpacity       Int           @default(50)
+  backgroundAnimation         Boolean       @default(false)
+  theme                       Theme         @default(WHITE)
+  nicknameColor               NicknameColor @default(BLACK)
+  language                    Language      @default(RUSSIAN)
+  userId                      String        @unique
+  user                        User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+enum Theme {
+  WHITE
+  BLACK
+}
+
+enum NicknameColor {
+  BLACK
+  RED
+}
+
+enum Language {
+  ENGLISH
+  RUSSIAN
+  BELORUSIAN
+  UKRANIAN
+}
+
+model Subscription {
+  id             String  @id() @default(uuid())
+  active         Boolean @default(false)
+  expirationDate BigInt
+  userId         String  @unique
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Timer {
+  id              String @id() @default(uuid())
+  startTimeMillis BigInt
+  endTimeMillis   BigInt
+  userId          String @unique
+  user            User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Event {
+  id         String @id() @default(uuid())
+  title      String
+  timeMillis BigInt
+  userId     String
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Frienship {
+  id      String @id() @default(uuid())
+  user1Id String
+  user1   User   @relation("user1", fields: [user1Id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  user2Id String
+  user2   User   @relation("user2", fields: [user2Id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([user1Id, user2Id])
+}
+
+model FriendshipRequest {
+  id         String @id() @default(uuid())
+  senderId   String
+  sender     User   @relation("sender", fields: [senderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  recieverId String
+  reciever   User   @relation("reciever", fields: [recieverId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([senderId, recieverId])
+}
+
+model Chat {
+  id                   String    @id() @default(uuid())
+  name                 String
+  imageName            String?
+  isGroup              Boolean
+  creationTime         BigInt
+  lastUpdateTimeMillis BigInt
+  message              Message[]
+  users                User[]
+}
+
+model Message {
+  id           String       @id() @default(uuid())
+  text         String
+  creationTime BigInt
+  isEdited     Boolean      @default(false)
+  isRead       Boolean
+  chatId       String
+  chat         Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  senderId     String
+  user         User         @relation(fields: [senderId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  attachment   Attachment[]
+}
+
+model Attachment {
+  id        String  @id() @default(uuid())
+  name      String
+  messageId String
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}

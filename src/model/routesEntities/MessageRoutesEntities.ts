@@ -12,7 +12,7 @@ export type DirectMessageResponseBody = {
   isSender: boolean;
 };
 
-export type MessageResponseBody = {
+export type GroupMessageResponseBody = {
   messageId: number;
   chatId: number;
   senderId: number;
@@ -46,7 +46,10 @@ export type ParticipantInfo = {
   avatarLink: string | null;
 };
 
-export type GetAllChatsResponseBody = ChatResponseBody[];
+export type GetAllChatsResponseBody = {
+  globalChat: ChatResponseBody;
+  chats: ChatResponseBody[];
+};
 
 export type GetDirectChatInfoResponseBody = {
   companion: ParticipantInfo;
@@ -55,7 +58,7 @@ export type GetDirectChatInfoResponseBody = {
 
 export type GetGroupChatInfoResponseBody = {
   participants: ParticipantInfo[];
-  messages: MessageResponseBody[];
+  messages: GroupMessageResponseBody[];
 };
 
 export type CreateMessageRequestBody = {
@@ -64,7 +67,7 @@ export type CreateMessageRequestBody = {
 
 export const createMessageRequestBodyProperties = ["data"];
 
-export type CreateMessageResponseBody = MessageResponseBody;
+export type CreateMessageResponseBody = GroupMessageResponseBody;
 
 export type EditMessageRequestBody = {
   text: string;

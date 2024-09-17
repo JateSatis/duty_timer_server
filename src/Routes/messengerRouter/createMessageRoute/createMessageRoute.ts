@@ -17,7 +17,7 @@ import {
   CreateMessageRequestBody,
   createMessageRequestBodyProperties,
   CreateMessageResponseBody,
-  MessageResponseBody,
+  GroupMessageResponseBody,
 } from "../../../model/routesEntities/MessageRoutesEntities";
 import {
   CreateMessageResponseBodyWS,
@@ -136,7 +136,7 @@ export const createMessageRoute = async (req: Request, res: Response) => {
       user.avatarImageName
     );
   }
-  let messageResponseBody: MessageResponseBody;
+  let messageResponseBody: GroupMessageResponseBody;
   try {
     messageResponseBody = await transformMessageForResponse(
       joinedMessage,

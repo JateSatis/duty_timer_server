@@ -1,4 +1,4 @@
-import { MessageResponseBody } from "../../model/routesEntities/MessageRoutesEntities";
+import { GroupMessageResponseBody } from "../../model/routesEntities/MessageRoutesEntities";
 import { S3DataSource } from "../../model/config/imagesConfig";
 import { Message } from "../../model/database/Message";
 import { Chat } from "../../model/database/Chat";
@@ -28,7 +28,7 @@ export const transformMessageForResponse = async (
 
   const isSender = message.sender.id === user.id;
 
-  const messageResponseBody: MessageResponseBody = {
+  const messageResponseBody: GroupMessageResponseBody = {
     messageId: message.id,
     chatId: chat.id,
     senderId: message.sender.id,
