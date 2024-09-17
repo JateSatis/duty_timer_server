@@ -2,8 +2,8 @@ import * as dotenv from "dotenv";
 import * as nodemailer from "nodemailer";
 import * as crypto from "crypto";
 import { google } from "googleapis";
-import { User } from "../../model/database/User";
-import { OTPVerification } from "../../model/database/OTPVerification";
+import { prisma } from "../../model/config/prismaClient";
+import { AccountInfo } from "@prisma/client";
 
 dotenv.config();
 
@@ -20,7 +20,10 @@ oauth2Client.setCredentials({
   refresh_token: process.env.OAUTH2_EMAIL_REFRESH_TOKEN,
 });
 
-export const sendOtpVerification = async (email: string, user: User) => {
+export const sendOtpVerification = async (
+  email: string,
+  accountInfo: AccountInfo
+) => {
   let accessToken;
 
   if (
@@ -39,34 +42,42 @@ export const sendOtpVerification = async (email: string, user: User) => {
   }
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  const salt = crypto.randomBytes(32).toString("hex");
+  const otpSalt = crypto.randomBytes(32).toString("hex");
   const otpHash = crypto
-    .pbkdf2Sync(otp, salt, 10000, 64, "sha512")
+    .pbkdf2Sync(otp, otpSalt, 10000, 64, "sha512")
     .toString("hex");
   const otpExpiresAt = Date.now() + 5 * 60 * 1000;
   const accountExpiresAt = Date.now() + 365 * 24 * 60 * 60 * 1000;
 
-  let verification = OTPVerification.create({
-    email,
-    user,
-    otpHash,
-    salt,
-    otpExpiresAt,
-    accountExpiresAt,
+  const existingOtp = await prisma.otpVerification.findFirst({
+    where: {
+      accountId: accountInfo.id,
+    },
   });
 
-  if (user.otpVerification) {
-    await OTPVerification.update(
-      { id: user.otpVerification.id },
-      {
+  if (existingOtp) {
+    await prisma.otpVerification.update({
+      where: {
+        accountId: accountInfo.id,
+      },
+      data: {
         otpHash,
-        salt,
+        otpSalt,
         otpExpiresAt,
         accountExpiresAt,
-      }
-    );
+      },
+    });
   } else {
-    await OTPVerification.save(verification);
+    await prisma.otpVerification.create({
+      data: {
+        accountId: accountInfo.id,
+        email,
+        otpExpiresAt,
+        accountExpiresAt,
+        otpHash,
+        otpSalt,
+      },
+    });
   }
 
   const transporter = nodemailer.createTransport({

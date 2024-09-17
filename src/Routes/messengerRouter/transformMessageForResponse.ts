@@ -1,31 +1,23 @@
 import { MessageResponseBody } from "../../model/routesEntities/MessageRoutesEntities";
 import { S3DataSource } from "../../model/config/imagesConfig";
 import { Message } from "../../model/database/Message";
-import { formatDateForMessage } from "./getMessagesFromChatRoute/formatDateForMessage";
 import { Chat } from "../../model/database/Chat";
 import { User } from "../../model/database/User";
-
-const s3DataSource = new S3DataSource();
+import { formatDateForMessage } from "./formatDateForMessage";
 
 export const transformMessageForResponse = async (
   message: Message,
+  chat: Chat,
   user: User,
-  chat: Chat
+  senderAvatarLink: string | null
 ) => {
-  let senderAvatarLink = null;
-  if (message.sender.avatarImageName) {
-    senderAvatarLink = await s3DataSource.getImageUrlFromS3(
-      message.sender.avatarImageName
-    );
-  }
-
   const attachmentNames = message.attachments.map(
     (attachment) => attachment.name
   );
   const attachmentLinks: string[] = [];
   await Promise.all(
     attachmentNames.map(async (attachmentName) => {
-      const attachmentLink = await s3DataSource.getImageUrlFromS3(
+      const attachmentLink = await S3DataSource.getImageUrlFromS3(
         attachmentName
       );
       attachmentLinks.push(attachmentLink);

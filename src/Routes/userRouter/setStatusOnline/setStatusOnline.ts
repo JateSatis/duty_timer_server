@@ -14,7 +14,7 @@ import {
   WebSocketStatusMessage,
 } from "../../../model/routesEntities/WebSocketRouterEntities";
 
-export const setStatusOnlineRoute = async (req: Request, res: Response) => {
+export const setStatusOnline = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
   try {

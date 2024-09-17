@@ -14,7 +14,7 @@ import {
 } from "../../../model/routesEntities/WebSocketRouterEntities";
 import { webSocketFriendsMap } from "../../../sockets/socketsConfig";
 
-export const setStatusOfflineRoute = async (req: Request, res: Response) => {
+export const setStatusOffline = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
   const lastSeenOnlineTime = Date.now();

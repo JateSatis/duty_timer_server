@@ -10,7 +10,7 @@ import { GetAvatarLinkResponseBody } from "../../../model/routesEntities/UserRou
 //# --- ERRORS ---
 import { err, S3_STORAGE_ERROR } from "../../utils/errors/GlobalErrors";
 
-export const getAvatarLinkRoute = async (req: Request, res: Response) => {
+export const getAvatarLink = async (req: Request, res: Response) => {
   const user = req.body.user;
 
   const avatarImageName = user.avatarImageName;
@@ -22,10 +22,9 @@ export const getAvatarLinkRoute = async (req: Request, res: Response) => {
     return res.status(200).json(getAvatarLinkResponseBody);
   }
 
-  const s3DataSource = new S3DataSource();
   let url;
   try {
-    url = await s3DataSource.getImageUrlFromS3(avatarImageName);
+    url = await S3DataSource.getImageUrlFromS3(avatarImageName);
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error.message)));
   }

@@ -144,6 +144,7 @@ export class User extends BaseEntity {
 
   @OneToOne(() => Settings, (settings) => settings.user, {
     cascade: true,
+    nullable: false,
   })
   @JoinColumn({
     name: "settingsId",

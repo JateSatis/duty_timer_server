@@ -1,36 +1,47 @@
 import { Request, Response } from "express";
+import { prisma } from "../../../model/config/prismaClient";
 import * as crypto from "crypto";
 import {
   issueAccessToken,
   issueRefreshToken,
 } from "../../../auth/jwt/issueJWT";
-import { RefreshToken } from "../../../model/database/RefreshToken";
 import {
   VerifyEmailRequestBody,
   VerifyEmailResponseBody,
 } from "../../../model/routesEntities/AuthRouterEntities";
 import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
-import { User } from "../../../model/database/User";
-import { DB } from "../../../model/config/initializeConfig";
 import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
-import { OTPVerification } from "../../../model/database/OTPVerification";
+import { OtpVerification } from "@prisma/client";
 
 export const verifyAccountRoute = async (req: Request, res: Response) => {
   const verifyEmailRequestBody: VerifyEmailRequestBody = req.body;
 
-  const user = await DB.getUserBy("login", verifyEmailRequestBody.email);
+  const user = await prisma.user.findFirst({
+    where: {
+      accountInfo: {
+        email: verifyEmailRequestBody.email,
+      },
+    },
+    include: {
+      accountInfo: {
+        include: {
+          otpVerification: true,
+        },
+      },
+    },
+  });
 
   if (!user) {
     return res
       .status(404)
       .json(
         err(
-          new DATA_NOT_FOUND("user", `email = ${verifyEmailRequestBody.email}`)
+          new DATA_NOT_FOUND("User", `email = ${verifyEmailRequestBody.email}`)
         )
       );
   }
 
-  const otpVerification = user.otpVerification;
+  const otpVerification = user.accountInfo.otpVerification;
 
   // TODO: Handle this error
   if (!otpVerification) {
@@ -47,27 +58,31 @@ export const verifyAccountRoute = async (req: Request, res: Response) => {
     return res.status(400).json("not valid otp");
   }
 
-  user.verificationExpiresAt = Date.now() + 365 * 24 * 60 * 60 * 1000;
-  await User.save(user);
-
-  await OTPVerification.delete({
-    id: otpVerification.id,
-  });
-
   const accessToken = issueAccessToken(user.id);
   const refreshToken = issueRefreshToken(user.id);
 
-  const refreshTokenDB = RefreshToken.create({
-    token: refreshToken.token,
-    isRevoked: false,
-    user,
-  });
-
+  let refreshTokenDB;
   try {
-    await refreshTokenDB.save();
+    refreshTokenDB = await prisma.refreshToken.create({
+      data: {
+        token: refreshToken.token,
+        isRevoked: false,
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
+
+  try {
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        refreshTokenId: refreshTokenDB.id,
+      },
+    });
+  } catch (error) {}
 
   const verifyEmailResponseBody: VerifyEmailResponseBody = {
     accessToken: accessToken.token,
@@ -79,9 +94,9 @@ export const verifyAccountRoute = async (req: Request, res: Response) => {
   return res.status(200).json(verifyEmailResponseBody);
 };
 
-const validateOtp = (verifyOtp: number, otp: OTPVerification) => {
+const validateOtp = (verifyOtp: number, otp: OtpVerification) => {
   const verifyOtpHash = crypto
-    .pbkdf2Sync(verifyOtp.toString(), otp.salt, 10000, 64, "sha512")
+    .pbkdf2Sync(verifyOtp.toString(), otp.otpSalt, 10000, 64, "sha512")
     .toString("hex");
 
   return verifyOtpHash === otp.otpHash;

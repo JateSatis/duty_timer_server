@@ -14,7 +14,7 @@ const pathToRefreshPrivateKey = path.join(
 );
 const PRIV_REFRESH_KEY = fs.readFileSync(pathToRefreshPrivateKey);
 
-const issueToken = (userId: number, expiresIn: number, privateKey: Buffer) => {
+const issueToken = (userId: string, expiresIn: number, privateKey: Buffer) => {
   const issuedAt = Date.now();
   const expiresAt = issuedAt + expiresIn;
 
@@ -35,11 +35,11 @@ const issueToken = (userId: number, expiresIn: number, privateKey: Buffer) => {
 };
 
 //# Создает JWT токен на основе приватного ключа и полученного клиента
-const issueAccessToken = (userId: number) => {
+const issueAccessToken = (userId: string) => {
   return issueToken(userId, 2592000000, PRIV_ACCESS_KEY);
 };
 
-const issueRefreshToken = (userId: number) => {
+const issueRefreshToken = (userId: string) => {
   const bearerToken = issueToken(userId, 2592000000, PRIV_REFRESH_KEY);
 
   //# Get rid of the Bearer

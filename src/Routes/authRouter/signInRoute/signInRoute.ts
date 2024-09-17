@@ -8,12 +8,6 @@ import {
 } from "../../../auth/jwt/issueJWT";
 import { validatePassword } from "../../../auth/jwt/passwordHandler";
 
-//# --- CONFIG
-import {
-  DB,
-  dutyTimerDataSource,
-} from "../../../model/config/initializeConfig";
-
 //# --- REQUEST ENTITIES ---
 import {
   SignInRequestBody,
@@ -24,7 +18,6 @@ import {
 
 //# --- DATABASE ENTITIES ---
 import { RefreshToken } from "../../../model/database/RefreshToken";
-import { User } from "../../../model/database/User";
 
 //# --- VALIDATE REQUEST ---
 import { missingRequestField } from "../../utils/validation/missingRequestField";
@@ -39,6 +32,7 @@ import {
 } from "../../utils/errors/AuthErrors";
 import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
 import { sendOtpVerification } from "../sendOtpVerification";
+import { prisma } from "src/model/config/prismaClient";
 
 export const signInRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, signInRequestBodyProperties)) return res;
@@ -48,9 +42,19 @@ export const signInRoute = async (req: Request, res: Response) => {
 
   if (invalidInputFormat(res, signInRequestBody)) return res;
 
-  let user: User | null;
+  let user;
   try {
-    user = await DB.getUserBy("login", signInRequestBody.login);
+    user = await prisma.user.findFirst({
+      where: {
+        accountInfo: {
+          email: signInRequestBody.login,
+        },
+      },
+      include: {
+        accountInfo: true,
+        refreshToken: true,
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
@@ -63,21 +67,21 @@ export const signInRoute = async (req: Request, res: Response) => {
       );
   }
 
-  if (user.otpVerification || user.verificationExpiresAt < Date.now()) {
+  if (user.accountInfo.verificationExpiresAt < Date.now()) {
     const signInResponseBody: SignInResponseBody = {
       status: "email_verification_needed",
       data: null,
     };
 
-    await sendOtpVerification(user.login, user);
+    await sendOtpVerification(user.accountInfo.email, user.accountInfo);
 
     return res.status(200).json(signInResponseBody);
   }
 
   const passwordIsValid = validatePassword(
     signInRequestBody.password,
-    user.passwordHash,
-    user.passwordSalt
+    user.accountInfo.passwordHash,
+    user.accountInfo.passwordSalt
   );
 
   if (!passwordIsValid)
@@ -86,12 +90,16 @@ export const signInRoute = async (req: Request, res: Response) => {
   const accessToken = issueAccessToken(user.id);
   const refreshToken = issueRefreshToken(user.id);
 
-  const refreshTokenId = user.refreshToken.id;
+  let refreshTokenId;
+  if (user.refreshToken) {
+    refreshTokenId = user.refreshToken.id;
+  }
 
   try {
-    await RefreshToken.update(refreshTokenId, {
-      token: refreshToken.token,
-      isRevoked: false,
+    await prisma.refreshToken.update({
+      where: {
+        id: user.refreshToken?.id,
+      },
     });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));

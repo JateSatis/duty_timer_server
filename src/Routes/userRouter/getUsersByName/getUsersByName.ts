@@ -5,9 +5,7 @@ import { Request, Response } from "express";
 import { DB } from "../../../model/config/initializeConfig";
 
 //# --- REQUEST ENTITIES ---
-import {
-  GetUsersByNameResponseBody,
-} from "../../../model/routesEntities/UserRouterEntities";
+import { GetUsersByNameResponseBody } from "../../../model/routesEntities/UserRouterEntities";
 
 //# --- VALIDATE REQUEST ---
 import { invalidParamFormat } from "../../utils/validation/invalidParamFormat";
@@ -23,7 +21,7 @@ import {
 //# --- UTILS ---
 import { transformUsersForResponse } from "./transformUsersForResponse";
 
-export const getUsersByNameRoute = async (req: Request, res: Response) => {
+export const getUsersByName = async (req: Request, res: Response) => {
   if (invalidParamFormat(req, res, "userName")) return res;
 
   if (emptyParam(req, res, "userName")) return res;

@@ -15,7 +15,7 @@ import {
   S3_STORAGE_ERROR,
 } from "../../utils/errors/GlobalErrors";
 
-export const deleteAvatarRoute = async (req: Request, res: Response) => {
+export const deleteAvatar = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
   const avatarImageName = user.avatarImageName;
@@ -36,9 +36,8 @@ export const deleteAvatarRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  const s3DataSource = new S3DataSource();
   try {
-    await s3DataSource.deleteImageFromS3(avatarImageName);
+    await S3DataSource.deleteImageFromS3(avatarImageName);
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error.message)));
   }

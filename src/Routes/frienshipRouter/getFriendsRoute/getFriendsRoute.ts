@@ -21,14 +21,7 @@ import { transformUsersForResponse } from "./transformUsersForResponse";
 export const getFriendsRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
-  let friends;
-  try {
-    friends = await DB.getFriendsByUserId(user.id);
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
-  }
-
-  const friendIds = friends.map((friend) => friend.friendId);
+  const friendIds = user.friends.map((friend) => friend.friendId);
 
   if (friendIds.length == 0) {
     return res.status(200).json([]);

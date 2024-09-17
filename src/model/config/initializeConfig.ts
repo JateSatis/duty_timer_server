@@ -87,6 +87,47 @@ export class DB {
     return user;
   };
 
+  static getUsersBy = async (parameter: string, value: any[]) => {
+    const user = await dutyTimerDataSource
+      .getRepository(User)
+      .createQueryBuilder("user")
+      .leftJoinAndSelect("user.otpVerification", "verification")
+      .leftJoinAndSelect("user.refreshToken", "refreshToken")
+      .leftJoinAndSelect("user.timer", "timer")
+      .leftJoinAndSelect("user.events", "events")
+      .leftJoinAndSelect(
+        "user.sentFriendshipRequests",
+        "sentFriendshipRequests"
+      )
+      .leftJoinAndSelect(
+        "user.recievedFriendshipRequests",
+        "recievedFriendshipRequests"
+      )
+      .leftJoinAndSelect("user.friends", "friends")
+      .leftJoinAndSelect("user.settings", "settings")
+      .leftJoinAndSelect("user.chats", "chats")
+      .leftJoinAndSelect("user.messages", "messages")
+      .leftJoinAndSelect("user.subscription", "subscription")
+      .where(`user.${parameter} IN (:...criteria)`, {
+        criteria: value,
+      })
+      .getMany();
+
+    return user;
+  };
+
+  static getChatBy = async (parameter: string, value: any) => {
+    const chat = await dutyTimerDataSource
+      .getRepository(Chat)
+      .createQueryBuilder("chat")
+      .leftJoinAndSelect("chat.messages", "messages")
+      .leftJoinAndSelect("chat.users", "users")
+      .where(`chat.${parameter} = :criteria`, { criteria: value })
+      .getOne();
+
+    return chat;
+  };
+
   static getRefreshTokenByUserId = async (
     userId: number
   ): Promise<RefreshToken> => {
@@ -154,17 +195,6 @@ export class DB {
     return friend;
   };
 
-  static getFriendsByUserId = async (id: number) => {
-    const user = (await dutyTimerDataSource
-      .getRepository(User)
-      .createQueryBuilder("user")
-      .leftJoinAndSelect("user.friends", "friend")
-      .where("user.id = :userId", { userId: id })
-      .getOne())!!;
-
-    return user.friends;
-  };
-
   static getFriendsInfoByIds = async (ids: number[]) => {
     const friendsInfo = await dutyTimerDataSource
       .getRepository(User)
@@ -228,17 +258,14 @@ export class DB {
     senderId: number,
     recieverId: number
   ) => {
-    const friendshipRequests = await dutyTimerDataSource
+    const friendshipRequest = await dutyTimerDataSource
       .getRepository(FriendshipRequest)
       .createQueryBuilder("friendshipRequest")
-      .leftJoinAndSelect("friendshipRequest.sender", "sender")
-      .leftJoinAndSelect("friendshipRequest.reciever", "reciever")
-      .getMany();
-
-    const friendshipRequest = friendshipRequests.find(
-      (requst) =>
-        requst.sender.id === senderId && requst.reciever.id === recieverId
-    );
+      .where("friendshipRequest.senderId = :senderId", { senderId })
+      .where("friendshipRequest.recieverId = :recieverId", {
+        recieverId,
+      })
+      .getOne();
 
     return friendshipRequest;
   };
