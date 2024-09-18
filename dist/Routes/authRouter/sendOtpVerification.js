@@ -88,6 +88,9 @@ const sendOtpVerification = (email, user) => __awaiter(void 0, void 0, void 0, f
     }
     const transporter = nodemailer.createTransport({
         service: "gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
         auth: {
             type: "OAuth2",
             user: process.env.OAUTH2_EMAIL_ADRESS,
