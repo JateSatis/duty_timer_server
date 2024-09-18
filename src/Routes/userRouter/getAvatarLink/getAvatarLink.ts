@@ -2,13 +2,13 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { S3DataSource } from "../../../model/config/imagesConfig";
+import { S3DataSource } from "model/config/imagesConfig";
 
 //# --- ERRORS ---
-import { GetAvatarLinkResponseBody } from "../../../model/routesEntities/UserRouterEntities";
+import { GetAvatarLinkResponseBody } from "model/routesEntities/UserRouterEntities";
 
 //# --- ERRORS ---
-import { err, S3_STORAGE_ERROR } from "../../utils/errors/GlobalErrors";
+import { err, S3_STORAGE_ERROR } from "Routes/utils/errors/GlobalErrors";
 
 export const getAvatarLink = async (req: Request, res: Response) => {
   const user = req.body.user;

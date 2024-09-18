@@ -2,17 +2,17 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
+import { DB } from "model/config/initializeConfig";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "../../../model/database/User";
+import { User } from "model/database/User";
 
 //# --- REQUEST ENTITIES ---
-import { GetMessagesFromChatResponseBody } from "../../../model/routesEntities/MessageRoutesEntities";
+import { GetMessagesFromChatResponseBody } from "model/routesEntities/MessageRoutesEntities";
 
 //# --- VALIDATE REQUEST ---
-import { emptyParam } from "../../utils/validation/emptyParam";
-import { invalidParamType } from "../../utils/validation/invalidParamType";
+import { emptyParam } from "Routes/utils/validation/emptyParam";
+import { invalidParamType } from "Routes/utils/validation/invalidParamType";
 
 //# --- ERRORS ---
 import {
@@ -20,7 +20,7 @@ import {
   err,
   FORBIDDEN_ACCESS,
   S3_STORAGE_ERROR,
-} from "../../utils/errors/GlobalErrors";
+} from "Routes/utils/errors/GlobalErrors";
 
 //# --- UTILS ---
 import { transformMessageForResponse } from "../transformMessageForResponse";

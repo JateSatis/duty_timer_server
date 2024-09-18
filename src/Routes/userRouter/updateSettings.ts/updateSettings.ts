@@ -1,14 +1,14 @@
 import { Request, Response } from "express";
-import { User } from "../../../model/database/User";
+import { User } from "model/database/User";
 import {
   UpdateSettingsRequestBody,
   updateSettingsRequestBodyProperties,
-} from "../../../model/routesEntities/UserRouterEntities";
-import { emptyField } from "../../utils/validation/emptyField";
-import { missingRequestField } from "../../utils/validation/missingRequestField";
+} from "model/routesEntities/UserRouterEntities";
+import { emptyField } from "Routes/utils/validation/emptyField";
+import { missingRequestField } from "Routes/utils/validation/missingRequestField";
 import { invalidInputFormat } from "./invalidInputFormat";
-import { Settings } from "../../../model/database/Settings";
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import { Settings } from "model/database/Settings";
+import { DATABASE_ERROR, err } from "Routes/utils/errors/GlobalErrors";
 
 export const updateSettings = async (req: Request, res: Response) => {
   const user: User = req.body.user;

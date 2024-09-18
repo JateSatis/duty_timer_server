@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { Language, Theme } from "../../../model/utils/Enums";
-import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
-import { err } from "../../utils/errors/GlobalErrors";
-import { UpdateSettingsRequestBody } from "../../../model/routesEntities/UserRouterEntities";
+import { Language, Theme } from "model/utils/Enums";
+import { INVALID_INPUT_FORMAT } from "Routes/utils/errors/AuthErrors";
+import { err } from "Routes/utils/errors/GlobalErrors";
+import { UpdateSettingsRequestBody } from "model/routesEntities/UserRouterEntities";
 
 const languages = ["RUSSIAN", "BELORUSIAN", "ENGLISH"];
 const themes = ["DARK", "LIGHT"];

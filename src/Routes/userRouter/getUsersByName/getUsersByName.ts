@@ -2,21 +2,21 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
+import { DB } from "model/config/initializeConfig";
 
 //# --- REQUEST ENTITIES ---
-import { GetUsersByNameResponseBody } from "../../../model/routesEntities/UserRouterEntities";
+import { GetUsersByNameResponseBody } from "model/routesEntities/UserRouterEntities";
 
 //# --- VALIDATE REQUEST ---
-import { invalidParamFormat } from "../../utils/validation/invalidParamFormat";
-import { emptyParam } from "../../utils/validation/emptyParam";
+import { invalidParamFormat } from "Routes/utils/validation/invalidParamFormat";
+import { emptyParam } from "Routes/utils/validation/emptyParam";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
-} from "../../utils/errors/GlobalErrors";
+} from "Routes/utils/errors/GlobalErrors";
 
 //# --- UTILS ---
 import { transformUsersForResponse } from "./transformUsersForResponse";

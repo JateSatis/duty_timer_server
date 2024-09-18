@@ -2,18 +2,18 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
-import { S3DataSource } from "../../../model/config/imagesConfig";
+import { DB } from "model/config/initializeConfig";
+import { S3DataSource } from "model/config/imagesConfig";
 
 //# --- REQUEST ENTITIES ---
-import { GetUserInfoResponseBody } from "../../../model/routesEntities/UserRouterEntities";
+import { GetUserInfoResponseBody } from "model/routesEntities/UserRouterEntities";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
-} from "../../utils/errors/GlobalErrors";
+} from "Routes/utils/errors/GlobalErrors";
 
 export const getUserInfo = async (req: Request, res: Response) => {
   const userId = req.body.user.id;

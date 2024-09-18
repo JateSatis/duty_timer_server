@@ -1,18 +1,18 @@
 import { Request, Response } from "express";
-import { S3DataSource } from "../../../model/config/imagesConfig";
-import { DB } from "../../../model/config/initializeConfig";
-import { Settings } from "../../../model/database/Settings";
-import { User } from "../../../model/database/User";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { S3DataSource } from "model/config/imagesConfig";
+import { DB } from "model/config/initializeConfig";
+import { Settings } from "model/database/Settings";
+import { User } from "model/database/User";
+import { DATA_NOT_FOUND } from "Routes/utils/errors/AuthErrors";
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
   S3_STORAGE_ERROR,
-} from "../../utils/errors/GlobalErrors";
-import { MISSING_FILE } from "../../utils/errors/UserErrors";
-import { emptyParam } from "../../utils/validation/emptyParam";
-import { invalidParamFormat } from "../../utils/validation/invalidParamFormat";
+} from "Routes/utils/errors/GlobalErrors";
+import { MISSING_FILE } from "Routes/utils/errors/UserErrors";
+import { emptyParam } from "Routes/utils/validation/emptyParam";
+import { invalidParamFormat } from "Routes/utils/validation/invalidParamFormat";
 
 export const sendBackgroundImage = async (req: Request, res: Response) => {
   const user: User = req.body.user;

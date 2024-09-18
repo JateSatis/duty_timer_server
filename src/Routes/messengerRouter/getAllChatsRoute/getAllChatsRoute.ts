@@ -2,17 +2,17 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
+import { DB } from "model/config/initializeConfig";
 
 //# --- REQUEST ENTITIES ---
-import { GetAllChatsResponseBody } from "../../../model/routesEntities/MessageRoutesEntities";
+import { GetAllChatsResponseBody } from "model/routesEntities/MessageRoutesEntities";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
-} from "../../utils/errors/GlobalErrors";
+} from "Routes/utils/errors/GlobalErrors";
 
 //# --- UTILS ---
 import { transformChatForResponse } from "../transformChatForResponse";

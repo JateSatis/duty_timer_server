@@ -64,12 +64,6 @@ export type CreateMessageRequestBody = {
 
 export const createMessageRequestBodyProperties = ["data"];
 
-export type CreateMessageRequestBody = {
-  data: string;
-};
-
-export const createMessageRequestBodyProperties = ["data"];
-
 export type CreateMessageResponseBody = MessageResponseBody;
 
 export type EditMessageRequestBody = {

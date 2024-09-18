@@ -2,19 +2,23 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
+import { DB } from "model/config/initializeConfig";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "../../../model/database/User";
+import { User } from "model/database/User";
 
 //# --- REQUEST ENTITIES ---
 import {
   GetAllRecievedFriendshipRequestsResponseBody,
   RecievedFriendshipRequestInfo,
-} from "../../../model/routesEntities/FriendshipRouterEntities";
+} from "model/routesEntities/FriendshipRouterEntities";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err, S3_STORAGE_ERROR } from "../../utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  err,
+  S3_STORAGE_ERROR,
+} from "Routes/utils/errors/GlobalErrors";
 
 //# --- UTILS ---
 import { transformRequestsForResponse } from "./transformRequestsForResponse";

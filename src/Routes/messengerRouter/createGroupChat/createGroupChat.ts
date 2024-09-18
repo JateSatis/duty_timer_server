@@ -1,22 +1,22 @@
 import { Request, Response } from "express";
-import { User } from "../../../model/database/User";
+import { User } from "model/database/User";
 import {
   CreateGroupChatRequestBody,
   createGroupChatRequestBodyProperties,
   CreateGroupChatResponseBody,
-} from "../../../model/routesEntities/MessageRoutesEntities";
-import { emptyField } from "../../utils/validation/emptyField";
-import { missingRequestField } from "../../utils/validation/missingRequestField";
+} from "model/routesEntities/MessageRoutesEntities";
+import { emptyField } from "Routes/utils/validation/emptyField";
+import { missingRequestField } from "Routes/utils/validation/missingRequestField";
 import { invalidInputFormat } from "./invalidInput";
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
   S3_STORAGE_ERROR,
-} from "../../utils/errors/GlobalErrors";
-import { DB } from "../../../model/config/initializeConfig";
-import { S3DataSource } from "../../../model/config/imagesConfig";
-import { Chat } from "../../../model/database/Chat";
+} from "Routes/utils/errors/GlobalErrors";
+import { DB } from "model/config/initializeConfig";
+import { S3DataSource } from "model/config/imagesConfig";
+import { Chat } from "model/database/Chat";
 import { transformChatForResponse } from "../transformChatForResponse";
 
 export const createGroupChat = async (req: Request, res: Response) => {

@@ -2,23 +2,23 @@
 import { Request, Response } from "express";
 
 //# --- DATABASE ENTITIES ---
-import { Event } from "../../../model/database/Event";
-import { User } from "../../../model/database/User";
+import { Event } from "model/database/Event";
+import { User } from "model/database/User";
 
 //# --- REQUEST ENTITIES ---
 import {
   CreateEventRequestBody,
   createEventRequestBodyProperties,
   CreateEventResponseBody,
-} from "../../../model/routesEntities/EventsRouterEntities";
+} from "model/routesEntities/EventsRouterEntities";
 
 //# --- VALIDATE REQUESTS ---
-import { emptyField } from "../../utils/validation/emptyField";
-import { missingRequestField } from "../../utils/validation/missingRequestField";
+import { emptyField } from "Routes/utils/validation/emptyField";
+import { missingRequestField } from "Routes/utils/validation/missingRequestField";
 import { invalidInputFormat } from "./invalidInputFormat";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err } from "Routes/utils/errors/GlobalErrors";
 
 export const createEventRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, createEventRequestBodyProperties))

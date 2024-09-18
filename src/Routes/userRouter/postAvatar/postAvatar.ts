@@ -2,21 +2,21 @@
 import { Request, Response } from "express";
 
 //# --- COMFIG ---
-import { S3DataSource } from "../../../model/config/imagesConfig";
+import { S3DataSource } from "model/config/imagesConfig";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "../../../model/database/User";
+import { User } from "model/database/User";
 
 //# --- REQUEST ENTITIES ---
-import { UploadAvatarResponseBody } from "../../../model/routesEntities/UserRouterEntities";
+import { UploadAvatarResponseBody } from "model/routesEntities/UserRouterEntities";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
-} from "../../utils/errors/GlobalErrors";
-import { MISSING_FILE } from "../../utils/errors/UserErrors";
+} from "Routes/utils/errors/GlobalErrors";
+import { MISSING_FILE } from "Routes/utils/errors/UserErrors";
 
 export const postAvatar = async (req: Request, res: Response) => {
   const user: User = req.body.user;

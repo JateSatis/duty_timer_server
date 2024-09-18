@@ -2,26 +2,26 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
+import { DB } from "model/config/initializeConfig";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "../../../model/database/User";
+import { User } from "model/database/User";
 
 //# --- REQUEST ENTITIES ---
-import { FriendshipRequest } from "../../../model/database/FriendshipRequest";
+import { FriendshipRequest } from "model/database/FriendshipRequest";
 
 //# --- VALIDATE REQUEST ---
-import { emptyParam } from "../../utils/validation/emptyParam";
-import { invalidParamType } from "../../utils/validation/invalidParamType";
+import { emptyParam } from "Routes/utils/validation/emptyParam";
+import { invalidParamType } from "Routes/utils/validation/invalidParamType";
 
 //# --- ERRORS ---
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
-import { USER_ALREADY_FRIEND } from "../../utils/errors/FriendshipErrors";
+import { DATA_NOT_FOUND } from "Routes/utils/errors/AuthErrors";
+import { USER_ALREADY_FRIEND } from "Routes/utils/errors/FriendshipErrors";
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-} from "../../utils/errors/GlobalErrors";
+} from "Routes/utils/errors/GlobalErrors";
 
 // TODO: Check if the request is already sent
 
@@ -50,7 +50,7 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
   }
 
   //# Check if there is already a friendship between user and friend
-  if (user.friends.find(friend => friend.friendId === recieverId))
+  if (user.friends.find((friend) => friend.friendId === recieverId))
     return res.status(401).send(err(new USER_ALREADY_FRIEND()));
 
   let reciever;

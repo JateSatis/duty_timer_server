@@ -1,17 +1,17 @@
 import { Request, Response } from "express";
-import { S3DataSource } from "../../../model/config/imagesConfig";
-import { DB } from "../../../model/config/initializeConfig";
-import { Chat } from "../../../model/database/Chat";
-import { User } from "../../../model/database/User";
-import { GetGroupChatInfoResponseBody } from "../../../model/routesEntities/MessageRoutesEntities";
+import { S3DataSource } from "model/config/imagesConfig";
+import { DB } from "model/config/initializeConfig";
+import { Chat } from "model/database/Chat";
+import { User } from "model/database/User";
+import { GetGroupChatInfoResponseBody } from "model/routesEntities/MessageRoutesEntities";
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
   S3_STORAGE_ERROR,
-} from "../../utils/errors/GlobalErrors";
-import { emptyParam } from "../../utils/validation/emptyParam";
-import { invalidParamType } from "../../utils/validation/invalidParamType";
+} from "Routes/utils/errors/GlobalErrors";
+import { emptyParam } from "Routes/utils/validation/emptyParam";
+import { invalidParamType } from "Routes/utils/validation/invalidParamType";
 import { transformMessageForResponse } from "../transformMessageForResponse";
 
 export const getGroupChatInfo = async (req: Request, res: Response) => {

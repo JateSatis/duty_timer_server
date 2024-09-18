@@ -2,25 +2,25 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
+import { DB } from "model/config/initializeConfig";
 
 //# --- DATABASE ENTITIES ---
-import { Timer } from "../../../model/database/Timer";
+import { Timer } from "model/database/Timer";
 
 //# --- REQUEST ENTITIES ---
 import {
   UpdateTimerRequestBody,
   updateTimerRequestBodyProperties,
   UpdateTimerResponseBody,
-} from "../../../model/routesEntities/TimerRouterEntities";
+} from "model/routesEntities/TimerRouterEntities";
 
 //# --- VALIDATE REQUEST ---
-import { emptyField } from "../../utils/validation/emptyField";
-import { missingRequestField } from "../../utils/validation/missingRequestField";
+import { emptyField } from "Routes/utils/validation/emptyField";
+import { missingRequestField } from "Routes/utils/validation/missingRequestField";
 import { invalidInputFormat } from "./invalidInputFormat";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err } from "Routes/utils/errors/GlobalErrors";
 
 export const updateTimerRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, updateTimerRequestBodyProperties))

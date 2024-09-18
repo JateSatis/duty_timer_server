@@ -1,18 +1,23 @@
 //# --- LIBS ---
 import { Request, Response } from "express";
 
-//# --- DATABASE ENTITIES ---
-import { User } from "../../../model/database/User";
+//# --- DATABASE ---
+import { prisma } from "model/config/prismaClient";
+import { User } from "@prisma/client";
 
 //# --- ERRORS ---
-import { err } from "../../utils/errors/GlobalErrors";
-import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
+import { err } from "Routes/utils/errors/GlobalErrors";
+import { DATABASE_ERROR } from "Routes/utils/errors/GlobalErrors";
 
 export const deleteAccountRoute = async (req: Request, res: Response) => {
-  const userId = req.body.user.id;
+  const user: User = req.body.user;
 
   try {
-    await User.delete({ id: userId });
+    await prisma.user.delete({
+      where: {
+        id: user.id,
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }

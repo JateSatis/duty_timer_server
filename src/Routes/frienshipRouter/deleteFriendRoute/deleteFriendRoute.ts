@@ -2,22 +2,22 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
+import { DB } from "model/config/initializeConfig";
 
 //# --- DATABASE ENTITIES ---
-import { Friend } from "../../../model/database/Friend";
-import { User } from "../../../model/database/User";
+import { Friend } from "model/database/Friend";
+import { User } from "model/database/User";
 
 //# --- VALIDATE REQUEST ---
-import { emptyParam } from "../../utils/validation/emptyParam";
-import { invalidParamType } from "../../utils/validation/invalidParamType";
+import { emptyParam } from "Routes/utils/validation/emptyParam";
+import { invalidParamType } from "Routes/utils/validation/invalidParamType";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-} from "../../utils/errors/GlobalErrors";
+} from "Routes/utils/errors/GlobalErrors";
 
 export const deleteFriendRoute = async (req: Request, res: Response) => {
   if (invalidParamType(req, res, "friendId")) return res;

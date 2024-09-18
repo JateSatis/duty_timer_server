@@ -1,6 +1,6 @@
-import { SentFriendshipRequestInfo } from "../../../model/routesEntities/FriendshipRouterEntities";
-import { S3DataSource } from "../../../model/config/imagesConfig";
-import { FriendshipRequest } from "../../../model/database/FriendshipRequest";
+import { SentFriendshipRequestInfo } from "model/routesEntities/FriendshipRouterEntities";
+import { S3DataSource } from "model/config/imagesConfig";
+import { FriendshipRequest } from "model/database/FriendshipRequest";
 
 export const transformRequestsForResponse = async (
   requests: FriendshipRequest[]

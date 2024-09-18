@@ -2,18 +2,18 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { dutyTimerDataSource } from "../../../model/config/initializeConfig";
-import { S3DataSource } from "../../../model/config/imagesConfig";
+import { dutyTimerDataSource } from "model/config/initializeConfig";
+import { S3DataSource } from "model/config/imagesConfig";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "../../../model/database/User";
+import { User } from "model/database/User";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
-} from "../../utils/errors/GlobalErrors";
+} from "Routes/utils/errors/GlobalErrors";
 
 export const deleteAvatar = async (req: Request, res: Response) => {
   const user: User = req.body.user;

@@ -1,16 +1,16 @@
 import { Response } from "express";
-import { SignUpRequestBody } from "../../../model/routesEntities/AuthRouterEntities";
-import { err } from "../../utils/errors/GlobalErrors";
-import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
+import { SignUpRequestBody } from "model/routesEntities/AuthRouterEntities";
+import { err } from "Routes/utils/errors/GlobalErrors";
+import { INVALID_INPUT_FORMAT } from "Routes/utils/errors/AuthErrors";
 
-const allowedLogin = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-const allowedPassword =
+const passwordFormat =
   /^[A-Za-zА-Яа-яҐґЄєІіЇїҒғӘәҮүҰұҢңҺһ0-9!@#$%^&*()_+\-={}\[\]:;"'<>,.?\/\\|`~ ]*$/;
 
-const allowedName = /^[A-Za-zА-Яа-яҐґЄєІіЇїҒғӘәҮүҰұҢңҺһ ]*$/;
+const nameFormat = /^[A-Za-zА-Яа-яҐґЄєІіЇїҒғӘәҮүҰұҢңҺһ ]*$/;
 
-const allowedNickname = /^[A-Za-z0-9_]*$/;
+const nicknameFormat = /^[A-Za-z0-9_]*$/;
 
 export const invalidInputFormat = (
   res: Response,
@@ -19,17 +19,17 @@ export const invalidInputFormat = (
   const { login, password, name, nickname } = signUpRequestBody;
 
   if (
-    allowedLogin.test(login) &&
-    allowedPassword.test(password) &&
-    allowedName.test(signUpRequestBody.name) &&
-    allowedNickname.test(nickname) &&
+    emailFormat.test(login) &&
+    passwordFormat.test(password) &&
+    nameFormat.test(signUpRequestBody.name) &&
+    nicknameFormat.test(nickname) &&
     login.length <= 254 &&
-		password.length >= 6 &&
-		password.length <= 128 &&
-		name.length >= 2 &&
-		name.length <= 50 &&
-		nickname.length >= 4 &&
-		nickname.length <= 30
+    password.length >= 6 &&
+    password.length <= 128 &&
+    name.length >= 2 &&
+    name.length <= 50 &&
+    nickname.length >= 4 &&
+    nickname.length <= 30
   ) {
     return false;
   }

@@ -2,15 +2,15 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
-import { S3DataSource } from "../../../model/config/imagesConfig";
+import { DB } from "model/config/initializeConfig";
+import { S3DataSource } from "model/config/imagesConfig";
 import { webSocketChatsMap } from "../../../sockets/socketsConfig";
 
 //# --- DATABASE ENTITIES ---
-import { Message } from "../../../model/database/Message";
-import { User } from "../../../model/database/User";
-import { Attachment } from "../../../model/database/Attachment";
-import { Chat } from "../../../model/database/Chat";
+import { Message } from "model/database/Message";
+import { User } from "model/database/User";
+import { Attachment } from "model/database/Attachment";
+import { Chat } from "model/database/Chat";
 
 //# --- REQUEST ENTITIES ---
 import {
@@ -18,18 +18,18 @@ import {
   createMessageRequestBodyProperties,
   CreateMessageResponseBody,
   MessageResponseBody,
-} from "../../../model/routesEntities/MessageRoutesEntities";
+} from "model/routesEntities/MessageRoutesEntities";
 import {
   CreateMessageResponseBodyWS,
   WebSocketChatMessage,
-} from "../../../model/routesEntities/WebSocketRouterEntities";
+} from "model/routesEntities/WebSocketRouterEntities";
 
 //# --- VALIDATE REQUEST ---
-import { invalidParamType } from "../../utils/validation/invalidParamType";
-import { emptyParam } from "../../utils/validation/emptyParam";
-import { missingRequestField } from "../../utils/validation/missingRequestField";
+import { invalidParamType } from "Routes/utils/validation/invalidParamType";
+import { emptyParam } from "Routes/utils/validation/emptyParam";
+import { missingRequestField } from "Routes/utils/validation/missingRequestField";
 import { invalidInputFormat } from "./invalidInputFormat";
-import { emptyField } from "../../utils/validation/emptyField";
+import { emptyField } from "Routes/utils/validation/emptyField";
 
 //# --- ERRORS ---
 import {
@@ -37,7 +37,7 @@ import {
   err,
   FORBIDDEN_ACCESS,
   S3_STORAGE_ERROR,
-} from "../../utils/errors/GlobalErrors";
+} from "Routes/utils/errors/GlobalErrors";
 
 //# --- UTILS ---
 import { compressFile } from "./compressFile";

@@ -2,26 +2,26 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
+import { DB } from "model/config/initializeConfig";
 
 //# --- DATABASE ENTITIES ---
-import { Event } from "../../../model/database/Event";
-import { User } from "../../../model/database/User";
+import { Event } from "model/database/Event";
+import { User } from "model/database/User";
 
 //# --- REQUEST ENTITIES ---
-import { GetSpecificEventResponseBody } from "../../../model/routesEntities/EventsRouterEntities";
+import { GetSpecificEventResponseBody } from "model/routesEntities/EventsRouterEntities";
 
 //# --- VALIDATE REQUEST ---
-import { emptyParam } from "../../utils/validation/emptyParam";
-import { invalidParamType } from "../../utils/validation/invalidParamType";
+import { emptyParam } from "Routes/utils/validation/emptyParam";
+import { invalidParamType } from "Routes/utils/validation/invalidParamType";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-} from "../../utils/errors/GlobalErrors";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+} from "Routes/utils/errors/GlobalErrors";
+import { DATA_NOT_FOUND } from "Routes/utils/errors/AuthErrors";
 
 export const getEventByIdRoute = async (req: Request, res: Response) => {
   if (invalidParamType(req, res, "eventId")) return res;

@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { S3DataSource } from "../../../model/config/imagesConfig";
-import { User } from "../../../model/database/User";
-import { GetSettingsResponseBody } from "../../../model/routesEntities/UserRouterEntities";
-import { err, S3_STORAGE_ERROR } from "../../utils/errors/GlobalErrors";
+import { S3DataSource } from "model/config/imagesConfig";
+import { User } from "model/database/User";
+import { GetSettingsResponseBody } from "model/routesEntities/UserRouterEntities";
+import { err, S3_STORAGE_ERROR } from "Routes/utils/errors/GlobalErrors";
 
 export const getSettings = async (req: Request, res: Response) => {
   const user: User = req.body.user;

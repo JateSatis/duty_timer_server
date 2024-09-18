@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import * as jsonwebtoken from "jsonwebtoken";
 import * as path from "path";
 import * as fs from "fs";
-import { err } from "../Routes/utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err } from "../Routes/utils/errors/GlobalErrors";
 import {
   ABSENT_JWT_SUB,
   AUTHORIZATION_HEADER_ABSENT,
@@ -14,9 +14,7 @@ import {
   UNKNOWN_AUTH_ERROR,
   ACCOUNT_NOT_VERIFIED,
 } from "../Routes/utils/errors/AuthErrors";
-import { DB, dutyTimerDataSource } from "../model/config/initializeConfig";
-import { User } from "../model/database/User";
-import { env } from "process";
+import { prisma } from "../model/config/prismaClient";
 
 export const pathToPublicRefreshKey = path.join(
   __dirname,
@@ -73,14 +71,30 @@ const refreshAuthMiddleware = (
           if (!decoded.sub)
             return res.status(401).json(err(new ABSENT_JWT_SUB()));
 
-          const userId = parseInt(decoded.sub);
-          const user = await DB.getUserBy("id", userId);
+          const userId = decoded.sub;
+          let user;
+          try {
+            user = await prisma.user.findFirst({
+              where: {
+                id: userId,
+              },
+              include: {
+                accountInfo: true,
+              },
+            });
+          } catch (error) {
+            return res.status(400).json(err(new DATABASE_ERROR(error)));
+          }
 
           if (!user)
             return res
               .status(401)
               .json(err(new DATA_NOT_FOUND("user", `id = ${userId}`)));
-					
+
+          if (user.accountInfo!.verificationExpiresAt < Date.now()) {
+            return res.status(404).json(err(new ACCOUNT_NOT_VERIFIED()));
+          }
+
           req.body.user = user;
           req.body.refreshToken = token;
           next();

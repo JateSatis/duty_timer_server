@@ -1,7 +1,7 @@
 import { Response } from "express";
-import { UpdateTimerRequestBody } from "../../../model/routesEntities/TimerRouterEntities";
-import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
-import { err } from "../../utils/errors/GlobalErrors";
+import { UpdateTimerRequestBody } from "model/routesEntities/TimerRouterEntities";
+import { INVALID_INPUT_FORMAT } from "Routes/utils/errors/AuthErrors";
+import { err } from "Routes/utils/errors/GlobalErrors";
 
 const allowedTimeMillis = /^-?\d+$/;
 

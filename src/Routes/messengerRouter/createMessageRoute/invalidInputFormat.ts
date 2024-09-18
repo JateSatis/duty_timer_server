@@ -1,8 +1,8 @@
 import { Response } from "express";
-import { SignUpRequestBody } from "../../../model/routesEntities/AuthRouterEntities";
-import { err } from "../../utils/errors/GlobalErrors";
-import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
-import { CreateMessageRequestBody } from "../../../model/routesEntities/MessageRoutesEntities";
+import { SignUpRequestBody } from "model/routesEntities/AuthRouterEntities";
+import { err } from "Routes/utils/errors/GlobalErrors";
+import { INVALID_INPUT_FORMAT } from "Routes/utils/errors/AuthErrors";
+import { CreateMessageRequestBody } from "model/routesEntities/MessageRoutesEntities";
 
 export const invalidInputFormat = (
   res: Response,

@@ -4,26 +4,26 @@ import { Request, Response } from "express";
 //# --- CONFIG ---
 
 //# --- DATABASE ENTITIES ---
-import { DB } from "../../../model/config/initializeConfig";
-import { Chat } from "../../../model/database/Chat";
-import { Friend } from "../../../model/database/Friend";
-import { FriendshipRequest } from "../../../model/database/FriendshipRequest";
-import { User } from "../../../model/database/User";
+import { DB } from "model/config/initializeConfig";
+import { Chat } from "model/database/Chat";
+import { Friend } from "model/database/Friend";
+import { FriendshipRequest } from "model/database/FriendshipRequest";
+import { User } from "model/database/User";
 
 //# --- REQUEST ENTITIES ---
-import { AcceptFriendshipResponseBody } from "../../../model/routesEntities/FriendshipRouterEntities";
+import { AcceptFriendshipResponseBody } from "model/routesEntities/FriendshipRouterEntities";
 
 //# --- VALIDATE REQUEST ---
-import { emptyParam } from "../../utils/validation/emptyParam";
-import { invalidParamType } from "../../utils/validation/invalidParamType";
+import { emptyParam } from "Routes/utils/validation/emptyParam";
+import { invalidParamType } from "Routes/utils/validation/invalidParamType";
 
 //# --- ERRORS ---
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "Routes/utils/errors/AuthErrors";
 import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
-} from "../../utils/errors/GlobalErrors";
+} from "Routes/utils/errors/GlobalErrors";
 import { transformChatForResponse } from "../../messengerRouter/transformChatForResponse";
 
 export const acceptRequestRoute = async (req: Request, res: Response) => {

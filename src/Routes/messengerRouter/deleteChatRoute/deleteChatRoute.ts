@@ -2,19 +2,19 @@
 import { Request, Response } from "express";
 
 //# --- DATABASE ENTITIES ---
-import { Chat } from "../../../model/database/Chat";
-import { User } from "../../../model/database/User";
+import { Chat } from "model/database/Chat";
+import { User } from "model/database/User";
 
 //# --- VALIDATE REQUEST ---
-import { emptyParam } from "../../utils/validation/emptyParam";
-import { invalidParamType } from "../../utils/validation/invalidParamType";
+import { emptyParam } from "Routes/utils/validation/emptyParam";
+import { invalidParamType } from "Routes/utils/validation/invalidParamType";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-} from "../../utils/errors/GlobalErrors";
+} from "Routes/utils/errors/GlobalErrors";
 
 export const deleteChatRoute = async (req: Request, res: Response) => {
   if (invalidParamType(req, res, "chatId")) return res;

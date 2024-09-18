@@ -1,24 +1,26 @@
 import { Response } from "express";
-import { SignInRequestBody } from "model/routesEntities/AuthRouterEntities";
+import {
+  SignUpRequestBody,
+  VerifyEmailRequestBody,
+} from "model/routesEntities/AuthRouterEntities";
 import { err } from "Routes/utils/errors/GlobalErrors";
 import { INVALID_INPUT_FORMAT } from "Routes/utils/errors/AuthErrors";
 
 const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-const passwordFormat =
-  /^[A-Za-zА-Яа-яҐґЄєІіЇїҒғӘәҮүҰұҢңҺһ0-9!@#$%^&*()_+\-={}\[\]:;"'<>,.?\/\\|`~ ]*$/;
+const integerFormat = /^-?\d+$/;
 
 export const invalidInputFormat = (
   res: Response,
-  signInRequestBody: SignInRequestBody
+  verifyAccountRequestBody: VerifyEmailRequestBody
 ): boolean => {
-  const { login, password } = signInRequestBody;
+  const { email, otp } = verifyAccountRequestBody;
 
   if (
-    emailFormat.test(login) &&
-    passwordFormat.test(password) &&
-    login.length <= 254 &&
-    password.length <= 128
+    emailFormat.test(email) &&
+    email.length <= 254 &&
+    integerFormat.test(otp.toString()) &&
+    otp.toString().length === 6
   ) {
     return false;
   }

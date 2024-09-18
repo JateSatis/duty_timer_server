@@ -12,7 +12,8 @@ import { signInRoute } from "./signInRoute/signInRoute";
 import { logOutRoute } from "./logOutRoute/logOutRoute";
 import { refreshTokenRoute } from "./refreshTokenRoute/refreshTokenRoute";
 import { deleteAccountRoute } from "./deleteAccountRoute/deleteAccountRoute";
-import { verifyAccountRoute } from "./verifyAccountRoute/verifyAccountRoute";
+import { verifyEmailRoute } from "./verifyEmailRoute/verifyEmailRoute";
+import { sendOtpVerification } from "./sendOtpVerification/sendOtpVerification";
 
 dotenv.config();
 
@@ -22,7 +23,9 @@ authRouter.post("/sign-up", signUpRoute);
 
 authRouter.post("/sign-in", signInRoute);
 
-authRouter.post("/verify-email", verifyAccountRoute);
+authRouter.post("/send-otp-verification", sendOtpVerification);
+
+authRouter.post("/verify-email", verifyEmailRoute);
 
 authRouter.post("/log-out", auth, logOutRoute);
 

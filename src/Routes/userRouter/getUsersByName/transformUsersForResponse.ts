@@ -1,6 +1,6 @@
-import { S3DataSource } from "../../../model/config/imagesConfig";
-import { User } from "../../../model/database/User";
-import { ForeignUserInfoResponseBody } from "../../../model/routesEntities/UserRouterEntities";
+import { S3DataSource } from "model/config/imagesConfig";
+import { User } from "model/database/User";
+import { ForeignUserInfoResponseBody } from "model/routesEntities/UserRouterEntities";
 
 export const transformUsersForResponse = async (users: User[]) => {
   const usersInfo = await Promise.all(

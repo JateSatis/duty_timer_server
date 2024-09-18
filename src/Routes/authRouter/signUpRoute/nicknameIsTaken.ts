@@ -1,15 +1,18 @@
 import { Response } from "express";
-import { dutyTimerDataSource } from "../../../model/config/initializeConfig";
-import { User } from "../../../model/database/User";
-import { err } from "../../utils/errors/GlobalErrors";
-import { NICKNAME_IS_TAKEN } from "../../utils/errors/AuthErrors";
+import { err } from "Routes/utils/errors/GlobalErrors";
+import { NICKNAME_IS_TAKEN } from "Routes/utils/errors/AuthErrors";
+import { prisma } from "model/config/prismaClient";
 
 export const nicknameIsTaken = async (
   res: Response,
   nickname: string
 ): Promise<boolean> => {
-  const user = await dutyTimerDataSource.getRepository(User).findOneBy({
-    nickname: nickname,
+  const user = await prisma.user.findFirst({
+    where: {
+      accountInfo: {
+        nickname,
+      },
+    },
   });
 
   if (user) {

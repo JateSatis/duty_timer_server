@@ -2,28 +2,28 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
+import { DB } from "model/config/initializeConfig";
 
 //# --- DATABASE ENTITIES ---
-import { Event } from "../../../model/database/Event";
+import { Event } from "model/database/Event";
 
 //# --- REQUEST ENTITIES ---
 import {
   UpdateEventRequestBody,
   updateEventRequestBodyProperties,
   UpdateEventResponseBody,
-} from "../../../model/routesEntities/EventsRouterEntities";
+} from "model/routesEntities/EventsRouterEntities";
 
 //# --- VALIDATE REQUEST ---
-import { emptyField } from "../../utils/validation/emptyField";
-import { missingRequestField } from "../../utils/validation/missingRequestField";
+import { emptyField } from "Routes/utils/validation/emptyField";
+import { missingRequestField } from "Routes/utils/validation/missingRequestField";
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-} from "../../utils/errors/GlobalErrors";
-import { invalidParamType } from "../../utils/validation/invalidParamType";
-import { emptyParam } from "../../utils/validation/emptyParam";
+} from "Routes/utils/errors/GlobalErrors";
+import { invalidParamType } from "Routes/utils/validation/invalidParamType";
+import { emptyParam } from "Routes/utils/validation/emptyParam";
 
 //# --- ERRORS ---
 import { invalidInputFormat } from "./invalidInputFormat";

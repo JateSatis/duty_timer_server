@@ -2,27 +2,26 @@
 import { Request, Response } from "express";
 
 //# --- AUTH ---
-import { generatePasswordHash } from "../../../auth/jwt/passwordHandler";
+import { generatePasswordHash } from "auth/jwt/passwordHandler";
 
-//# --- VALIDATE REQUEST ---
-import { missingRequestField } from "../../utils/validation/missingRequestField";
-import { nicknameIsTaken } from "./nicknameIsTaken";
-import { accountAlreadyExists } from "./accountAlreadyExists";
-import { invalidInputFormat } from "./invalidInputFormat";
+//# --- DATABASE ---
+import { prisma } from "model/config/prismaClient";
 
 //# --- REQUEST ENTITIES ---
 import {
   SignUpRequestBody,
   signUpRequestBodyProperties,
-} from "../../../model/routesEntities/AuthRouterEntities";
+} from "model/routesEntities/AuthRouterEntities";
 
-//# --- VERIFY REQUEST ---
-import { emptyField } from "../../../Routes/utils/validation/emptyField";
+//# --- VALIDATE REQUEST ---
+import { missingRequestField } from "Routes/utils/validation/missingRequestField";
+import { nicknameIsTaken } from "./nicknameIsTaken";
+import { accountAlreadyExists } from "./accountAlreadyExists";
+import { invalidInputFormat } from "./invalidInputFormat";
+import { emptyField } from "Routes/utils/validation/emptyField";
 
 //# --- ERRORS ---
-import { sendOtpVerification } from "../sendOtpVerification";
-import { prisma } from "../../../model/config/prismaClient";
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err } from "Routes/utils/errors/GlobalErrors";
 
 export const signUpRoute = async (req: Request, res: Response) => {
   //# Check if all fields of json object are present in request
@@ -48,7 +47,9 @@ export const signUpRoute = async (req: Request, res: Response) => {
   endTime.setFullYear(startTime.getFullYear() + 1);
 
   try {
-    let user = await prisma.user.create({});
+    let user = await prisma.user.create({
+      data: {},
+    });
 
     let timer = await prisma.timer.create({
       data: {
@@ -85,10 +86,9 @@ export const signUpRoute = async (req: Request, res: Response) => {
       },
     });
 
-    await sendOtpVerification(signUpRequestBody.login, accountInfo);
-
     return res.sendStatus(200);
   } catch (error) {
+    console.log(error);
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 };

@@ -1,39 +1,58 @@
 //# --- LIBS ---
 import { Request, Response } from "express";
 
-//# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
-
-//# --- DATABASE ENTITIES ---
-import { RefreshToken } from "../../../model/database/RefreshToken";
-import { User } from "../../../model/database/User";
+//# --- DATABASE ---
+import { prisma } from "model/config/prismaClient";
+import { User } from "@prisma/client";
 
 //# --- ERRORS ---
-import { err } from "../../utils/errors/GlobalErrors";
-import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
+import { err } from "Routes/utils/errors/GlobalErrors";
+import { DATABASE_ERROR } from "Routes/utils/errors/GlobalErrors";
+import { DATA_NOT_FOUND } from "Routes/utils/errors/AuthErrors";
 
 export const logOutRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
-  let refreshToken: RefreshToken;
+  let refreshToken;
   try {
-    refreshToken = await DB.getRefreshTokenByUserId(user.id);
+    refreshToken = await prisma.refreshToken.findFirst({
+      where: {
+        userId: user.id,
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
+  if (!refreshToken) {
+    return res
+      .status(404)
+      .json(err(new DATA_NOT_FOUND("RefreshToken", `userId = ${user.id}`)));
+  }
+
   try {
-    refreshToken.isRevoked = true;
-    await RefreshToken.save(refreshToken);
+    //# Update refresh token -> make it revoked
+    await prisma.refreshToken.update({
+      where: {
+        userId: user.id,
+      },
+      data: {
+        isRevoked: true,
+      },
+    });
+
+    //# Update account info -> make user offline
+    await prisma.accountInfo.update({
+      where: {
+        userId: user.id,
+      },
+      data: {
+        isOnline: false,
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  try {
-    user.isOnline = false;
-    await User.save(user);
-    return res.sendStatus(200);
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
-  }
+  return res.sendStatus(200);
 };

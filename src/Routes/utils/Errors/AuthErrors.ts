@@ -119,3 +119,36 @@ export class ACCOUNT_NOT_VERIFIED extends ServerError {
     super("ACCOUNT_NOT_VERIFIED", "This account is not verified");
   }
 }
+
+export class ACCOUNT_ALREADY_VERIFIED extends ServerError {
+  constructor() {
+    super(
+      "ACCOUNT_ALREADY_VERIFIED",
+      "This account is already verified, it doesn't need to be verified again for some time"
+    );
+  }
+}
+
+export class OTP_NOT_FOUND extends ServerError {
+  constructor() {
+    super("OTP_NOT_FOUND", "No OTP was sent to this account");
+  }
+}
+
+export class OTP_SENDING_UNAVAILABLE extends ServerError {
+  constructor() {
+    super("OTP_SENDING_UNAVAILABLE", "Cannot send OTP right now, try later");
+  }
+}
+
+export class OTP_EXPIRED extends ServerError {
+  constructor() {
+    super("OTP_EXPIRED", "This OTP is expired, try to send a new one");
+  }
+}
+
+export class NOT_VALID_OTP extends ServerError {
+  constructor() {
+    super("NOT_VALID_OTP", "This OTP isn't valid for provided account");
+  }
+}

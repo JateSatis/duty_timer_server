@@ -2,20 +2,20 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
+import { DB } from "model/config/initializeConfig";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "../../../model/database/User";
+import { User } from "model/database/User";
 
 //# --- REQUEST ENTITIES ---
-import { GetAllFriendsResponseBody } from "../../../model/routesEntities/FriendshipRouterEntities";
+import { GetAllFriendsResponseBody } from "model/routesEntities/FriendshipRouterEntities";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
-} from "../../utils/errors/GlobalErrors";
+} from "Routes/utils/errors/GlobalErrors";
 import { transformUsersForResponse } from "./transformUsersForResponse";
 
 export const getFriendsRoute = async (req: Request, res: Response) => {

@@ -1,7 +1,7 @@
 import { Response } from "express";
-import { err } from "../../utils/errors/GlobalErrors";
-import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
-import { CreateEventRequestBody } from "../../../model/routesEntities/EventsRouterEntities";
+import { err } from "Routes/utils/errors/GlobalErrors";
+import { INVALID_INPUT_FORMAT } from "Routes/utils/errors/AuthErrors";
+import { CreateEventRequestBody } from "model/routesEntities/EventsRouterEntities";
 
 const allowedTitle =
   /^[A-Za-zА-Яа-яҐґЄєІіЇїҒғӘәҮүҰұҢңҺһ0-9!@#$%^&*()_+\-={}\[\]:;"'<>,.?\/\\|`~ ]*$/;
@@ -27,10 +27,7 @@ export const invalidInputFormat = (
     return true;
   }
 
-  if (
-    !allowedTitle.test(title) ||
-    title.length > 280
-  ) {
+  if (!allowedTitle.test(title) || title.length > 280) {
     return true;
   }
 

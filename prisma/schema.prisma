@@ -8,23 +8,23 @@ datasource db {
 }
 
 model User {
-  id               String              @id() @default(uuid())
-  AccountInfo      AccountInfo?
-  Event            Event[]
+  id               String              @id @default(uuid())
+  accountInfo      AccountInfo?
+  event            Event[]
   sentRequests     FriendshipRequest[] @relation("sender")
   recievedRequests FriendshipRequest[] @relation("reciever")
   friendsOf        Frienship[]         @relation("user1")
   friendOf         Frienship[]         @relation("user2")
-  Message          Message[]
-  RefreshToken     RefreshToken?
-  Settings         Settings?
-  Subscription     Subscription?
-  Timer            Timer?
-  Chat             Chat[]
+  message          Message[]
+  refreshToken     RefreshToken?
+  settings         Settings?
+  subscription     Subscription?
+  timer            Timer?
+  chat             Chat[]
 }
 
 model AccountInfo {
-  id                    String           @id() @default(uuid())
+  id                    String           @id @default(uuid())
   verificationExpiresAt BigInt
   email                 String
   name                  String
@@ -36,39 +36,40 @@ model AccountInfo {
   isOnline              Boolean          @default(false)
   lastSeenOnline        BigInt
   userId                String           @unique
-  User                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  OtpVerification       OtpVerification?
+  user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  otpVerification       OtpVerification?
 }
 
 model OtpVerification {
-  id               String      @id() @default(uuid())
+  id               String      @id @default(uuid())
   otpHash          String
   otpSalt          String
   email            String
+  createdAt        BigInt
   otpExpiresAt     BigInt
   accountExpiresAt BigInt
   accountId        String      @unique
-  AccountInfo      AccountInfo @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  accountInfo      AccountInfo @relation(fields: [accountId], references: [id], onDelete: Cascade)
 }
 
 model RefreshToken {
-  id        String  @id() @default(uuid())
+  id        String  @id @default(uuid())
   token     String
   isRevoked Boolean @default(false)
   userId    String  @unique
-  User      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Subscription {
-  id             String  @id() @default(uuid())
+  id             String  @id @default(uuid())
   active         Boolean @default(false)
   expirationDate BigInt
   userId         String  @unique
-  User           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Settings {
-  id                          String        @id() @default(uuid())
+  id                          String        @id @default(uuid())
   backgroundImageName         String?
   recievedBackgroundImageName String?
   backgroundTint              String?
@@ -78,7 +79,7 @@ model Settings {
   nicknameColor               NicknameColor @default(BLACK)
   language                    Language      @default(RUSSIAN)
   userId                      String        @unique
-  User                        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum Language {
@@ -107,41 +108,41 @@ enum UserType {
 }
 
 model Timer {
-  id              String @id() @default(uuid())
+  id              String @id @default(uuid())
   startTimeMillis BigInt
   endTimeMillis   BigInt
   userId          String @unique
-  User            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Attachment {
-  id        String  @id() @default(uuid())
+  id        String  @id @default(uuid())
   name      String
   messageId String
-  Message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  message   Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
 }
 
 model Chat {
-  id                   String    @id() @default(uuid())
+  id                   String    @id @default(uuid())
   name                 String
   imageName            String?
   isGroup              Boolean
   creationTime         BigInt
   lastUpdateTimeMillis BigInt
-  Message              Message[]
-  User                 User[]
+  message              Message[]
+  user                 User[]
 }
 
 model Event {
-  id         String @id() @default(uuid())
+  id         String @id @default(uuid())
   title      String
   timeMillis BigInt
   userId     String
-  User       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model FriendshipRequest {
-  id         String @id() @default(uuid())
+  id         String @id @default(uuid())
   senderId   String
   sender     User   @relation("sender", fields: [senderId], references: [id], onDelete: Cascade)
   recieverId String
@@ -151,7 +152,7 @@ model FriendshipRequest {
 }
 
 model Frienship {
-  id      String @id() @default(uuid())
+  id      String @id @default(uuid())
   user1Id String
   user1   User   @relation("user1", fields: [user1Id], references: [id], onDelete: Cascade)
   user2Id String
@@ -161,14 +162,14 @@ model Frienship {
 }
 
 model Message {
-  id           String       @id() @default(uuid())
+  id           String       @id @default(uuid())
   text         String
   creationTime BigInt
   isEdited     Boolean      @default(false)
   isRead       Boolean
   chatId       String
   senderId     String
-  Attachment   Attachment[]
-  Chat         Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  User         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  attachment   Attachment[]
+  chat         Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }
