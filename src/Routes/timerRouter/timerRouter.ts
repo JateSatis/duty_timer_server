@@ -8,8 +8,11 @@ import { auth } from "../../auth/authMiddleware";
 import { getTimerRoute } from "./getTimerRoute/getTimerRoute";
 import { updateTimerRoute } from "./updateTimerRoute/updateTimerRoute";
 import { connectToTimerRoute } from "./connectToTimerRoute/connectToTimerRoute";
+import { createTimer } from "./createTimer.ts/createTimer";
 
 export const timerRouter = Router();
+
+timerRouter.post("/", auth, createTimer);
 
 timerRouter.get("/", auth, getTimerRoute);
 

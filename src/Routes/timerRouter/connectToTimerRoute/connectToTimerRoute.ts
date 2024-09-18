@@ -2,19 +2,19 @@
 import { Request, Response } from "express";
 
 //# --- DATABASE ENTITIES ---
-import { Timer } from "model/database/Timer";
-import { User } from "model/database/User";
+import { Timer } from "../../../model/database/Timer";
+import { User } from "../../../model/database/User";
 
 //# --- REQUEST ENTITIES ---
-import { ConnectToTimerResponseBody } from "model/routesEntities/TimerRouterEntities";
+import { ConnectToTimerResponseBody } from "../../../model/routesEntities/TimerRouterEntities";
 
 //# --- REQUEST ENTITIES ---
-import { emptyParam } from "Routes/utils/validation/emptyParam";
-import { invalidParamType } from "Routes/utils/validation/invalidParamType";
+import { emptyParam } from "../../utils/validation/emptyParam";
+import { invalidParamType } from "../../utils/validation/invalidParamType";
 
 //# --- ERRORS ---
-import { DATA_NOT_FOUND } from "Routes/utils/errors/AuthErrors";
-import { DATABASE_ERROR, err } from "Routes/utils/errors/GlobalErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
 
 export const connectToTimerRoute = async (req: Request, res: Response) => {
   if (invalidParamType(req, res, "timerId")) return res;

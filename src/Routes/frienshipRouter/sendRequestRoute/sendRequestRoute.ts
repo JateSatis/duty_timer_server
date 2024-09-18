@@ -2,42 +2,47 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "model/config/initializeConfig";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "model/database/User";
 
 //# --- REQUEST ENTITIES ---
-import { FriendshipRequest } from "model/database/FriendshipRequest";
+import { FriendshipRequest } from "../../../model/database/FriendshipRequest";
 
 //# --- VALIDATE REQUEST ---
-import { emptyParam } from "Routes/utils/validation/emptyParam";
-import { invalidParamType } from "Routes/utils/validation/invalidParamType";
+import { emptyParam } from "../../utils/validation/emptyParam";
+import { invalidParamType } from "../../utils/validation/invalidParamType";
 
 //# --- ERRORS ---
-import { DATA_NOT_FOUND } from "Routes/utils/errors/AuthErrors";
-import { USER_ALREADY_FRIEND } from "Routes/utils/errors/FriendshipErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { USER_ALREADY_FRIEND } from "../../utils/errors/FriendshipErrors";
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-} from "Routes/utils/errors/GlobalErrors";
+} from "../../utils/errors/GlobalErrors";
+import { User } from "@prisma/client";
+import { prisma } from "src/model/config/prismaClient";
 
 // TODO: Check if the request is already sent
 
 export const sendRequestRoute = async (req: Request, res: Response) => {
-  if (invalidParamType(req, res, "recieverId")) return res;
+  const user: User = req.body.user;
 
   if (emptyParam(req, res, "recieverId")) return res;
 
-  const recieverId = parseInt(req.params.recieverId);
+  const recieverId = req.params.recieverId;
 
-  const user: User = req.body.user;
-
-  const existingRequest = await DB.getRequestBySenderAndReciever(
-    user.id,
-    recieverId
-  );
+  let existingRequest;
+  try {
+    existingRequest = await prisma.friendshipRequest.findFirst({
+      where: {
+        senderId: user.id,
+        recieverId: recieverId,
+      },
+    });
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
 
   //# If friendship request is already sent to this user, return error
   if (existingRequest) {
@@ -49,14 +54,31 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new FORBIDDEN_ACCESS()));
   }
 
+  let friendship;
+  try {
+    friendship = await prisma.frienship.findFirst({
+      where: {
+        OR: [
+          { user1Id: user.id, user2Id: recieverId },
+          { user1Id: recieverId, user2Id: user.id },
+        ],
+      },
+    });
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
+
   //# Check if there is already a friendship between user and friend
-  if (user.friends.find((friend) => friend.friendId === recieverId))
+  if (friendship) {
     return res.status(401).send(err(new USER_ALREADY_FRIEND()));
+  }
 
   let reciever;
   try {
-    reciever = await User.findOneBy({
-      id: recieverId,
+    reciever = await prisma.user.findFirst({
+      where: {
+        id: recieverId,
+      },
     });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
@@ -68,13 +90,13 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
       .json(err(new DATA_NOT_FOUND("user", `id = ${recieverId}`)));
   }
 
-  const friendshipRequest = FriendshipRequest.create({
-    sender: user,
-    reciever: reciever,
-  });
-
   try {
-    await friendshipRequest.save();
+    await prisma.friendshipRequest.create({
+      data: {
+        senderId: user.id,
+        recieverId: recieverId,
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }

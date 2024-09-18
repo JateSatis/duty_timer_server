@@ -2,13 +2,11 @@
 export type SignUpRequestBody = {
   login: string;
   password: string;
-  name: string;
   nickname: string;
 };
 export const signUpRequestBodyProperties = [
   "login",
   "password",
-  "name",
   "nickname",
 ];
 
@@ -19,7 +17,7 @@ export type SendOtpVerificationRequestBody = {
 
 export const sendOtpVerificationRequestBodyProperties = ["email"];
 
-//# --- VERFIY EMAIL REQUEST ---
+//# --- VERIFIY EMAIL REQUEST ---
 export type VerifyEmailRequestBody = {
   email: string;
   otp: number;

@@ -28,7 +28,7 @@ export type MessageResponseBody = {
 };
 
 export type ChatResponseBody = {
-  chatId: number;
+  chatId: string;
   name: string;
   imageLink: string | null;
   lastMessageText: string | null;
@@ -73,7 +73,7 @@ export const editMessageRequestBodyProperties = ["text"];
 
 export type CreateGroupChatRequestBody = {
   name: string;
-  participantIds: number[];
+  participantIds: string[];
 };
 
 export const createGroupChatRequestBodyProperties = ["name", "participantIds"];

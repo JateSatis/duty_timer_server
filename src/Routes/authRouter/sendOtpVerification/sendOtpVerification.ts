@@ -6,36 +6,38 @@ import { google } from "googleapis";
 import * as nodemailer from "nodemailer";
 
 //# --- DATABASE ---
-import { prisma } from "model/config/prismaClient";
+import { prisma } from "../../../model/config/prismaClient";
 
 //# --- REQUEST ENTITIES ---
 import {
   SendOtpVerificationRequestBody,
   sendOtpVerificationRequestBodyProperties,
-} from "model/routesEntities/AuthRouterEntities";
+} from "../../../model/routesEntities/AuthRouterEntities";
 
 //# --- VALIDATE REQUEST ---
-import { emptyField } from "Routes/utils/validation/emptyField";
-import { missingRequestField } from "Routes/utils/validation/missingRequestField";
+import { emptyField } from "../../utils/validation/emptyField";
+import { missingRequestField } from "../../utils/validation/missingRequestField";
 import { invalidInputFormat } from "./invalidInput";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "Routes/utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
 import {
   ACCOUNT_ALREADY_VERIFIED,
   DATA_NOT_FOUND,
   OTP_SENDING_UNAVAILABLE,
-} from "Routes/utils/errors/AuthErrors";
+} from "../../utils/errors/AuthErrors";
 
 dotenv.config();
 
 const OAuth2 = google.auth.OAuth2;
 
+console.log("Creating OAuth2 client");
 const oauth2Client = new OAuth2(
   process.env.OAUTH2_EMAIL_CLIENT_ID,
   process.env.OAUTH2_EMAIL_CLIENT_SECRET,
   process.env.OAUTH2_EMAIL_REDIRECT_URI
 );
+console.log("OAuth2 client created");
 
 oauth2Client.setCredentials({
   scope: "https://mail.google.com",
@@ -88,7 +90,7 @@ export const sendOtpVerification = async (req: Request, res: Response) => {
   }
 
   //# If provided account is verified, OTP shouldn't be sent to it
-  if (user.accountInfo!.verificationExpiresAt > Date.now()) {
+  if (user.accountInfo!.isVerified) {
     return res.status(404).json(err(new ACCOUNT_ALREADY_VERIFIED()));
   }
 
@@ -99,11 +101,13 @@ export const sendOtpVerification = async (req: Request, res: Response) => {
     return res.status(400).json(err(new OTP_SENDING_UNAVAILABLE()));
   }
 
+  console.log("Getting access token");
   //# If no access token was retrieved, return an error
   const accessToken = await getGmailAccessToken();
   if (!accessToken) {
     return res.status(400).json(err(new OTP_SENDING_UNAVAILABLE()));
   }
+  console.log("Access token obtained:", accessToken ? "Success" : "Failed");
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   const otpSalt = crypto.randomBytes(32).toString("hex");
@@ -142,8 +146,11 @@ export const sendOtpVerification = async (req: Request, res: Response) => {
     });
   }
 
+  console.log("Creating Nodemailer transporter");
   const transporter = nodemailer.createTransport({
     service: "gmail",
+    port: 465,
+    secure: true,
     auth: {
       type: "OAuth2",
       user: process.env.OAUTH2_EMAIL_ADRESS,
@@ -153,6 +160,7 @@ export const sendOtpVerification = async (req: Request, res: Response) => {
       accessToken: accessToken,
     },
   });
+  console.log("Nodemailer transporter created");
 
   const mailOptions = {
     from: process.env.OAUTH2_EMAIL_ADRESS,
@@ -161,7 +169,27 @@ export const sendOtpVerification = async (req: Request, res: Response) => {
     text: `Code: ${otp}`,
   };
 
-  await transporter.sendMail(mailOptions);
+  console.log("Preparing to send email");
+  try {
+    console.log("Sending email...");
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error("Error sending email:", error);
+    if (error.code === "ETIMEDOUT") {
+      console.error(
+        "Connection timed out. Network or firewall issue may be present."
+      );
+    }
+    if (error.code === "ECONNREFUSED") {
+      console.error(
+        "Connection refused. Check if outgoing SMTP connections are allowed."
+      );
+    }
+    if (error.responseCode) {
+      console.error("SMTP response code:", error.responseCode);
+    }
+    throw error;
+  }
 
   return res.sendStatus(200);
 };

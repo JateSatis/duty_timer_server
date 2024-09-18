@@ -8,20 +8,20 @@ import {
 } from "../../../auth/jwt/issueJWT";
 
 //# --- DATABASE ---
-import { prisma } from "model/config/prismaClient";
+import { prisma } from "../../../model/config/prismaClient";
 import { User } from "@prisma/client";
 
 //# --- REQUEST ENTITIES ---
-import { RefreshTokenResponseBody } from "model/routesEntities/AuthRouterEntities";
+import { RefreshTokenResponseBody } from "../../../model/routesEntities/AuthRouterEntities";
 
 //# --- ERRORS ---
-import { err } from "Routes/utils/errors/GlobalErrors";
+import { err } from "../../utils/errors/GlobalErrors";
 import {
   DATA_NOT_FOUND,
   OUTDATED_REFRESH_TOKEN,
   REFRESH_TOKEN_REVOKED,
-} from "Routes/utils/errors/AuthErrors";
-import { DATABASE_ERROR } from "Routes/utils/errors/GlobalErrors";
+} from "../../utils/errors/AuthErrors";
+import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
 
 export const refreshTokenRoute = async (req: Request, res: Response) => {
   const refreshToken = req.body.refreshToken;

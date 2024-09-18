@@ -2,17 +2,17 @@
 import { Request, Response } from "express";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "model/database/User";
+import { User } from "../../../model/database/User";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "Routes/utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
 import { webSocketFriendsMap } from "../../../sockets/socketsConfig";
 import {
   UserOnlineResponseBodyWS,
   WebSocketStatusMessage,
-} from "model/routesEntities/WebSocketRouterEntities";
+} from "../../../model/routesEntities/WebSocketRouterEntities";
 
 export const setStatusOnline = async (req: Request, res: Response) => {
   const user: User = req.body.user;

@@ -11,37 +11,33 @@ export const transformMessageForResponse = async (
   user: User,
   senderAvatarLink: string | null
 ) => {
-  const attachmentNames = message.attachments.map(
-    (attachment) => attachment.name
-  );
-  const attachmentLinks: string[] = [];
-  await Promise.all(
-    attachmentNames.map(async (attachmentName) => {
-      const attachmentLink = await S3DataSource.getImageUrlFromS3(
-        attachmentName
-      );
-      attachmentLinks.push(attachmentLink);
-    })
-  );
-
-  const { timeFormat, dateFormat } = formatDateForMessage(message.creationTime);
-
-  const isSender = message.sender.id === user.id;
-
-  const messageResponseBody: MessageResponseBody = {
-    messageId: message.id,
-    chatId: chat.id,
-    senderId: message.sender.id,
-    senderName: message.sender.name,
-    senderAvatarLink,
-    text: message.text,
-    attachmentLinks,
-    creationDate: dateFormat,
-    creationTime: timeFormat,
-    isRead: message.isRead,
-    isEdited: message.isEdited,
-    isSender,
-  };
-
-  return messageResponseBody;
+  // const attachmentNames = message.attachments.map(
+  //   (attachment) => attachment.name
+  // );
+  // const attachmentLinks: string[] = [];
+  // await Promise.all(
+  //   attachmentNames.map(async (attachmentName) => {
+  //     const attachmentLink = await S3DataSource.getImageUrlFromS3(
+  //       attachmentName
+  //     );
+  //     attachmentLinks.push(attachmentLink);
+  //   })
+  // );
+  // const { timeFormat, dateFormat } = formatDateForMessage(message.creationTime);
+  // const isSender = message.sender.id === user.id;
+  // const messageResponseBody: MessageResponseBody = {
+  //   messageId: message.id,
+  //   chatId: chat.id,
+  //   senderId: message.sender.id,
+  //   senderName: message.sender.name,
+  //   senderAvatarLink,
+  //   text: message.text,
+  //   attachmentLinks,
+  //   creationDate: dateFormat,
+  //   creationTime: timeFormat,
+  //   isRead: message.isRead,
+  //   isEdited: message.isEdited,
+  //   isSender,
+  // };
+  // return messageResponseBody;
 };

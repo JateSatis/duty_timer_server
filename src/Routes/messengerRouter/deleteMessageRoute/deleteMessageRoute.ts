@@ -2,29 +2,29 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "model/config/initializeConfig";
+import { DB } from "../../../model/config/initializeConfig";
 
 //# --- REQUEST ENTITIES ---
 import {
   DeleteMessageResponseBodyWS,
   WebSocketChatMessage,
-} from "model/routesEntities/WebSocketRouterEntities";
+} from "../../../model/routesEntities/WebSocketRouterEntities";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "model/database/User";
-import { Message } from "model/database/Message";
-import { Chat } from "model/database/Chat";
+import { User } from "../../../model/database/User";
+import { Message } from "../../../model/database/Message";
+import { Chat } from "../../../model/database/Chat";
 
 //# --- VALIDATE REQUEST ---
-import { emptyParam } from "Routes/utils/validation/emptyParam";
-import { invalidParamType } from "Routes/utils/validation/invalidParamType";
+import { emptyParam } from "../../utils/validation/emptyParam";
+import { invalidParamType } from "../../utils/validation/invalidParamType";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-} from "Routes/utils/errors/GlobalErrors";
+} from "../../utils/errors/GlobalErrors";
 import { webSocketChatsMap } from "../../../sockets/socketsConfig";
 
 export const deleteMessageRoute = async (req: Request, res: Response) => {

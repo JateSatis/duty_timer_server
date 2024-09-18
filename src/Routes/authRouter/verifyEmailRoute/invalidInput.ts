@@ -2,9 +2,9 @@ import { Response } from "express";
 import {
   SignUpRequestBody,
   VerifyEmailRequestBody,
-} from "model/routesEntities/AuthRouterEntities";
-import { err } from "Routes/utils/errors/GlobalErrors";
-import { INVALID_INPUT_FORMAT } from "Routes/utils/errors/AuthErrors";
+} from "../../../model/routesEntities/AuthRouterEntities";
+import { err } from "../../utils/errors/GlobalErrors";
+import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
 
 const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 

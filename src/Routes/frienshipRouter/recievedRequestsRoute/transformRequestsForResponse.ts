@@ -1,24 +1,23 @@
-import { RecievedFriendshipRequestInfo } from "model/routesEntities/FriendshipRouterEntities";
-import { S3DataSource } from "model/config/imagesConfig";
-import { FriendshipRequest } from "model/database/FriendshipRequest";
+import { RecievedFriendshipRequestInfo } from "../../../model/routesEntities/FriendshipRouterEntities";
+import { S3DataSource } from "../../../model/config/imagesConfig";
+import { prisma } from "../../../model/config/prismaClient";
 
-export const transformRequestsForResponse = async (
-  requests: FriendshipRequest[]
-) => {
+export const transformRequestsForResponse = async (requestIds: string[]) => {
+  const requests = await getJoinedRequests(requestIds);
+
   const usersInfo = await Promise.all(
     requests.map(async (request) => {
       let avatarLink = null;
-      if (request.sender.avatarImageName) {
+      if (request.sender.accountInfo!.avatarImageName) {
         avatarLink = await S3DataSource.getImageUrlFromS3(
-          request.sender.avatarImageName
+          request.sender.accountInfo!.avatarImageName
         );
       }
 
       const recievedFriendshipRequestInfo: RecievedFriendshipRequestInfo = {
         id: request.id,
-        senderId: request.sender.id,
-        senderName: request.sender.name,
-        senderNickname: request.sender.nickname,
+        senderId: request.reciever.id,
+        senderNickname: request.reciever.accountInfo!.nickname,
         senderAvatarLink: avatarLink,
       };
 
@@ -27,4 +26,26 @@ export const transformRequestsForResponse = async (
   );
 
   return usersInfo;
+};
+
+const getJoinedRequests = async (requestIds: string[]) => {
+  const requests = await prisma.friendshipRequest.findMany({
+    where: {
+      id: { in: requestIds },
+    },
+    include: {
+      reciever: {
+        include: {
+          accountInfo: true,
+        },
+      },
+      sender: {
+        include: {
+          accountInfo: true,
+        },
+      },
+    },
+  });
+
+  return requests;
 };

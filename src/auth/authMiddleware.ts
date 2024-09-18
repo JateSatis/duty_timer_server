@@ -13,6 +13,7 @@ import {
   UNKNOWN_AUTH_ERROR,
   DATA_NOT_FOUND,
   ACCOUNT_NOT_VERIFIED,
+  ACCOUNT_HAS_NO_TIMER,
 } from "../Routes/utils/errors/AuthErrors";
 import { prisma } from "../model/config/prismaClient";
 
@@ -97,7 +98,7 @@ const authMiddleware = async (
               .status(404)
               .json(err(new DATA_NOT_FOUND("user", `id = ${userId}`)));
 
-          if (user.accountInfo!.verificationExpiresAt < Date.now()) {
+          if (!user.accountInfo!.isVerified) {
             return res.status(404).json(err(new ACCOUNT_NOT_VERIFIED()));
           }
 

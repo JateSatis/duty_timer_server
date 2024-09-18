@@ -1,7 +1,7 @@
 import { Response } from "express";
-import { err } from "Routes/utils/errors/GlobalErrors";
-import { NICKNAME_IS_TAKEN } from "Routes/utils/errors/AuthErrors";
-import { prisma } from "model/config/prismaClient";
+import { err } from "../../utils/errors/GlobalErrors";
+import { NICKNAME_IS_TAKEN } from "../../utils/errors/AuthErrors";
+import { prisma } from "../../../model/config/prismaClient";
 
 export const nicknameIsTaken = async (
   res: Response,

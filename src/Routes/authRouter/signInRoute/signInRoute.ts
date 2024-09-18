@@ -2,35 +2,35 @@
 import { Request, Response } from "express";
 
 //# --- DATABSE ---
-import { prisma } from "model/config/prismaClient";
+import { prisma } from "../../../model/config/prismaClient";
 
 //# --- AUTH ---
 import {
   issueAccessToken,
   issueRefreshToken,
-} from "auth/jwt/issueJWT";
-import { validatePassword } from "auth/jwt/passwordHandler";
+} from "../../../auth/jwt/issueJWT";
+import { validatePassword } from "../../../auth/jwt/passwordHandler";
 
 //# --- REQUEST ENTITIES ---
 import {
   SignInRequestBody,
   signInRequestBodyProperties,
   SignInResponseBody,
-} from "model/routesEntities/AuthRouterEntities";
+} from "../../../model/routesEntities/AuthRouterEntities";
 
 //# --- VALIDATE REQUEST ---
-import { missingRequestField } from "Routes/utils/validation/missingRequestField";
+import { missingRequestField } from "../../utils/validation/missingRequestField";
 import { invalidInputFormat } from "./invalidInputFormat";
-import { emptyField } from "Routes/utils/validation/emptyField";
+import { emptyField } from "../../utils/validation/emptyField";
 
 //# --- ERRORS ---
-import { err } from "Routes/utils/errors/GlobalErrors";
+import { err } from "../../utils/errors/GlobalErrors";
 import {
   INCORRECT_PASSWORD,
   DATA_NOT_FOUND,
   ACCOUNT_NOT_VERIFIED,
-} from "Routes/utils/errors/AuthErrors";
-import { DATABASE_ERROR } from "Routes/utils/errors/GlobalErrors";
+} from "../../utils/errors/AuthErrors";
+import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
 
 export const signInRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, signInRequestBodyProperties)) return res;
@@ -67,7 +67,7 @@ export const signInRoute = async (req: Request, res: Response) => {
   }
 
   //# Case where this account is not verified
-  if (user.accountInfo!.verificationExpiresAt < Date.now()) {
+  if (!user.accountInfo!.isVerified) {
     return res.status(400).json(new ACCOUNT_NOT_VERIFIED());
   }
 

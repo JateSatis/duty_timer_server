@@ -1,19 +1,16 @@
-import { User } from "../database/User";
 import { ChatResponseBody } from "./MessageRoutesEntities";
 import { ForeignUserInfoResponseBody } from "./UserRouterEntities";
 
 export type SentFriendshipRequestInfo = {
-  id: number;
-  recieverId: number;
-  recieverName: string;
+  id: string;
+  recieverId: string;
   recieverNickname: string;
   recieverAvatarLink: string | null;
 };
 
 export type RecievedFriendshipRequestInfo = {
-  id: number;
-  senderId: number;
-  senderName: string;
+  id: string;
+  senderId: string;
   senderNickname: string;
   senderAvatarLink: string | null;
 };

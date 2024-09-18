@@ -1,14 +1,13 @@
 import { UserType } from "../utils/Enums";
 
 export type ForeignUserInfoResponseBody = {
-  id: number;
-  name: string;
+  id: string;
   nickname: string;
   avatarLink: string | null;
 };
 
 export type GetUserInfoResponseBody = {
-  id: number;
+  id: string;
   name: string;
   nickname: string;
   login: string;

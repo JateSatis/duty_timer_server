@@ -1,49 +1,52 @@
 //# --- LIBS ---
 import { Request, Response } from "express";
 
-//# --- CONFIG ---
-import { DB } from "model/config/initializeConfig";
-
-//# --- DATABASE ENTITIES ---
-import { Friend } from "model/database/Friend";
-import { User } from "model/database/User";
+//# --- DATABASE ---
+import { prisma } from "../../../model/config/prismaClient";
+import { User } from "@prisma/client";
 
 //# --- VALIDATE REQUEST ---
-import { emptyParam } from "Routes/utils/validation/emptyParam";
-import { invalidParamType } from "Routes/utils/validation/invalidParamType";
+import { emptyParam } from "../../utils/validation/emptyParam";
 
 //# --- ERRORS ---
-import {
-  DATABASE_ERROR,
-  err,
-  FORBIDDEN_ACCESS,
-} from "Routes/utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 
 export const deleteFriendRoute = async (req: Request, res: Response) => {
-  if (invalidParamType(req, res, "friendId")) return res;
-
   if (emptyParam(req, res, "friendId")) return res;
 
-  const friendId = parseInt(req.params.friendId);
+  const friendId = req.params.friendId;
 
   const user: User = req.body.user;
 
-  let friend;
-  let foreignFriend;
+  let friendship;
   try {
-    friend = await DB.getFriendByUserIds(user.id, friendId);
-    foreignFriend = await DB.getFriendByUserIds(friendId, user.id);
+    friendship = await prisma.frienship.findFirst({
+      where: {
+        OR: [
+          { user1Id: user.id, user2Id: friendId },
+          { user1Id: friendId, user2Id: user.id },
+        ],
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  if (!friend || !foreignFriend) {
-    return res.status(404).json(err(new FORBIDDEN_ACCESS()));
+  if (!friendship) {
+    return res
+      .status(404)
+      .json(
+        err(new DATA_NOT_FOUND("Friendship", `ids = [${user.id}, ${friendId}]`))
+      );
   }
 
   try {
-    await Friend.delete(friend.id);
-    await Friend.delete(foreignFriend.id);
+    await prisma.frienship.delete({
+      where: {
+        id: friendship.id,
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }

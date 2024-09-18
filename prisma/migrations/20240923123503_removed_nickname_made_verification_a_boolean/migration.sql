@@ -20,9 +20,8 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "AccountInfo" (
     "id" TEXT NOT NULL,
-    "verificationExpiresAt" BIGINT NOT NULL,
+    "isVerified" BOOLEAN NOT NULL,
     "email" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
     "nickname" TEXT NOT NULL,
     "avatarImageName" TEXT,
     "userType" "UserType" NOT NULL DEFAULT 'DEFAULT',

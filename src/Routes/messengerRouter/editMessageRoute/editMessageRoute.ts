@@ -2,36 +2,36 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "model/config/initializeConfig";
+import { DB } from "../../../model/config/initializeConfig";
 import { webSocketChatsMap } from "../../../sockets/socketsConfig";
 
 //# --- DATABASE ENTITIES ---
-import { Message } from "model/database/Message";
-import { User } from "model/database/User";
+import { Message } from "../../../model/database/Message";
+import { User } from "../../../model/database/User";
 
 //# --- REQUEST ENTITIES ---
 import {
   EditMessageRequestBody,
   editMessageRequestBodyProperties,
-} from "model/routesEntities/MessageRoutesEntities";
+} from "../../../model/routesEntities/MessageRoutesEntities";
 import {
   EditMessageResponseBodyWS,
   WebSocketChatMessage,
-} from "model/routesEntities/WebSocketRouterEntities";
+} from "../../../model/routesEntities/WebSocketRouterEntities";
 
 //# --- VALIDATE REQUEST ---
-import { emptyParam } from "Routes/utils/validation/emptyParam";
-import { invalidParamType } from "Routes/utils/validation/invalidParamType";
-import { missingRequestField } from "Routes/utils/validation/missingRequestField";
+import { emptyParam } from "../../utils/validation/emptyParam";
+import { invalidParamType } from "../../utils/validation/invalidParamType";
+import { missingRequestField } from "../../utils/validation/missingRequestField";
 import { invalidInputFormat } from "./invalidInputFormat";
-import { emptyField } from "Routes/utils/validation/emptyField";
+import { emptyField } from "../../utils/validation/emptyField";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-} from "Routes/utils/errors/GlobalErrors";
+} from "../../utils/errors/GlobalErrors";
 
 export const editMessageRoute = async (req: Request, res: Response) => {
   if (invalidParamType(req, res, "messageId")) return res;

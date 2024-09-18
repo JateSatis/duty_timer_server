@@ -1,27 +1,29 @@
 //# --- LIBS ---
 import { Request, Response } from "express";
+import { RcptOptions, SMTPClient } from "smtp-client";
 
 //# --- AUTH ---
-import { generatePasswordHash } from "auth/jwt/passwordHandler";
+import { generatePasswordHash } from "../../../auth/jwt/passwordHandler";
 
 //# --- DATABASE ---
-import { prisma } from "model/config/prismaClient";
+import { prisma } from "../../../model/config/prismaClient";
 
 //# --- REQUEST ENTITIES ---
 import {
   SignUpRequestBody,
   signUpRequestBodyProperties,
-} from "model/routesEntities/AuthRouterEntities";
+} from "../../../model/routesEntities/AuthRouterEntities";
 
 //# --- VALIDATE REQUEST ---
-import { missingRequestField } from "Routes/utils/validation/missingRequestField";
+import { missingRequestField } from "../../utils/validation/missingRequestField";
 import { nicknameIsTaken } from "./nicknameIsTaken";
 import { accountAlreadyExists } from "./accountAlreadyExists";
 import { invalidInputFormat } from "./invalidInputFormat";
-import { emptyField } from "Routes/utils/validation/emptyField";
+import { emptyField } from "../../utils/validation/emptyField";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "Routes/utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import { EMAIL_NOT_VALID } from "../../utils/errors/AuthErrors";
 
 export const signUpRoute = async (req: Request, res: Response) => {
   //# Check if all fields of json object are present in request
@@ -42,47 +44,21 @@ export const signUpRoute = async (req: Request, res: Response) => {
 
   const password = generatePasswordHash(signUpRequestBody.password);
 
-  const startTime = new Date();
-  const endTime = new Date();
-  endTime.setFullYear(startTime.getFullYear() + 1);
-
   try {
     let user = await prisma.user.create({
       data: {},
     });
 
-    let timer = await prisma.timer.create({
-      data: {
-        userId: user.id,
-        startTimeMillis: startTime.getTime(),
-        endTimeMillis: endTime.getTime(),
-      },
-    });
-
-    let settings = await prisma.settings.create({
-      data: {
-        userId: user.id,
-      },
-    });
-
     let accountInfo = await prisma.accountInfo.create({
       data: {
         userId: user.id,
-        verificationExpiresAt: Date.now(),
+        isVerified: false,
         email: signUpRequestBody.login,
-        name: signUpRequestBody.name,
         nickname: signUpRequestBody.nickname,
         passwordHash: password.hash,
         passwordSalt: password.salt,
         userType: "DEFAULT",
         lastSeenOnline: Date.now(),
-      },
-    });
-
-    let subscription = await prisma.subscription.create({
-      data: {
-        userId: user.id,
-        expirationDate: Date.now(),
       },
     });
 

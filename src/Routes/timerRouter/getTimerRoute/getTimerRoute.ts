@@ -2,16 +2,16 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "model/config/initializeConfig";
+import { DB } from "../../../model/config/initializeConfig";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "model/database/User";
+import { User } from "../../../model/database/User";
 
 //# --- REQUEST ENTITIES ---
-import { GetTimerResponseBody } from "model/routesEntities/TimerRouterEntities";
+import { GetTimerResponseBody } from "../../../model/routesEntities/TimerRouterEntities";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "Routes/utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
 
 export const getTimerRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;

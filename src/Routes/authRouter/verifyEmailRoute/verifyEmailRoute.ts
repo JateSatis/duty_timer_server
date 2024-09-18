@@ -3,10 +3,13 @@ import { Request, Response } from "express";
 import * as crypto from "crypto";
 
 //# --- AUTH ---
-import { issueAccessToken, issueRefreshToken } from "auth/jwt/issueJWT";
+import {
+  issueAccessToken,
+  issueRefreshToken,
+} from "../../../auth/jwt/issueJWT";
 
 //# --- DATABASE ---
-import { prisma } from "model/config/prismaClient";
+import { prisma } from "../../../model/config/prismaClient";
 import { OtpVerification } from "@prisma/client";
 
 //# --- REQUEST ENTITIES ---
@@ -14,21 +17,22 @@ import {
   VerifyEmailRequestBody,
   verifyEmailRequestBodyProperties,
   VerifyEmailResponseBody,
-} from "model/routesEntities/AuthRouterEntities";
+} from "../../../model/routesEntities/AuthRouterEntities";
 
 //# --- VERIFY REQUEST ---
-import { missingRequestField } from "Routes/utils/validation/missingRequestField";
-import { emptyField } from "Routes/utils/validation/emptyField";
+import { missingRequestField } from "../../utils/validation/missingRequestField";
+import { emptyField } from "../../utils/validation/emptyField";
 import { invalidInputFormat } from "./invalidInput";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "Routes/utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
 import {
   ACCOUNT_ALREADY_VERIFIED,
   DATA_NOT_FOUND,
+  NOT_VALID_OTP,
   OTP_EXPIRED,
   OTP_NOT_FOUND,
-} from "Routes/utils/errors/AuthErrors";
+} from "../../utils/errors/AuthErrors";
 
 export const verifyEmailRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, verifyEmailRequestBodyProperties))
@@ -71,7 +75,7 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
   }
 
   //# If provided account is verified, it shouldn't be verified again
-  if (user.accountInfo!.verificationExpiresAt > Date.now()) {
+  if (user.accountInfo!.isVerified) {
     return res.status(404).json(err(new ACCOUNT_ALREADY_VERIFIED()));
   }
 
@@ -89,7 +93,7 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
 
   //# Case where OTP is wrong
   if (!validateOtp(verifyEmailRequestBody.otp, otpVerification)) {
-    return res.status(400).json("not valid otp");
+    return res.status(400).json(new NOT_VALID_OTP());
   }
 
   const accessToken = issueAccessToken(user.id);
@@ -106,6 +110,13 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
     });
 
     const oneYearMillis = 365 * 24 * 60 * 60 * 1000;
+    await prisma.timer.create({
+      data: {
+        userId: user.id,
+        startTimeMillis: Date.now(),
+        endTimeMillis: Date.now() + oneYearMillis,
+      },
+    });
 
     //# Update account info -> make it verified
     await prisma.user.update({
@@ -115,7 +126,7 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
       data: {
         accountInfo: {
           update: {
-            verificationExpiresAt: Date.now() + oneYearMillis,
+            isVerified: true,
           },
         },
       },
@@ -125,6 +136,24 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
     await prisma.otpVerification.delete({
       where: {
         accountId: user.accountInfo!.id,
+      },
+    });
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
+
+  //# Create essential entities for user
+  try {
+    let settings = await prisma.settings.create({
+      data: {
+        userId: user.id,
+      },
+    });
+
+    let subscription = await prisma.subscription.create({
+      data: {
+        userId: user.id,
+        expirationDate: Date.now(),
       },
     });
   } catch (error) {

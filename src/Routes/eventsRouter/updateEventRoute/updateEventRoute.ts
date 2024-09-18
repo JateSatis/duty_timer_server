@@ -2,28 +2,28 @@
 import { Request, Response } from "express";
 
 //# --- DATABASE ---
-import { prisma } from "model/config/prismaClient";
+import { prisma } from "../../../model/config/prismaClient";
 import { User } from "@prisma/client";
 
 //# --- REQUEST ENTITIES ---
 import {
   UpdateEventRequestBody,
   updateEventRequestBodyProperties,
-} from "model/routesEntities/EventsRouterEntities";
+} from "../../../model/routesEntities/EventsRouterEntities";
 
 //# --- VALIDATE REQUEST ---
-import { emptyField } from "Routes/utils/validation/emptyField";
-import { missingRequestField } from "Routes/utils/validation/missingRequestField";
+import { emptyField } from "../../utils/validation/emptyField";
+import { missingRequestField } from "../../utils/validation/missingRequestField";
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-} from "Routes/utils/errors/GlobalErrors";
-import { emptyParam } from "Routes/utils/validation/emptyParam";
+} from "../../utils/errors/GlobalErrors";
+import { emptyParam } from "../../utils/validation/emptyParam";
 
 //# --- ERRORS ---
 import { invalidInputFormat } from "./invalidInputFormat";
-import { DATA_NOT_FOUND } from "Routes/utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 
 export const updateEventRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, updateEventRequestBodyProperties))

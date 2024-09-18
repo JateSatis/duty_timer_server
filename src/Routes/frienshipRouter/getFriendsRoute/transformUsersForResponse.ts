@@ -1,19 +1,22 @@
-import { S3DataSource } from "model/config/imagesConfig";
-import { User } from "model/database/User";
-import { ForeignUserInfoResponseBody } from "model/routesEntities/UserRouterEntities";
+import { AccountInfo } from "@prisma/client";
+import { S3DataSource } from "../../../model/config/imagesConfig";
+import { ForeignUserInfoResponseBody } from "../../../model/routesEntities/UserRouterEntities";
 
-export const transformUsersForResponse = async (users: User[]) => {
+export const transformUsersForResponse = async (
+  accountsInfo: AccountInfo[]
+) => {
   const usersInfo = await Promise.all(
-    users.map(async (user) => {
+    accountsInfo.map(async (accountInfo) => {
       let avatarLink = null;
-      if (user.avatarImageName) {
-        avatarLink = await S3DataSource.getImageUrlFromS3(user.avatarImageName);
+      if (accountInfo.avatarImageName) {
+        avatarLink = await S3DataSource.getImageUrlFromS3(
+          accountInfo.avatarImageName
+        );
       }
 
       const getUserInfoResponseBody: ForeignUserInfoResponseBody = {
-        id: user.id,
-        name: user.name,
-        nickname: user.nickname,
+        id: accountInfo.userId,
+        nickname: accountInfo.nickname,
         avatarLink,
       };
 

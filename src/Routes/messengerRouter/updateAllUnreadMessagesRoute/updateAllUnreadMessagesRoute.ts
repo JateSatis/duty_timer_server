@@ -2,28 +2,28 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "model/config/initializeConfig";
+import { DB } from "../../../model/config/initializeConfig";
 
 //# --- DATABASE ENTITIES ---
-import { Message } from "model/database/Message";
-import { User } from "model/database/User";
+import { Message } from "../../../model/database/Message";
+import { User } from "../../../model/database/User";
 
 //# --- REQUEST ENTITIES ---
 import {
   UpdateAllUnreadMessagesResponseBodyWS,
   WebSocketChatMessage,
-} from "model/routesEntities/WebSocketRouterEntities";
+} from "../../../model/routesEntities/WebSocketRouterEntities";
 
 //# --- VALIDATE REQUEST ---
-import { emptyParam } from "Routes/utils/validation/emptyParam";
-import { invalidParamType } from "Routes/utils/validation/invalidParamType";
+import { emptyParam } from "../../utils/validation/emptyParam";
+import { invalidParamType } from "../../utils/validation/invalidParamType";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-} from "Routes/utils/errors/GlobalErrors";
+} from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
 import { webSocketChatsMap } from "../../../sockets/socketsConfig";

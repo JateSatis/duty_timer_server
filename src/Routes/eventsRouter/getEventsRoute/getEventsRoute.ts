@@ -3,13 +3,13 @@ import { User } from "@prisma/client";
 import { Request, Response } from "express";
 
 //# --- DATABASE ---
-import { prisma } from "model/config/prismaClient";
+import { prisma } from "../../../model/config/prismaClient";
 
 //# --- REQUEST ENTITIES ---
-import { GetAllEventsResponseBody } from "model/routesEntities/EventsRouterEntities";
+import { GetAllEventsResponseBody } from "../../../model/routesEntities/EventsRouterEntities";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "Routes/utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
 
 export const getEventsRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;

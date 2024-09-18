@@ -2,16 +2,16 @@
 import { Request, Response } from "express";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "model/database/User";
+import { User } from "../../../model/database/User";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "Routes/utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
 import {
   UserOfflineResponseBodyWS,
   WebSocketStatusMessage,
-} from "model/routesEntities/WebSocketRouterEntities";
+} from "../../../model/routesEntities/WebSocketRouterEntities";
 import { webSocketFriendsMap } from "../../../sockets/socketsConfig";
 
 export const setStatusOffline = async (req: Request, res: Response) => {

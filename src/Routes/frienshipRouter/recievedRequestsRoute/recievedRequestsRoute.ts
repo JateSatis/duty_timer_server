@@ -2,33 +2,34 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "model/config/initializeConfig";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "model/database/User";
 
 //# --- REQUEST ENTITIES ---
-import {
-  GetAllRecievedFriendshipRequestsResponseBody,
-  RecievedFriendshipRequestInfo,
-} from "model/routesEntities/FriendshipRouterEntities";
+import { GetAllRecievedFriendshipRequestsResponseBody } from "../../../model/routesEntities/FriendshipRouterEntities";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
-} from "Routes/utils/errors/GlobalErrors";
+} from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
 import { transformRequestsForResponse } from "./transformRequestsForResponse";
+import { User } from "@prisma/client";
+import { prisma } from "src/model/config/prismaClient";
 
 export const recievedRequestRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
   let recievedFriendshipRequests;
   try {
-    recievedFriendshipRequests = await DB.getRecievedRequestsByUserId(user.id);
+    recievedFriendshipRequests = await prisma.friendshipRequest.findMany({
+      where: {
+        recieverId: user.id,
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
@@ -41,19 +42,10 @@ export const recievedRequestRoute = async (req: Request, res: Response) => {
     (request) => request.id
   );
 
-  let recievedFriendshipRequestsInfo;
-  try {
-    recievedFriendshipRequestsInfo = await DB.getRecievedRequestsInfoByIds(
-      recievedFriendshipRequestsIds
-    );
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
-  }
-
   let getAllRecievedFriendshipRequestsResponse: GetAllRecievedFriendshipRequestsResponseBody;
   try {
     getAllRecievedFriendshipRequestsResponse =
-      await transformRequestsForResponse(recievedFriendshipRequestsInfo);
+      await transformRequestsForResponse(recievedFriendshipRequestsIds);
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
   }

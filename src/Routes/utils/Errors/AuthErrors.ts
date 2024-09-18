@@ -114,6 +114,15 @@ export class INCORRECT_PASSWORD extends ServerError {
   }
 }
 
+export class EMAIL_NOT_VALID extends ServerError {
+  constructor() {
+    super(
+      "EMAIL_NOT_VALID",
+      "This email is not valid, meaning we cannot send a verification code to it"
+    );
+  }
+}
+
 export class ACCOUNT_NOT_VERIFIED extends ServerError {
   constructor() {
     super("ACCOUNT_NOT_VERIFIED", "This account is not verified");
@@ -150,5 +159,14 @@ export class OTP_EXPIRED extends ServerError {
 export class NOT_VALID_OTP extends ServerError {
   constructor() {
     super("NOT_VALID_OTP", "This OTP isn't valid for provided account");
+  }
+}
+
+export class ACCOUNT_HAS_NO_TIMER extends ServerError {
+  constructor() {
+    super(
+      "ACCOUNT_HAS_NO_TIMER",
+      "This account doesn't have a timer assoisiated with it"
+    );
   }
 }

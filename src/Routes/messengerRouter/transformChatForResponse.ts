@@ -1,67 +1,97 @@
 import { ChatResponseBody } from "../../model/routesEntities/MessageRoutesEntities";
-import { Chat } from "../../model/database/Chat";
 import { S3DataSource } from "../../model/config/imagesConfig";
-import { User } from "../../model/database/User";
 import { formatDateForMessage } from "./formatDateForMessage";
+import { Chat, User } from "@prisma/client";
+import { prisma } from "../../model/config/prismaClient";
 
-export const transformChatForResponse = async (chat: Chat, user: User) => {
+export const transformChatForResponse = async (
+  chatId: string,
+  userId: string
+) => {
+  const chat = await getChatById(chatId);
+
   const companions = chat.users.filter(
-    (participant) => participant.id !== user.id
+    (participant) => participant.id !== userId
   );
 
-  const isGroupChat = chat.users.length > 2;
-
-  let imageLink = null;
-  let isOnline = false;
-  let name = chat.name;
-  if (isGroupChat) {
-    const imageName = chat.imageName;
-    if (imageName) imageLink = await S3DataSource.getImageUrlFromS3(imageName);
-  } else {
-    const companion = companions[0];
-    if (chat.users.length === 2) {
-      const imageName = companion.avatarImageName;
-      if (imageName)
-        imageLink = await S3DataSource.getImageUrlFromS3(imageName);
-    }
-    isOnline = companion.isOnline;
-    name = companion.name;
-  }
-
+  const isGroupChat = chat.isGroup;
   const messages = chat.messages;
 
-  //# Define default values for parameters in case there is no messages in chat
-  let unreadMessagesAmount = 0;
-  let lastMessageText = "В данном чате нет сообщений";
-  let lastMessageCreationTime = formatDateForMessage(Date.now()).timeFormat;
-  let lastMessageSenderName = "ДМБ таймер";
+  //# Define default values for chat
+  const chatResponseBody: ChatResponseBody = {
+    chatId: chat.id,
+    name: chat.name,
+    imageLink: null,
+    unreadMessagesAmount: 0,
+    lastMessageText: "В данном чате нет сообщений",
+    lastMessageCreationTime: formatDateForMessage(Date.now()).timeFormat,
+    lastMessageSenderName: "ДМБ таймер",
+    isGroupChat,
+    isOnline: false,
+  };
+
+  if (isGroupChat) {
+    //# If group chat -> take image frim image name
+    const imageName = chat.imageName;
+    if (imageName)
+      chatResponseBody.imageLink = await S3DataSource.getImageUrlFromS3(
+        imageName
+      );
+  } else if (companions.length != 0) {
+    //# If direct chat -> try to get avatar of a companion
+    const companion = companions[0];
+    const imageName = companion.accountInfo!.avatarImageName;
+    if (imageName)
+      chatResponseBody.imageLink = await S3DataSource.getImageUrlFromS3(
+        imageName
+      );
+    chatResponseBody.isOnline = companion.accountInfo!.isOnline;
+    chatResponseBody.name = companion.accountInfo!.nickname;
+  }
 
   if (messages.length !== 0) {
     const unreadMessages = messages.filter(
-      (message) => !message.isRead && message.sender.id !== user.id
+      (message) => !message.isRead && message.senderId !== userId
     );
 
     const lastMessage = messages[messages.length - 1];
 
-    const { timeFormat } = formatDateForMessage(lastMessage.creationTime);
+    const { timeFormat } = formatDateForMessage(
+      Number(lastMessage.creationTime)
+    );
 
-    unreadMessagesAmount = unreadMessages.length;
-    lastMessageText = lastMessage.text;
-    lastMessageCreationTime = timeFormat;
-    lastMessageSenderName = lastMessage.sender.name;
+    chatResponseBody.unreadMessagesAmount = unreadMessages.length;
+    chatResponseBody.lastMessageText = lastMessage.text;
+    chatResponseBody.lastMessageCreationTime = timeFormat;
+    chatResponseBody.lastMessageSenderName =
+      lastMessage.user.accountInfo!.nickname;
   }
 
-  const chatResponseBody: ChatResponseBody = {
-    chatId: chat.id,
-    name,
-    imageLink,
-    unreadMessagesAmount,
-    lastMessageText,
-    lastMessageCreationTime,
-    lastMessageSenderName,
-    isGroupChat,
-    isOnline,
-  };
-
   return chatResponseBody;
+};
+
+const getChatById = async (chatId: string) => {
+  const chat = await prisma.chat.findFirst({
+    where: {
+      id: chatId,
+    },
+    include: {
+      users: {
+        include: {
+          accountInfo: true,
+        },
+      },
+      messages: {
+        include: {
+          user: {
+            include: {
+              accountInfo: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return chat!;
 };

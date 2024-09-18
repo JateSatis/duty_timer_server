@@ -4,15 +4,21 @@ type ResponseEvent = {
   timeMillis: number;
 };
 
+type RequestEvent = {
+  title: string;
+  timeMillis: string;
+};
+
 export type GetAllEventsResponseBody = ResponseEvent[];
 
 export type GetSpecificEventResponseBody = ResponseEvent;
 
-export type CreateEventRequestBody = {
-  title: string;
-  timeMillis: string;
-};
+export type CreateEventRequestBody = RequestEvent;
 export const createEventRequestBodyProperties = ["title", "timeMillis"];
+
+export type CreateEventsRequestBody = {
+  events: RequestEvent[];
+};
 
 export type CreateEventResponseBody = ResponseEvent;
 

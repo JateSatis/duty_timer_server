@@ -2,22 +2,22 @@
 import { Request, Response } from "express";
 
 //# --- DATABASE ---
-import { prisma } from "model/config/prismaClient";
+import { prisma } from "../../../model/config/prismaClient";
 import { User } from "@prisma/client";
 
 //# --- REQUEST ENTITIES ---
-import { GetSpecificEventResponseBody } from "model/routesEntities/EventsRouterEntities";
+import { GetSpecificEventResponseBody } from "../../../model/routesEntities/EventsRouterEntities";
 
 //# --- VALIDATE REQUEST ---
-import { emptyParam } from "Routes/utils/validation/emptyParam";
+import { emptyParam } from "../../utils/validation/emptyParam";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-} from "Routes/utils/errors/GlobalErrors";
-import { DATA_NOT_FOUND } from "Routes/utils/errors/AuthErrors";
+} from "../../utils/errors/GlobalErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 
 export const getEventByIdRoute = async (req: Request, res: Response) => {
   if (emptyParam(req, res, "eventId")) return res;

@@ -1,7 +1,7 @@
 import { Response } from "express";
-import { err } from "Routes/utils/errors/GlobalErrors";
-import { INVALID_INPUT_FORMAT } from "Routes/utils/errors/AuthErrors";
-import { CreateEventRequestBody } from "model/routesEntities/EventsRouterEntities";
+import { err } from "../../utils/errors/GlobalErrors";
+import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
+import { CreateEventRequestBody } from "../../../model/routesEntities/EventsRouterEntities";
 
 const eventTitleFormat =
   /^[A-Za-zА-Яа-яҐґЄєІіЇїҒғӘәҮүҰұҢңҺһ0-9!@#$%^&*()_+\-={}\[\]:;"'<>,.?\/\\|`~ ]*$/;

@@ -10,34 +10,33 @@ datasource db {
 model User {
   id               String              @id @default(uuid())
   accountInfo      AccountInfo?
-  event            Event[]
+  events           Event[]
   sentRequests     FriendshipRequest[] @relation("sender")
   recievedRequests FriendshipRequest[] @relation("reciever")
-  friendsOf        Frienship[]         @relation("user1")
+  friends          Frienship[]         @relation("user1")
   friendOf         Frienship[]         @relation("user2")
-  message          Message[]
+  messages         Message[]
   refreshToken     RefreshToken?
   settings         Settings?
   subscription     Subscription?
   timer            Timer?
-  chat             Chat[]
+  chats            Chat[]
 }
 
 model AccountInfo {
-  id                    String           @id @default(uuid())
-  verificationExpiresAt BigInt
-  email                 String
-  name                  String
-  nickname              String           @unique
-  avatarImageName       String?
-  userType              UserType         @default(DEFAULT)
-  passwordHash          String
-  passwordSalt          String
-  isOnline              Boolean          @default(false)
-  lastSeenOnline        BigInt
-  userId                String           @unique
-  user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  otpVerification       OtpVerification?
+  id              String           @id @default(uuid())
+  isVerified      Boolean
+  email           String
+  nickname        String           @unique
+  avatarImageName String?
+  userType        UserType         @default(DEFAULT)
+  passwordHash    String
+  passwordSalt    String
+  isOnline        Boolean          @default(false)
+  lastSeenOnline  BigInt
+  userId          String           @unique
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  otpVerification OtpVerification?
 }
 
 model OtpVerification {
@@ -129,8 +128,8 @@ model Chat {
   isGroup              Boolean
   creationTime         BigInt
   lastUpdateTimeMillis BigInt
-  message              Message[]
-  user                 User[]
+  messages             Message[]
+  users                User[]
 }
 
 model Event {
@@ -169,7 +168,7 @@ model Message {
   isRead       Boolean
   chatId       String
   senderId     String
-  attachment   Attachment[]
+  attachments  Attachment[]
   chat         Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
   user         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }

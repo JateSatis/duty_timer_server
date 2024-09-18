@@ -2,13 +2,13 @@
 import { Request, Response } from "express";
 
 //# --- DATABASE ---
-import { prisma } from "model/config/prismaClient";
+import { prisma } from "../../../model/config/prismaClient";
 import { User } from "@prisma/client";
 
 //# --- ERRORS ---
-import { err } from "Routes/utils/errors/GlobalErrors";
-import { DATABASE_ERROR } from "Routes/utils/errors/GlobalErrors";
-import { DATA_NOT_FOUND } from "Routes/utils/errors/AuthErrors";
+import { err } from "../../utils/errors/GlobalErrors";
+import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 
 export const logOutRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;

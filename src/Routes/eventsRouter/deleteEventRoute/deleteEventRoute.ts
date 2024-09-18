@@ -2,18 +2,18 @@
 import { Request, Response } from "express";
 
 //# --- DATABASE ---
-import { prisma } from "model/config/prismaClient";
+import { prisma } from "../../../model/config/prismaClient";
 import { User } from "@prisma/client";
 
 //# --- VALIDATE REQUEST ---
-import { emptyParam } from "Routes/utils/validation/emptyParam";
+import { emptyParam } from "../../utils/validation/emptyParam";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-} from "Routes/utils/errors/GlobalErrors";
+} from "../../utils/errors/GlobalErrors";
 
 export const deleteEventRoute = async (req: Request, res: Response) => {
   if (emptyParam(req, res, "eventId")) return res;

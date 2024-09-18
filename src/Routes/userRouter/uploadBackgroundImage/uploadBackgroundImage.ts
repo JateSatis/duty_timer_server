@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
-import { S3DataSource } from "model/config/imagesConfig";
-import { Settings } from "model/database/Settings";
-import { User } from "model/database/User";
+import { S3DataSource } from "../../../model/config/imagesConfig";
+import { Settings } from "../../../model/database/Settings";
+import { User } from "../../../model/database/User";
 import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
-} from "Routes/utils/errors/GlobalErrors";
-import { MISSING_FILE } from "Routes/utils/errors/UserErrors";
+} from "../../utils/errors/GlobalErrors";
+import { MISSING_FILE } from "../../utils/errors/UserErrors";
 
 export const uploadBackgroundImage = async (req: Request, res: Response) => {
   const user: User = req.body.user;

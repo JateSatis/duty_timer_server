@@ -91,7 +91,7 @@ const refreshAuthMiddleware = (
               .status(401)
               .json(err(new DATA_NOT_FOUND("user", `id = ${userId}`)));
 
-          if (user.accountInfo!.verificationExpiresAt < Date.now()) {
+          if (!user.accountInfo!.isVerified) {
             return res.status(404).json(err(new ACCOUNT_NOT_VERIFIED()));
           }
 
