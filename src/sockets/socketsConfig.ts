@@ -21,7 +21,7 @@ export const webSocketOnConnection = async (
   ws: WebSocket,
   req: IncomingMessage
 ) => {
-  let user;
+  let user: User;
   try {
     user = await authenticateSocket(req);
   } catch (error) {

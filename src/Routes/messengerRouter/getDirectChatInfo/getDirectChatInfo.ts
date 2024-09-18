@@ -27,7 +27,7 @@ export const getDirectChatInfo = async (req: Request, res: Response) => {
     return res.status(403).json(err(new FORBIDDEN_ACCESS()));
   }
 
-  let chat;
+  let chat: Chat;
   try {
     chat = (await DB.getChatBy("id", chatId))!;
   } catch (error) {

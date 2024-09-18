@@ -97,8 +97,8 @@ export const signUpRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-	await sendOtpVerification(user.login, user);
-	
+  await sendOtpVerification(user.login, user);
+
   return res.sendStatus(200);
 };
 

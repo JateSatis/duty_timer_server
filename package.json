@@ -4,8 +4,13 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
+    "clean": "rimraf dist",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon"
+    "watch": "npm run clean && npm run build && tsc --watch",
+    "dev": "nodemon dist/index.js",
+    "build": "npm run clean && tsc",
+    "postbuild": "xcopy src\\*.pem dist\\ /s",
+    "start": "node dist/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -38,6 +43,7 @@
     "@types/multer": "^1.4.11",
     "@types/nodemailer": "^6.4.15",
     "@types/uuid": "^10.0.0",
-    "@types/ws": "^8.5.10"
+    "@types/ws": "^8.5.10",
+    "rimraf": "^6.0.1"
   }
 }
