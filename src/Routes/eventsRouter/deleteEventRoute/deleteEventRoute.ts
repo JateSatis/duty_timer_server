@@ -1,15 +1,12 @@
 //# --- LIBS ---
 import { Request, Response } from "express";
 
-//# --- CONFIG ---
-import { DB } from "model/config/initializeConfig";
-
-//# --- DATABASE ENTITIES ---
-import { Event } from "model/database/Event";
+//# --- DATABASE ---
+import { prisma } from "model/config/prismaClient";
+import { User } from "@prisma/client";
 
 //# --- VALIDATE REQUEST ---
 import { emptyParam } from "Routes/utils/validation/emptyParam";
-import { invalidParamType } from "Routes/utils/validation/invalidParamType";
 
 //# --- ERRORS ---
 import {
@@ -19,16 +16,18 @@ import {
 } from "Routes/utils/errors/GlobalErrors";
 
 export const deleteEventRoute = async (req: Request, res: Response) => {
-  if (invalidParamType(req, res, "eventId")) return res;
-
   if (emptyParam(req, res, "eventId")) return res;
-  const eventId = parseInt(req.params.eventId);
+  const eventId = req.params.eventId;
 
-  const user = req.body.user;
+  const user: User = req.body.user;
 
   let events;
   try {
-    events = await DB.getEventsByUserId(user.id);
+    events = await prisma.event.findMany({
+      where: {
+        userId: user.id,
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
@@ -40,8 +39,10 @@ export const deleteEventRoute = async (req: Request, res: Response) => {
   }
 
   try {
-    await Event.delete({
-      id: eventId,
+    await prisma.event.delete({
+      where: {
+        id: eventId,
+      },
     });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));

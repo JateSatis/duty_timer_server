@@ -1,17 +1,14 @@
 //# --- LIBS ---
 import { Request, Response } from "express";
 
-//# --- CONFIG ---
-import { DB } from "model/config/initializeConfig";
-
-//# --- DATABASE ENTITIES ---
-import { Event } from "model/database/Event";
+//# --- DATABASE ---
+import { prisma } from "model/config/prismaClient";
+import { User } from "@prisma/client";
 
 //# --- REQUEST ENTITIES ---
 import {
   UpdateEventRequestBody,
   updateEventRequestBodyProperties,
-  UpdateEventResponseBody,
 } from "model/routesEntities/EventsRouterEntities";
 
 //# --- VALIDATE REQUEST ---
@@ -22,11 +19,11 @@ import {
   err,
   FORBIDDEN_ACCESS,
 } from "Routes/utils/errors/GlobalErrors";
-import { invalidParamType } from "Routes/utils/validation/invalidParamType";
 import { emptyParam } from "Routes/utils/validation/emptyParam";
 
 //# --- ERRORS ---
 import { invalidInputFormat } from "./invalidInputFormat";
+import { DATA_NOT_FOUND } from "Routes/utils/errors/AuthErrors";
 
 export const updateEventRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, updateEventRequestBodyProperties))
@@ -37,33 +34,44 @@ export const updateEventRoute = async (req: Request, res: Response) => {
   const updateEventRequestBody: UpdateEventRequestBody = req.body;
   if (invalidInputFormat(res, updateEventRequestBody)) return res;
 
-  if (invalidParamType(req, res, "eventId")) return res;
-
   if (emptyParam(req, res, "eventId")) return res;
 
-  const eventId = parseInt(req.params.eventId);
+  const eventId = req.params.eventId;
 
-  const user = req.body.user;
+  const user: User = req.body.user;
 
-  const events = await DB.getEventsByUserId(user.id);
-
-  const eventIds = events.map((event) => event.id);
-
-  if (!eventIds.includes(eventId)) {
-    return res.status(401).json(err(new FORBIDDEN_ACCESS()));
-  }
-
-  const event = events.find((event) => event.id == eventId)!!;
-  event.title = updateEventRequestBody.title;
-  event.timeMillis = parseInt(updateEventRequestBody.timeMillis);
-
+  let event;
   try {
-    await Event.save(event);
+    event = await prisma.event.findFirst({
+      where: {
+        id: eventId,
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  const updateEventResponseBody: UpdateEventResponseBody = event;
+  if (!event) {
+    return res.status(404).json(new DATA_NOT_FOUND("Event", `id = ${eventId}`));
+  }
 
-  return res.status(200).json(updateEventResponseBody);
+  if (event.userId !== user.id) {
+    return res.status(409).json(new FORBIDDEN_ACCESS());
+  }
+
+  try {
+    event = await prisma.event.update({
+      where: {
+        id: eventId,
+      },
+      data: {
+        title: updateEventRequestBody.title,
+        timeMillis: BigInt(updateEventRequestBody.timeMillis),
+      },
+    });
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
+
+  return res.sendStatus(200);
 };

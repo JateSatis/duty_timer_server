@@ -1,19 +1,15 @@
 //# --- LIBS ---
 import { Request, Response } from "express";
 
-//# --- CONFIG ---
-import { DB } from "model/config/initializeConfig";
-
-//# --- DATABASE ENTITIES ---
-import { Event } from "model/database/Event";
-import { User } from "model/database/User";
+//# --- DATABASE ---
+import { prisma } from "model/config/prismaClient";
+import { User } from "@prisma/client";
 
 //# --- REQUEST ENTITIES ---
 import { GetSpecificEventResponseBody } from "model/routesEntities/EventsRouterEntities";
 
 //# --- VALIDATE REQUEST ---
 import { emptyParam } from "Routes/utils/validation/emptyParam";
-import { invalidParamType } from "Routes/utils/validation/invalidParamType";
 
 //# --- ERRORS ---
 import {
@@ -24,43 +20,36 @@ import {
 import { DATA_NOT_FOUND } from "Routes/utils/errors/AuthErrors";
 
 export const getEventByIdRoute = async (req: Request, res: Response) => {
-  if (invalidParamType(req, res, "eventId")) return res;
-
   if (emptyParam(req, res, "eventId")) return res;
 
-  const eventId = parseInt(req.params.eventId);
+  const eventId = req.params.eventId;
 
   const user: User = req.body.user;
 
-  let events;
-  try {
-    events = await DB.getEventsByUserId(user.id);
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
-  }
-
-  const eventIds = events.map((event) => event.id);
-
-  if (!eventIds.includes(eventId)) {
-    return res.status(403).json(err(new FORBIDDEN_ACCESS()));
-  }
-
   let event;
   try {
-    event = await Event.findOneBy({
-      id: eventId,
+    event = await prisma.event.findFirst({
+      where: {
+        id: eventId,
+      },
     });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
   if (!event) {
-    return res
-      .status(404)
-      .json(err(new DATA_NOT_FOUND("event", `id = ${eventId}`)));
+    return res.status(404).json(new DATA_NOT_FOUND("Event", `id = ${eventId}`));
   }
 
-  const getSpecificEventResponseBody: GetSpecificEventResponseBody = event;
+  if (event.userId !== user.id) {
+    return res.status(409).json(new FORBIDDEN_ACCESS());
+  }
+
+  const getSpecificEventResponseBody: GetSpecificEventResponseBody = {
+    id: event.id,
+    title: event.title,
+    timeMillis: Number(event.timeMillis),
+  };
 
   return res.status(200).json(getSpecificEventResponseBody);
 };

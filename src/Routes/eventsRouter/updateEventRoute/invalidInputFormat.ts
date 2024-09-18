@@ -19,10 +19,7 @@ export const invalidInputFormat = (
     return true;
   }
 
-  const oneMonthMillis = 2592000000;
-  const dateLimitMillis = Date.now() - oneMonthMillis;
-
-  if (parseInt(timeMillis) < dateLimitMillis) {
+  if (parseInt(timeMillis) < Date.now()) {
     res.status(400).json(err(new INVALID_INPUT_FORMAT()));
     return true;
   }

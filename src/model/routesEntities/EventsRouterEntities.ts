@@ -1,5 +1,5 @@
 type ResponseEvent = {
-  id: number;
+  id: string;
   title: string;
   timeMillis: number;
 };
@@ -19,5 +19,3 @@ export type CreateEventResponseBody = ResponseEvent;
 export type UpdateEventRequestBody = CreateEventRequestBody;
 export const updateEventRequestBodyProperties =
   createEventRequestBodyProperties;
-
-export type UpdateEventResponseBody = ResponseEvent;

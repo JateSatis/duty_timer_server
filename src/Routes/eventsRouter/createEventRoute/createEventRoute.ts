@@ -2,8 +2,8 @@
 import { Request, Response } from "express";
 
 //# --- DATABASE ENTITIES ---
-import { Event } from "model/database/Event";
-import { User } from "model/database/User";
+import { prisma } from "model/config/prismaClient";
+import { User } from "@prisma/client";
 
 //# --- REQUEST ENTITIES ---
 import {
@@ -32,14 +32,15 @@ export const createEventRoute = async (req: Request, res: Response) => {
 
   const user: User = req.body.user;
 
-  const event = Event.create({
-    title: createEventRequestBody.title,
-    timeMillis: parseInt(createEventRequestBody.timeMillis),
-    user: user,
-  });
-
+  let event;
   try {
-    await event.save();
+    event = await prisma.event.create({
+      data: {
+        userId: user.id,
+        title: createEventRequestBody.title,
+        timeMillis: parseInt(createEventRequestBody.timeMillis),
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
@@ -47,7 +48,7 @@ export const createEventRoute = async (req: Request, res: Response) => {
   const createEventResponseBody: CreateEventResponseBody = {
     id: event.id,
     title: event.title,
-    timeMillis: event.timeMillis,
+    timeMillis: Number(event.timeMillis),
   };
 
   return res.status(200).json(createEventResponseBody);

@@ -3,10 +3,10 @@ import { err } from "Routes/utils/errors/GlobalErrors";
 import { INVALID_INPUT_FORMAT } from "Routes/utils/errors/AuthErrors";
 import { CreateEventRequestBody } from "model/routesEntities/EventsRouterEntities";
 
-const allowedTitle =
+const eventTitleFormat =
   /^[A-Za-zА-Яа-яҐґЄєІіЇїҒғӘәҮүҰұҢңҺһ0-9!@#$%^&*()_+\-={}\[\]:;"'<>,.?\/\\|`~ ]*$/;
 
-const allowedTimeMillis = /^-?\d+$/;
+const timeMillisFormat = /^-?\d+$/;
 
 export const invalidInputFormat = (
   res: Response,
@@ -14,20 +14,17 @@ export const invalidInputFormat = (
 ): boolean => {
   const { title, timeMillis } = createEventRequestBody;
 
-  if (!allowedTimeMillis.test(timeMillis)) {
+  if (!timeMillisFormat.test(timeMillis)) {
     res.status(400).json(err(new INVALID_INPUT_FORMAT()));
     return true;
   }
 
-  const oneMonthMillis = 2592000000;
-  const dateLimitMillis = Date.now() - oneMonthMillis;
-
-  if (parseInt(timeMillis) < dateLimitMillis) {
+  if (parseInt(timeMillis) < Date.now()) {
     res.status(400).json(err(new INVALID_INPUT_FORMAT()));
     return true;
   }
 
-  if (!allowedTitle.test(title) || title.length > 280) {
+  if (!eventTitleFormat.test(title) || title.length > 280) {
     return true;
   }
 
