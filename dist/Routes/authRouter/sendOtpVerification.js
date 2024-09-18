@@ -96,6 +96,8 @@ const sendOtpVerification = (email, user) => __awaiter(void 0, void 0, void 0, f
             refreshToken: process.env.OAUTH2_EMAIL_REFRESH_TOKEN,
             accessToken: accessToken,
         },
+        connectionTimeout: 30000,
+        debug: true,
     });
     const mailOptions = {
         from: process.env.OAUTH2_EMAIL_ADRESS,

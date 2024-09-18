@@ -79,6 +79,8 @@ export const sendOtpVerification = async (email: string, user: User) => {
       refreshToken: process.env.OAUTH2_EMAIL_REFRESH_TOKEN,
       accessToken: accessToken,
     },
+    connectionTimeout: 30000, // 30 seconds
+    debug: true, // Enable debug logging
   });
 
   const mailOptions = {
