@@ -46,8 +46,7 @@ const verifyAccountRoute_1 = require("./verifyAccountRoute/verifyAccountRoute");
 dotenv.config();
 exports.authRouter = (0, express_1.Router)();
 exports.authRouter.post("/sign-up", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if (process.env.NODE_ENV === "production" ||
-        process.env.VERIFY_EMAIL === "true") {
+    if (process.env.VERIFY_EMAIL === "true") {
         (0, signUpRoute_1.signUpRoute)(req, res);
     }
     else {
