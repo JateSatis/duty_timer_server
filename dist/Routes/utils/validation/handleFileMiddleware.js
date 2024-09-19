@@ -7,7 +7,7 @@ exports.handleFile = void 0;
 const multer_1 = __importDefault(require("multer"));
 const GlobalErrors_1 = require("../errors/GlobalErrors");
 const fileFilter = (req, file, cb) => {
-    const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+    const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp", "image/heic"];
     if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     }

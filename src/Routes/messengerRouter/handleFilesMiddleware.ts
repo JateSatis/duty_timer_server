@@ -8,7 +8,7 @@ const fileFilter = (
   cb: FileFilterCallback
 ) => {
   // Define allowed mime types
-  const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+  const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp", "image/heic"];
 
   // Check if file type is valid
   if (allowedTypes.includes(file.mimetype)) {

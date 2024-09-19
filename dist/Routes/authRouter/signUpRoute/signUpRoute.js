@@ -25,6 +25,8 @@ const GlobalErrors_2 = require("../../utils/errors/GlobalErrors");
 const sendOtpVerification_1 = require("../sendOtpVerification");
 const issueJWT_1 = require("../../../auth/jwt/issueJWT");
 const RefreshToken_1 = require("../../../model/database/RefreshToken");
+const initializeConfig_1 = require("../../../model/config/initializeConfig");
+const Chat_1 = require("../../../model/database/Chat");
 const signUpRoute = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if ((0, missingRequestField_1.missingRequestField)(req, res, AuthRouterEntities_1.signUpRequestBodyProperties))
         return res;
@@ -142,6 +144,16 @@ const signUpTestRoute = (req, res) => __awaiter(void 0, void 0, void 0, function
     });
     try {
         yield refreshTokenDB.save();
+    }
+    catch (error) {
+        return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_2.DATABASE_ERROR(error)));
+    }
+    try {
+        const globalChat = yield initializeConfig_1.DB.getChatBy("id", 1);
+        if (globalChat) {
+            globalChat.users.push(user);
+            Chat_1.Chat.save(globalChat);
+        }
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_2.DATABASE_ERROR(error)));

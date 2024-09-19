@@ -33,6 +33,8 @@ import {
   issueRefreshToken,
 } from "../../../auth/jwt/issueJWT";
 import { RefreshToken } from "../../../model/database/RefreshToken";
+import { DB } from "../../../model/config/initializeConfig";
+import { Chat } from "../../../model/database/Chat";
 
 // TODO: Connect to the Global chat when initializing user
 export const signUpRoute = async (req: Request, res: Response) => {
@@ -175,6 +177,16 @@ export const signUpTestRoute = async (req: Request, res: Response) => {
 
   try {
     await refreshTokenDB.save();
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
+
+  try {
+    const globalChat = await DB.getChatBy("id", 1);
+    if (globalChat) {
+      globalChat.users.push(user);
+      Chat.save(globalChat);
+    }
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
