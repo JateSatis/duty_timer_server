@@ -19,10 +19,7 @@ dotenv.config();
 export const authRouter = Router();
 
 authRouter.post("/sign-up", async (req, res) => {
-  if (
-    process.env.NODE_ENV === "production" ||
-    process.env.VERIFY_EMAIL === "true"
-  ) {
+  if (process.env.VERIFY_EMAIL === "true") {
     signUpRoute(req, res);
   } else {
     signUpTestRoute(req, res);
