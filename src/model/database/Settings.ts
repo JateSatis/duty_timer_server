@@ -45,10 +45,10 @@ export class Settings extends BaseEntity {
   theme: string;
 
   @Column({
-    type: "text",
-    default: null,
+    type: "boolean",
+    default: false,
   })
-  backgroundTint: string | null;
+  backgroundTint: boolean;
 
   @Column({
     default: 50,

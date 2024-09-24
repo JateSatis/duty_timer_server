@@ -25,6 +25,7 @@ export const updateSettings = async (req: Request, res: Response) => {
 
   settings.language = updateSettingsRequestBody.language;
   settings.theme = updateSettingsRequestBody.theme;
+  settings.backgroundTint = updateSettingsRequestBody.backgroundTint;
 
   try {
     await Settings.save(settings);

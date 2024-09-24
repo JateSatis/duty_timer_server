@@ -35,6 +35,7 @@ export type GetAvatarLinkResponseBody = {
 export type UpdateSettingsRequestBody = {
   language: string;
   theme: string;
+	backgroundTint: boolean;
 };
 
 export const updateSettingsRequestBodyProperties = ["language", "theme"];
@@ -42,5 +43,6 @@ export const updateSettingsRequestBodyProperties = ["language", "theme"];
 export type GetSettingsResponseBody = {
   backgroundImageLink: string | null;
   theme: string;
-  language: string;
+	language: string;
+	backgroundTint: boolean
 };

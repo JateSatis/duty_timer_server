@@ -24,6 +24,7 @@ export const getSettings = async (req: Request, res: Response) => {
     backgroundImageLink,
     language: settings.language,
     theme: settings.theme,
+    backgroundTint: settings.backgroundTint,
   };
 
   return res.status(200).json(getSettingsResponseBody);
