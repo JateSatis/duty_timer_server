@@ -28,6 +28,7 @@ const getSettings = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         backgroundImageLink,
         language: settings.language,
         theme: settings.theme,
+        backgroundTint: settings.backgroundTint,
     };
     return res.status(200).json(getSettingsResponseBody);
 });

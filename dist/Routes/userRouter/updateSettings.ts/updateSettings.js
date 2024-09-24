@@ -28,6 +28,7 @@ const updateSettings = (req, res) => __awaiter(void 0, void 0, void 0, function*
     const settings = user.settings;
     settings.language = updateSettingsRequestBody.language;
     settings.theme = updateSettingsRequestBody.theme;
+    settings.backgroundTint = updateSettingsRequestBody.backgroundTint;
     try {
         yield Settings_1.Settings.save(settings);
     }

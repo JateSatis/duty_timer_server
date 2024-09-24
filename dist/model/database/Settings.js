@@ -42,10 +42,10 @@ __decorate([
 ], Settings.prototype, "theme", void 0);
 __decorate([
     (0, typeorm_1.Column)({
-        type: "text",
-        default: null,
+        type: "boolean",
+        default: false,
     }),
-    __metadata("design:type", Object)
+    __metadata("design:type", Boolean)
 ], Settings.prototype, "backgroundTint", void 0);
 __decorate([
     (0, typeorm_1.Column)({
