@@ -1,5 +1,4 @@
 //# --- LIBS ---
-import multer from "multer";
 import { Router } from "express";
 
 //# --- AUTH ---
@@ -10,13 +9,13 @@ import { getUserById } from "./getUserById/getUserById";
 import { getUserInfo } from "./getUserInfo/getUserInfo";
 import { setStatusOnline } from "./setStatusOnline/setStatusOnline";
 import { setStatusOffline } from "./setStatusOffline/setStatusOffline";
-import { getUsersByName } from "./getUsersByName/getUsersByName";
+import { getUsersByNickname } from "./getUsersByNickname/getUsersByNickname";
 import { postAvatar } from "./postAvatar/postAvatar";
 import { getAvatarLink } from "./getAvatarLink/getAvatarLink";
 import { deleteAvatar } from "./deleteAvatar/deleteAvatar";
 import { updateSettings } from "./updateSettings.ts/updateSettings";
 import { getSettings } from "./getSettings/getSettings";
-import { handleFile } from "../utils/validation/handleFileMiddleware";
+import { getFilesMiddleware } from "../utils/handleFiles/handleFilesMiddleware";
 import { uploadBackgroundImage } from "./uploadBackgroundImage/uploadBackgroundImage";
 
 export const userRouter = Router();
@@ -29,9 +28,9 @@ userRouter.put("/set-status-offline", auth, setStatusOffline);
 
 userRouter.get("/id/:userId", getUserById);
 
-userRouter.get("/name/:userName", auth, getUsersByName);
+userRouter.get("/nickname/:userNickname", auth, getUsersByNickname);
 
-userRouter.post("/avatar", handleFile, auth, postAvatar);
+userRouter.post("/avatar", getFilesMiddleware(1), auth, postAvatar);
 
 userRouter.get("/avatar", auth, getAvatarLink);
 
@@ -41,4 +40,9 @@ userRouter.get("/settings", auth, getSettings);
 
 userRouter.put("/settings", auth, updateSettings);
 
-userRouter.post("/background-image", handleFile, auth, uploadBackgroundImage);
+userRouter.post(
+  "/background-image",
+  getFilesMiddleware(1),
+  auth,
+  uploadBackgroundImage
+);

@@ -1,17 +1,16 @@
 import { Request, Response } from "express";
 import { S3DataSource } from "../../../model/config/imagesConfig";
-import { Settings } from "../../../model/database/Settings";
-import { User } from "../../../model/database/User";
 import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
 } from "../../utils/errors/GlobalErrors";
 import { MISSING_FILE } from "../../utils/errors/UserErrors";
+import { User } from "@prisma/client";
+import { prisma } from "../../../model/config/prismaClient";
 
 export const uploadBackgroundImage = async (req: Request, res: Response) => {
   const user: User = req.body.user;
-  const settings = user.settings;
 
   if (!req.file) {
     return res.status(400).json(err(new MISSING_FILE()));
@@ -32,10 +31,15 @@ export const uploadBackgroundImage = async (req: Request, res: Response) => {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error.message)));
   }
 
-  settings.backgroundImageName = s3ImageName;
-
   try {
-    await Settings.save(settings);
+    await prisma.settings.update({
+      where: {
+        userId: user.id,
+      },
+      data: {
+        backgroundImageName: s3ImageName,
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }

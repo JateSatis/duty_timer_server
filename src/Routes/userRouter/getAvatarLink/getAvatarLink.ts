@@ -8,12 +8,37 @@ import { S3DataSource } from "../../../model/config/imagesConfig";
 import { GetAvatarLinkResponseBody } from "../../../model/routesEntities/UserRouterEntities";
 
 //# --- ERRORS ---
-import { err, S3_STORAGE_ERROR } from "../../utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  err,
+  S3_STORAGE_ERROR,
+} from "../../utils/errors/GlobalErrors";
+import { User } from "@prisma/client";
+import { prisma } from "../../../model/config/prismaClient";
+import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 
 export const getAvatarLink = async (req: Request, res: Response) => {
-  const user = req.body.user;
+  let user;
+  try {
+    user = await prisma.user.findFirst({
+      where: {
+        id: req.body.user.id,
+      },
+      include: {
+        accountInfo: true,
+      },
+    });
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
 
-  const avatarImageName = user.avatarImageName;
+  if (!user) {
+    return res
+      .status(400)
+      .json(err(new DATA_NOT_FOUND("User", `id = ${req.body.user.id}`)));
+  }
+
+  const avatarImageName = user.accountInfo!.avatarImageName;
 
   if (!avatarImageName) {
     const getAvatarLinkResponseBody: GetAvatarLinkResponseBody = {

@@ -1,13 +1,34 @@
 import { Request, Response } from "express";
 import { S3DataSource } from "../../../model/config/imagesConfig";
-import { User } from "../../../model/database/User";
 import { GetSettingsResponseBody } from "../../../model/routesEntities/UserRouterEntities";
-import { err, S3_STORAGE_ERROR } from "../../utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  err,
+  S3_STORAGE_ERROR,
+} from "../../utils/errors/GlobalErrors";
+import { User } from "@prisma/client";
+import { prisma } from "../../../model/config/prismaClient";
+import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 
 export const getSettings = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
-  const settings = user.settings;
+  let settings;
+  try {
+    settings = await prisma.settings.findFirst({
+      where: {
+        userId: user.id,
+      },
+    });
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
+
+  if (!settings) {
+    return res
+      .status(400)
+      .json(err(new DATA_NOT_FOUND("Settings", `userId = ${user.id}`)));
+  }
 
   let backgroundImageLink = null;
   if (settings.backgroundImageName) {
@@ -22,6 +43,7 @@ export const getSettings = async (req: Request, res: Response) => {
 
   const getSettingsResponseBody: GetSettingsResponseBody = {
     backgroundImageLink,
+    backgroundTint: settings.backgroundTint,
     language: settings.language,
     theme: settings.theme,
   };

@@ -1,23 +1,18 @@
 //# --- LIBS ---
 import { Request, Response } from "express";
 
-//# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
-
 //# --- REQUEST ENTITIES ---
 import {
   DeleteMessageResponseBodyWS,
   WebSocketChatMessage,
 } from "../../../model/routesEntities/WebSocketRouterEntities";
 
-//# --- DATABASE ENTITIES ---
-import { User } from "../../../model/database/User";
-import { Message } from "../../../model/database/Message";
-import { Chat } from "../../../model/database/Chat";
+//# --- DATABASE ---
+import { prisma } from "../../../model/config/prismaClient";
+import { User } from "@prisma/client";
 
 //# --- VALIDATE REQUEST ---
 import { emptyParam } from "../../utils/validation/emptyParam";
-import { invalidParamType } from "../../utils/validation/invalidParamType";
 
 //# --- ERRORS ---
 import {
@@ -28,26 +23,38 @@ import {
 import { webSocketChatsMap } from "../../../sockets/socketsConfig";
 
 export const deleteMessageRoute = async (req: Request, res: Response) => {
-  if (invalidParamType(req, res, "messageId")) return res;
   if (emptyParam(req, res, "messageId")) return res;
-  const messageId = parseInt(req.params.messageId);
+  const messageId = req.params.messageId;
 
   const user: User = req.body.user;
 
-  let messages;
+  let message;
   try {
-    messages = await DB.getMessagesFromUserId(user.id);
+    message = await prisma.message.findFirst({
+      where: {
+        id: messageId,
+        senderId: user.id,
+      },
+      include: {
+        chat: {
+          include: {
+            messages: true,
+          },
+        },
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  const message = messages.find((message) => message.id === messageId);
   if (!message) {
     return res.status(400).json(err(new FORBIDDEN_ACCESS()));
   }
 
   try {
-    await Message.delete({ id: messageId });
+    await prisma.message.delete({
+      where: { id: messageId },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
@@ -77,14 +84,27 @@ export const deleteMessageRoute = async (req: Request, res: Response) => {
 
   const chat = message.chat;
   try {
-    if (messages.length == 1) {
+    if (chat.messages.length == 1) {
       //# If there was only one message and it is deleted now
       chat.lastUpdateTimeMillis = chat.creationTime;
-      await Chat.save(chat);
+      await prisma.chat.update({
+        where: {
+          id: chat.id,
+        },
+        data: {
+          lastUpdateTimeMillis: chat.creationTime,
+        },
+      });
     } else {
-      const lastMessage = messages[messages.length - 1];
-      chat.lastUpdateTimeMillis = lastMessage.creationTime;
-      await Chat.save(chat);
+      const lastMessage = chat.messages[chat.messages.length - 1];
+      await prisma.chat.update({
+        where: {
+          id: chat.id,
+        },
+        data: {
+          lastUpdateTimeMillis: lastMessage.creationTime,
+        },
+      });
     }
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));

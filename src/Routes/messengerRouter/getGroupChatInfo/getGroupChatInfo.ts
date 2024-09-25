@@ -1,8 +1,5 @@
 import { Request, Response } from "express";
 import { S3DataSource } from "../../../model/config/imagesConfig";
-import { DB } from "../../../model/config/initializeConfig";
-import { Chat } from "../../../model/database/Chat";
-import { User } from "../../../model/database/User";
 import { GetGroupChatInfoResponseBody } from "../../../model/routesEntities/MessageRoutesEntities";
 import {
   DATABASE_ERROR,
@@ -13,74 +10,109 @@ import {
 import { emptyParam } from "../../utils/validation/emptyParam";
 import { invalidParamType } from "../../utils/validation/invalidParamType";
 import { transformMessageForResponse } from "../transformMessageForResponse";
+import { AccountInfo, Chat, Prisma, User } from "@prisma/client";
+import { prisma } from "../../../model/config/prismaClient";
+import { send } from "process";
 
 export const getGroupChatInfo = async (req: Request, res: Response) => {
-  //   const user: User = req.body.user;
-  //   if (invalidParamType(req, res, "chatId")) return res;
-  //   if (emptyParam(req, res, "chatId")) return res;
-  //   const chatId = parseInt(req.params.chatId);
-  //   if (!user.chats.find((chat) => chat.id === chatId)) {
-  //     return res.status(400).json(err(new FORBIDDEN_ACCESS()));
-  //   }
-  //   const chat = (await DB.getChatBy("id", chatId))!;
-  //   if (!chat.isGroup) {
-  //     return res.status(400).json(err(new FORBIDDEN_ACCESS()));
-  //   }
-  //   let participantsInfo;
-  //   try {
-  //     participantsInfo = await getParticipantsInfoFromChat(chat);
-  //   } catch (error) {
-  //     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
-  //   }
-  //   const usersAvatarsMap = new Map<number, string | null>();
-  //   participantsInfo.forEach((participantInfo) => {
-  //     usersAvatarsMap.set(participantInfo.id, participantInfo.avatarLink);
-  //   });
-  //   let messages;
-  //   try {
-  //     messages = await DB.getMessagesFromChatId(chatId);
-  //   } catch (error) {
-  //     return res.status(400).json(err(new DATABASE_ERROR(error)));
-  //   }
-  //   let messagesInfo;
-  //   try {
-  //     messagesInfo = await Promise.all(
-  //       messages.map(async (message) => {
-  //         const sender = message.sender;
-  //         const avatarLink = usersAvatarsMap.get(sender.id) ?? null;
-  //         return await transformMessageForResponse(
-  //           message,
-  //           chat,
-  //           user,
-  //           avatarLink
-  //         );
-  //       })
-  //     );
-  //   } catch (error) {
-  //     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
-  //   }
-  //   const getGroupChatInfoResponseBody: GetGroupChatInfoResponseBody = {
-  //     participants: participantsInfo,
-  //     messages: messagesInfo,
-  //   };
-  //   return res.status(200).json(getGroupChatInfoResponseBody);
-  // };
-  // const getParticipantsInfoFromChat = async (chat: Chat) => {
-  //   const participantsInfo = await Promise.all(
-  //     chat.users.map(async (participant) => {
-  //       let avatarLink = null;
-  //       if (participant.avatarImageName) {
-  //         avatarLink = await S3DataSource.getImageUrlFromS3(
-  //           participant.avatarImageName
-  //         );
-  //       }
-  //       return {
-  //         id: participant.id,
-  //         name: participant.name,
-  //         nickname: participant.nickname,
-  //         avatarLink,
-  //       };
-  //     })
-  //   );
-  //   return participantsInfo;
+  const user: User = req.body.user;
+
+  if (emptyParam(req, res, "chatId")) return res;
+  const chatId = req.params.chatId;
+
+  let chat;
+  try {
+    chat = await prisma.chat.findFirst({
+      where: {
+        id: chatId,
+        users: {
+          some: { id: user.id },
+        },
+      },
+      include: {
+        users: {
+          include: {
+            accountInfo: true,
+          },
+        },
+        messages: {
+          include: {
+            sender: true,
+          },
+        },
+      },
+    });
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
+
+  if (!chat || !chat.isGroup) {
+    return res.status(400).json(err(new FORBIDDEN_ACCESS()));
+  }
+
+  let participantsInfo;
+  try {
+    participantsInfo = await getParticipantsInfoFromChat(chat);
+  } catch (error) {
+    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
+  }
+
+  const usersAvatarsMap = new Map<string, string | null>();
+  participantsInfo.forEach((participantInfo) => {
+    usersAvatarsMap.set(participantInfo.id, participantInfo.avatarLink);
+  });
+
+  let messagesInfo;
+  try {
+    messagesInfo = await Promise.all(
+      chat.messages.map(async (message) => {
+        const sender = message.sender;
+        const avatarLink = usersAvatarsMap.get(sender.id) ?? null;
+        return await transformMessageForResponse(
+          message.id,
+          chatId,
+          user.id,
+          avatarLink
+        );
+      })
+    );
+  } catch (error) {
+    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
+  }
+
+  const getGroupChatInfoResponseBody: GetGroupChatInfoResponseBody = {
+    participants: participantsInfo,
+    messages: messagesInfo,
+  };
+
+  return res.status(200).json(getGroupChatInfoResponseBody);
 };
+
+const getParticipantsInfoFromChat = async (chat: ChatWithUsers) => {
+  const participantsInfo = await Promise.all(
+    chat.users.map(async (participant) => {
+      let avatarLink = null;
+      if (participant.accountInfo!.avatarImageName) {
+        avatarLink = await S3DataSource.getImageUrlFromS3(
+          participant.accountInfo!.avatarImageName
+        );
+      }
+      return {
+        id: participant.id,
+        nickname: participant.accountInfo!.nickname,
+        avatarLink,
+      };
+    })
+  );
+  return participantsInfo;
+};
+
+type ChatWithUsers = Prisma.ChatGetPayload<{
+  include: {
+    users: {
+      include: {
+        accountInfo: true;
+      };
+    };
+  };
+}>;

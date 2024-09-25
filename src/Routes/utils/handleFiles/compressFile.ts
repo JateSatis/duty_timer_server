@@ -4,7 +4,9 @@ export const compressFile = async (buffer: Buffer, contentType: string) => {
   let image = sharp(buffer);
   const meta = await image.metadata();
 
-  if (["image/jpeg", "image/jpg", "image/png"].includes(contentType)) {
+  if (
+    ["image/jpeg", "image/jpg", "image/png", "image/heic"].includes(contentType)
+  ) {
     image = image.jpeg({ quality: 70 });
   } else if (contentType === "image/webp") {
     image = image.webp({ quality: 70 });

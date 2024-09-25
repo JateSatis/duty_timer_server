@@ -17,7 +17,7 @@ const sharp_1 = __importDefault(require("sharp"));
 const compressFile = (buffer, contentType) => __awaiter(void 0, void 0, void 0, function* () {
     let image = (0, sharp_1.default)(buffer);
     const meta = yield image.metadata();
-    if (["image/jpeg", "image/jpg", "image/png"].includes(contentType)) {
+    if (["image/jpeg", "image/jpg", "image/png", "image/heic"].includes(contentType)) {
         image = image.jpeg({ quality: 70 });
     }
     else if (contentType === "image/webp") {

@@ -10,22 +10,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.editMessageRoute = void 0;
-const initializeConfig_1 = require("../../../model/config/initializeConfig");
 const socketsConfig_1 = require("../../../sockets/socketsConfig");
-const Message_1 = require("../../../model/database/Message");
 const MessageRoutesEntities_1 = require("../../../model/routesEntities/MessageRoutesEntities");
 const emptyParam_1 = require("../../utils/validation/emptyParam");
-const invalidParamType_1 = require("../../utils/validation/invalidParamType");
 const missingRequestField_1 = require("../../utils/validation/missingRequestField");
 const invalidInputFormat_1 = require("./invalidInputFormat");
 const emptyField_1 = require("../../utils/validation/emptyField");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
+const prismaClient_1 = require("../../../model/config/prismaClient");
 const editMessageRoute = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if ((0, invalidParamType_1.invalidParamType)(req, res, "messageId"))
-        return res;
+    const user = req.body.user;
     if ((0, emptyParam_1.emptyParam)(req, res, "messageId"))
         return res;
-    const messageId = parseInt(req.params.messageId);
+    const messageId = req.params.messageId;
     if ((0, missingRequestField_1.missingRequestField)(req, res, MessageRoutesEntities_1.editMessageRequestBodyProperties))
         return res;
     if ((0, emptyField_1.emptyField)(req, res, MessageRoutesEntities_1.editMessageRequestBodyProperties))
@@ -33,21 +30,33 @@ const editMessageRoute = (req, res) => __awaiter(void 0, void 0, void 0, functio
     const editMessageRequestBody = req.body;
     if ((0, invalidInputFormat_1.invalidInputFormat)(res, editMessageRequestBody))
         return res;
-    const user = req.body.user;
-    let messages;
+    let message;
     try {
-        messages = yield initializeConfig_1.DB.getMessagesFromUserId(user.id);
+        message = yield prismaClient_1.prisma.message.findFirst({
+            where: {
+                id: messageId,
+                senderId: user.id,
+            },
+            include: {
+                chat: true,
+            },
+        });
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
     }
-    const message = messages.find((message) => message.id === messageId);
     if (!message) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.FORBIDDEN_ACCESS()));
     }
-    message.text = editMessageRequestBody.text;
     try {
-        yield Message_1.Message.save(message);
+        yield prismaClient_1.prisma.message.update({
+            where: {
+                id: messageId,
+            },
+            data: {
+                text: editMessageRequestBody.text,
+            },
+        });
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));

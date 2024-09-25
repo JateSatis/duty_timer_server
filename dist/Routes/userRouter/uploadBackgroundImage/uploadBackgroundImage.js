@@ -11,12 +11,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.uploadBackgroundImage = void 0;
 const imagesConfig_1 = require("../../../model/config/imagesConfig");
-const Settings_1 = require("../../../model/database/Settings");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
 const UserErrors_1 = require("../../utils/errors/UserErrors");
+const prismaClient_1 = require("../../../model/config/prismaClient");
 const uploadBackgroundImage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.body.user;
-    const settings = user.settings;
     if (!req.file) {
         return res.status(400).json((0, GlobalErrors_1.err)(new UserErrors_1.MISSING_FILE()));
     }
@@ -30,9 +29,15 @@ const uploadBackgroundImage = (req, res) => __awaiter(void 0, void 0, void 0, fu
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.S3_STORAGE_ERROR(error.message)));
     }
-    settings.backgroundImageName = s3ImageName;
     try {
-        yield Settings_1.Settings.save(settings);
+        yield prismaClient_1.prisma.settings.update({
+            where: {
+                userId: user.id,
+            },
+            data: {
+                backgroundImageName: s3ImageName,
+            },
+        });
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));

@@ -6,8 +6,8 @@ const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
 const allowedTimeMillis = /^-?\d+$/;
 const invalidInputFormat = (res, updateTimerRequestBody) => {
     const { startTimeMillis, endTimeMillis } = updateTimerRequestBody;
-    if (!allowedTimeMillis.test(startTimeMillis) ||
-        !allowedTimeMillis.test(endTimeMillis)) {
+    if (!allowedTimeMillis.test(startTimeMillis.toString()) ||
+        !allowedTimeMillis.test(endTimeMillis.toString())) {
         res.status(400).json((0, GlobalErrors_1.err)(new AuthErrors_1.INVALID_INPUT_FORMAT()));
         return true;
     }

@@ -64,7 +64,7 @@ export const transformChatForResponse = async (
     chatResponseBody.lastMessageText = lastMessage.text;
     chatResponseBody.lastMessageCreationTime = timeFormat;
     chatResponseBody.lastMessageSenderName =
-      lastMessage.user.accountInfo!.nickname;
+      lastMessage.sender.accountInfo!.nickname;
   }
 
   return chatResponseBody;
@@ -83,7 +83,7 @@ const getChatById = async (chatId: string) => {
       },
       messages: {
         include: {
-          user: {
+          sender: {
             include: {
               accountInfo: true,
             },

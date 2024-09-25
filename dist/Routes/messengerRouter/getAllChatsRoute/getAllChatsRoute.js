@@ -10,7 +10,34 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllChatsRoute = void 0;
+const prismaClient_1 = require("../../../model/config/prismaClient");
+const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
+const transformChatForResponse_1 = require("../transformChatForResponse");
 const getAllChatsRoute = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.body.user;
+    let chats;
+    try {
+        chats = yield prismaClient_1.prisma.chat.findMany({
+            where: {
+                users: {
+                    some: {
+                        id: user.id,
+                    },
+                },
+            },
+        });
+    }
+    catch (error) {
+        return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
+    }
+    let getAllChatsResponseBody;
+    try {
+        getAllChatsResponseBody = yield Promise.all(chats.map((chat) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, transformChatForResponse_1.transformChatForResponse)(chat.id, user.id); })));
+    }
+    catch (error) {
+        return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.S3_STORAGE_ERROR(error)));
+    }
+    return res.status(200).json(getAllChatsResponseBody);
 });
 exports.getAllChatsRoute = getAllChatsRoute;
 //# sourceMappingURL=getAllChatsRoute.js.map

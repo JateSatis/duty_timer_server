@@ -14,8 +14,9 @@ const UserRouterEntities_1 = require("../../../model/routesEntities/UserRouterEn
 const emptyField_1 = require("../../utils/validation/emptyField");
 const missingRequestField_1 = require("../../utils/validation/missingRequestField");
 const invalidInputFormat_1 = require("./invalidInputFormat");
-const Settings_1 = require("../../../model/database/Settings");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
+const prismaClient_1 = require("../../../model/config/prismaClient");
+const client_1 = require("@prisma/client");
 const updateSettings = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.body.user;
     if ((0, missingRequestField_1.missingRequestField)(req, res, UserRouterEntities_1.updateSettingsRequestBodyProperties))
@@ -25,11 +26,17 @@ const updateSettings = (req, res) => __awaiter(void 0, void 0, void 0, function*
     const updateSettingsRequestBody = req.body;
     if ((0, invalidInputFormat_1.invalidInputFormat)(res, updateSettingsRequestBody))
         return res;
-    const settings = user.settings;
-    settings.language = updateSettingsRequestBody.language;
-    settings.theme = updateSettingsRequestBody.theme;
     try {
-        yield Settings_1.Settings.save(settings);
+        yield prismaClient_1.prisma.settings.update({
+            where: {
+                userId: user.id,
+            },
+            data: {
+                language: client_1.Language.RUSSIAN,
+                theme: client_1.Theme.WHITE,
+                backgroundTint: updateSettingsRequestBody.backgroundTint,
+            },
+        });
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));

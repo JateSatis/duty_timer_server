@@ -10,7 +10,48 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUserInfo = void 0;
+const imagesConfig_1 = require("../../../model/config/imagesConfig");
+const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
+const prismaClient_1 = require("../../../model/config/prismaClient");
+const AuthErrors_1 = require("../../utils/errors/AuthErrors");
 const getUserInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.body.user.id;
+    let user;
+    try {
+        user = yield prismaClient_1.prisma.user.findFirst({
+            where: {
+                id: userId,
+            },
+            include: {
+                accountInfo: true,
+            },
+        });
+    }
+    catch (error) {
+        return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
+    }
+    if (!user) {
+        return res
+            .status(400)
+            .json((0, GlobalErrors_1.err)(new AuthErrors_1.DATA_NOT_FOUND("user", `id = ${userId}`)));
+    }
+    let avatarLink = null;
+    try {
+        if (user.accountInfo.avatarImageName) {
+            avatarLink = yield imagesConfig_1.S3DataSource.getImageUrlFromS3(user.accountInfo.avatarImageName);
+        }
+    }
+    catch (error) {
+        return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.S3_STORAGE_ERROR(error)));
+    }
+    const getUserInfoResponseBody = {
+        id: user.id,
+        nickname: user.accountInfo.nickname,
+        login: user.accountInfo.email,
+        avatarLink,
+        userType: user.accountInfo.userType,
+    };
+    return res.status(200).json(getUserInfoResponseBody);
 });
 exports.getUserInfo = getUserInfo;
 //# sourceMappingURL=getUserInfo.js.map

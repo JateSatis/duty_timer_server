@@ -10,33 +10,41 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteMessageRoute = void 0;
-const initializeConfig_1 = require("../../../model/config/initializeConfig");
-const Message_1 = require("../../../model/database/Message");
-const Chat_1 = require("../../../model/database/Chat");
+const prismaClient_1 = require("../../../model/config/prismaClient");
 const emptyParam_1 = require("../../utils/validation/emptyParam");
-const invalidParamType_1 = require("../../utils/validation/invalidParamType");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
 const socketsConfig_1 = require("../../../sockets/socketsConfig");
 const deleteMessageRoute = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if ((0, invalidParamType_1.invalidParamType)(req, res, "messageId"))
-        return res;
     if ((0, emptyParam_1.emptyParam)(req, res, "messageId"))
         return res;
-    const messageId = parseInt(req.params.messageId);
+    const messageId = req.params.messageId;
     const user = req.body.user;
-    let messages;
+    let message;
     try {
-        messages = yield initializeConfig_1.DB.getMessagesFromUserId(user.id);
+        message = yield prismaClient_1.prisma.message.findFirst({
+            where: {
+                id: messageId,
+                senderId: user.id,
+            },
+            include: {
+                chat: {
+                    include: {
+                        messages: true,
+                    },
+                },
+            },
+        });
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
     }
-    const message = messages.find((message) => message.id === messageId);
     if (!message) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.FORBIDDEN_ACCESS()));
     }
     try {
-        yield Message_1.Message.delete({ id: messageId });
+        yield prismaClient_1.prisma.message.delete({
+            where: { id: messageId },
+        });
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
@@ -59,14 +67,27 @@ const deleteMessageRoute = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
     const chat = message.chat;
     try {
-        if (messages.length == 1) {
+        if (chat.messages.length == 1) {
             chat.lastUpdateTimeMillis = chat.creationTime;
-            yield Chat_1.Chat.save(chat);
+            yield prismaClient_1.prisma.chat.update({
+                where: {
+                    id: chat.id,
+                },
+                data: {
+                    lastUpdateTimeMillis: chat.creationTime,
+                },
+            });
         }
         else {
-            const lastMessage = messages[messages.length - 1];
-            chat.lastUpdateTimeMillis = lastMessage.creationTime;
-            yield Chat_1.Chat.save(chat);
+            const lastMessage = chat.messages[chat.messages.length - 1];
+            yield prismaClient_1.prisma.chat.update({
+                where: {
+                    id: chat.id,
+                },
+                data: {
+                    lastUpdateTimeMillis: lastMessage.creationTime,
+                },
+            });
         }
     }
     catch (error) {

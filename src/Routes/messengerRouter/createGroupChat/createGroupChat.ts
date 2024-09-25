@@ -13,7 +13,6 @@ import {
   FORBIDDEN_ACCESS,
   S3_STORAGE_ERROR,
 } from "../../utils/errors/GlobalErrors";
-import { DB } from "../../../model/config/initializeConfig";
 import { Chat, User } from "@prisma/client";
 import { S3DataSource } from "../../../model/config/imagesConfig";
 import { transformChatForResponse } from "../transformChatForResponse";
@@ -101,13 +100,13 @@ export const createGroupChat = async (req: Request, res: Response) => {
     });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
-	}
-	
+  }
+
   let createGroupChatResponseBody: CreateGroupChatResponseBody;
   try {
     createGroupChatResponseBody = await transformChatForResponse(
       groupChat.id,
-      user
+      user.id
     );
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));

@@ -11,26 +11,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendBackgroundImage = void 0;
 const imagesConfig_1 = require("../../../model/config/imagesConfig");
-const initializeConfig_1 = require("../../../model/config/initializeConfig");
-const Settings_1 = require("../../../model/database/Settings");
 const AuthErrors_1 = require("../../utils/errors/AuthErrors");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
 const UserErrors_1 = require("../../utils/errors/UserErrors");
 const emptyParam_1 = require("../../utils/validation/emptyParam");
-const invalidParamFormat_1 = require("../../utils/validation/invalidParamFormat");
+const prismaClient_1 = require("../../../model/config/prismaClient");
 const sendBackgroundImage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.body.user;
+    if (!user) {
+        return res
+            .status(400)
+            .json((0, GlobalErrors_1.err)(new AuthErrors_1.DATA_NOT_FOUND("user", `id = ${req.body.user.id}`)));
+    }
     if (!req.file) {
         return res.status(400).json((0, GlobalErrors_1.err)(new UserErrors_1.MISSING_FILE()));
     }
     if ((0, emptyParam_1.emptyParam)(req, res, "recieverId"))
         return res;
-    if ((0, invalidParamFormat_1.invalidParamFormat)(req, res, "recieverId"))
-        return res;
-    const recieverId = parseInt(req.params.recieverId);
+    const recieverId = req.params.recieverId;
     let reciever;
     try {
-        reciever = yield initializeConfig_1.DB.getUserBy("id", recieverId);
+        reciever = yield prismaClient_1.prisma.user.findFirst({
+            where: {
+                id: recieverId,
+            },
+        });
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
@@ -40,9 +45,22 @@ const sendBackgroundImage = (req, res) => __awaiter(void 0, void 0, void 0, func
             .status(400)
             .json((0, GlobalErrors_1.err)(new AuthErrors_1.DATA_NOT_FOUND("user", `id = ${recieverId}`)));
     }
-    if (!user.friends.find((friend) => friend.friendId === recieverId)) {
-        return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.FORBIDDEN_ACCESS()));
+    let friendships;
+    try {
+        friendships = yield prismaClient_1.prisma.frienship.findMany({
+            where: {
+                OR: [{ user1Id: user.id }, { user2Id: user.id }],
+            },
+        });
     }
+    catch (error) {
+        return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
+    }
+    const friendIds = friendships.map((friendship) => {
+        return friendship.user1Id === user.id
+            ? friendship.user2Id
+            : friendship.user1Id;
+    });
     const imageName = req.file.originalname;
     const contentType = req.file.mimetype;
     const body = req.file.buffer;
@@ -53,10 +71,15 @@ const sendBackgroundImage = (req, res) => __awaiter(void 0, void 0, void 0, func
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.S3_STORAGE_ERROR(error.message)));
     }
-    const settings = reciever.settings;
-    settings.backgroundImageName = s3ImageName;
     try {
-        yield Settings_1.Settings.save(settings);
+        yield prismaClient_1.prisma.settings.update({
+            where: {
+                userId: user.id,
+            },
+            data: {
+                backgroundImageName: s3ImageName,
+            },
+        });
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));

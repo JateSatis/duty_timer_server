@@ -89,7 +89,7 @@ const createGroupChat = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
     let createGroupChatResponseBody;
     try {
-        createGroupChatResponseBody = yield (0, transformChatForResponse_1.transformChatForResponse)(groupChat.id, user);
+        createGroupChatResponseBody = yield (0, transformChatForResponse_1.transformChatForResponse)(groupChat.id, user.id);
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.S3_STORAGE_ERROR(error)));

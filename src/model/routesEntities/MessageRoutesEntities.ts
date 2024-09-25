@@ -1,8 +1,8 @@
 export type DirectMessageResponseBody = {
-  messageId: number;
-  chatId: number;
-  senderId: number;
-  senderName: string;
+  messageId: string;
+  chatId: string;
+  senderId: string;
+  senderNickname: string;
   text: string;
   attachmentLinks: string[];
   creationDate: string;
@@ -13,10 +13,10 @@ export type DirectMessageResponseBody = {
 };
 
 export type MessageResponseBody = {
-  messageId: number;
-  chatId: number;
-  senderId: number;
-  senderName: string;
+  messageId: string;
+  chatId: string;
+  senderId: string;
+  senderNickname: string;
   senderAvatarLink: string | null;
   text: string;
   attachmentLinks: string[];
@@ -40,8 +40,7 @@ export type ChatResponseBody = {
 };
 
 export type ParticipantInfo = {
-  id: number;
-  name: string;
+  id: string;
   nickname: string;
   avatarLink: string | null;
 };

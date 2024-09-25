@@ -10,44 +10,57 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateAllUnreadMessagesRoute = void 0;
-const initializeConfig_1 = require("../../../model/config/initializeConfig");
-const Message_1 = require("../../../model/database/Message");
 const emptyParam_1 = require("../../utils/validation/emptyParam");
-const invalidParamType_1 = require("../../utils/validation/invalidParamType");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
 const socketsConfig_1 = require("../../../sockets/socketsConfig");
+const prismaClient_1 = require("../../../model/config/prismaClient");
 const updateAllUnreadMessagesRoute = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if ((0, invalidParamType_1.invalidParamType)(req, res, "chatId"))
-        return res;
+    const user = req.body.user;
     if ((0, emptyParam_1.emptyParam)(req, res, "chatId"))
         return res;
-    const chatId = parseInt(req.params.chatId);
-    const user = req.body.user;
-    let chats;
+    const chatId = req.params.chatId;
+    let chat;
     try {
-        chats = yield initializeConfig_1.DB.getChatsByUserId(user.id);
+        chat = yield prismaClient_1.prisma.chat.findFirst({
+            where: {
+                id: chatId,
+                users: {
+                    some: { id: user.id },
+                },
+            },
+            include: {
+                users: {
+                    include: {
+                        accountInfo: true,
+                    },
+                },
+                messages: {
+                    include: {
+                        sender: true,
+                    },
+                },
+            },
+        });
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
     }
-    const chat = chats.find((chat) => chat.id === chatId);
     if (!chat) {
-        return res.status(403).json((0, GlobalErrors_1.err)(new GlobalErrors_1.FORBIDDEN_ACCESS()));
-    }
-    let unreadMessages;
-    try {
-        unreadMessages = yield initializeConfig_1.DB.getUnreadMessagesFromChatId(chatId);
-    }
-    catch (error) {
-        return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
+        return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.FORBIDDEN_ACCESS()));
     }
     try {
-        yield Promise.all(unreadMessages.map((message) => __awaiter(void 0, void 0, void 0, function* () {
-            if (message.sender.id !== user.id) {
-                message.isRead = true;
-            }
-            yield Message_1.Message.save(message);
-        })));
+        yield prismaClient_1.prisma.message.updateMany({
+            where: {
+                chatId,
+                isRead: false,
+                senderId: {
+                    not: user.id,
+                },
+            },
+            data: {
+                isRead: true,
+            },
+        });
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));

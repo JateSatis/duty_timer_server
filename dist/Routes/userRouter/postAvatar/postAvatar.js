@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.postAvatar = void 0;
 const imagesConfig_1 = require("../../../model/config/imagesConfig");
-const User_1 = require("../../../model/database/User");
+const prismaClient_1 = require("../../../model/config/prismaClient");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
 const UserErrors_1 = require("../../utils/errors/UserErrors");
 const postAvatar = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -21,16 +21,27 @@ const postAvatar = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
     const imageName = req.file.originalname;
     const contentType = req.file.mimetype;
-    const body = req.file.buffer;
+    const buffer = req.file.buffer;
     let s3ImageName;
     try {
-        s3ImageName = yield imagesConfig_1.S3DataSource.uploadImageToS3(imageName, body, contentType);
+        s3ImageName = yield imagesConfig_1.S3DataSource.uploadImageToS3(imageName, buffer, contentType);
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.S3_STORAGE_ERROR(error.message)));
     }
     try {
-        yield User_1.User.update(user.id, { avatarImageName: s3ImageName });
+        yield prismaClient_1.prisma.user.update({
+            where: {
+                id: user.id,
+            },
+            data: {
+                accountInfo: {
+                    update: {
+                        avatarImageName: s3ImageName,
+                    },
+                },
+            },
+        });
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));

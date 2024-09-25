@@ -1,10 +1,20 @@
-export class ServerError {
+export class ServerError extends Error {
   public name: string;
   public message: string;
 
   constructor(name: string, message: string) {
+    super(name);
     this.name = name;
     this.message = message;
+  }
+
+  public toString() {
+    return `
+			{
+				name: ${this.name},
+				message: ${this.message}
+			}
+			`;
   }
 }
 
@@ -14,6 +24,12 @@ export const err = (serverError: ServerError) => {
     message: serverError.message,
   };
 };
+
+export class UNKNOWN_ERROR extends ServerError {
+  constructor(message: string) {
+    super("UNKNOWN_ERROR", `Unknown error occured. Error: ${message}`);
+  }
+}
 
 export class MISSING_REQUEST_FIELD extends ServerError {
   constructor(missingFields: string[]) {

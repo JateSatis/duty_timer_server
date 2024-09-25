@@ -21,9 +21,7 @@ import {
   FORBIDDEN_ACCESS,
 } from "../../utils/errors/GlobalErrors";
 import { User } from "@prisma/client";
-import { prisma } from "src/model/config/prismaClient";
-
-// TODO: Check if the request is already sent
+import { prisma } from "../../../model/config/prismaClient";
 
 export const sendRequestRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;

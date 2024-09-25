@@ -8,11 +8,10 @@ export type ForeignUserInfoResponseBody = {
 
 export type GetUserInfoResponseBody = {
   id: string;
-  name: string;
   nickname: string;
   login: string;
   avatarLink: string | null;
-  userType: UserType | null;
+  userType: string;
 };
 
 export type GetUserByIdResponseBody = ForeignUserInfoResponseBody;
@@ -34,12 +33,14 @@ export type GetAvatarLinkResponseBody = {
 export type UpdateSettingsRequestBody = {
   language: string;
   theme: string;
+  backgroundTint: boolean;
 };
 
 export const updateSettingsRequestBodyProperties = ["language", "theme"];
 
 export type GetSettingsResponseBody = {
   backgroundImageLink: string | null;
+  backgroundTint: boolean;
   theme: string;
   language: string;
 };

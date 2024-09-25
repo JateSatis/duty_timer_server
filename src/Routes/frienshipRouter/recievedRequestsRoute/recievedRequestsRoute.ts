@@ -18,7 +18,7 @@ import {
 //# --- UTILS ---
 import { transformRequestsForResponse } from "./transformRequestsForResponse";
 import { User } from "@prisma/client";
-import { prisma } from "src/model/config/prismaClient";
+import { prisma } from "../../../model/config/prismaClient";
 
 export const recievedRequestRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;

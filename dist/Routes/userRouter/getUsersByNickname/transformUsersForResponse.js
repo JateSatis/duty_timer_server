@@ -10,7 +10,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.transformUsersForResponse = void 0;
+const imagesConfig_1 = require("../../../model/config/imagesConfig");
 const transformUsersForResponse = (users) => __awaiter(void 0, void 0, void 0, function* () {
+    const usersInfo = yield Promise.all(users.map((user) => __awaiter(void 0, void 0, void 0, function* () {
+        let avatarLink = null;
+        if (user.accountInfo.avatarImageName) {
+            avatarLink = yield imagesConfig_1.S3DataSource.getImageUrlFromS3(user.accountInfo.avatarImageName);
+        }
+        const getUserInfoResponseBody = {
+            id: user.id,
+            nickname: user.accountInfo.nickname,
+            avatarLink,
+        };
+        return getUserInfoResponseBody;
+    })));
+    return usersInfo;
 });
 exports.transformUsersForResponse = transformUsersForResponse;
 //# sourceMappingURL=transformUsersForResponse.js.map

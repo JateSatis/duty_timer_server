@@ -2,33 +2,36 @@
 import { Request, Response } from "express";
 
 //# --- DATABASE ENTITIES ---
-import { Timer } from "../../../model/database/Timer";
-import { User } from "../../../model/database/User";
 
 //# --- REQUEST ENTITIES ---
 import { ConnectToTimerResponseBody } from "../../../model/routesEntities/TimerRouterEntities";
 
 //# --- REQUEST ENTITIES ---
 import { emptyParam } from "../../utils/validation/emptyParam";
-import { invalidParamType } from "../../utils/validation/invalidParamType";
 
 //# --- ERRORS ---
 import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  err,
+  FORBIDDEN_ACCESS,
+} from "../../utils/errors/GlobalErrors";
+import { prisma } from "../../../model/config/prismaClient";
+import { User } from "@prisma/client";
 
 export const connectToTimerRoute = async (req: Request, res: Response) => {
-  if (invalidParamType(req, res, "timerId")) return res;
+  if (emptyParam(req, res, "userId")) return res;
 
-  if (emptyParam(req, res, "timerId")) return res;
-
-  const timerId = parseInt(req.params.timerId);
+  const userId = req.params.userId;
 
   const user: User = req.body.user;
 
   let timer;
   try {
-    timer = await Timer.findOneBy({
-      id: timerId,
+    timer = await prisma.timer.findFirst({
+      where: {
+        userId: userId,
+      },
     });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
@@ -37,18 +40,45 @@ export const connectToTimerRoute = async (req: Request, res: Response) => {
   if (!timer) {
     return res
       .status(400)
-      .json(err(new DATA_NOT_FOUND("timer", `id = ${timerId}`)));
+      .json(err(new DATA_NOT_FOUND("timer", `userId = ${userId}`)));
   }
 
-  user.timer = timer;
-
+  let frienship = null;
   try {
-    await User.save(user);
+    frienship = await prisma.frienship.findFirst({
+      where: {
+        OR: [
+          { user1Id: user.id, user2Id: timer.userId },
+          { user1Id: timer.userId, user2Id: user.id },
+        ],
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  const connectToTimerResponseBody: ConnectToTimerResponseBody = timer;
+  if (!frienship) {
+    return res.status(400).json(err(new FORBIDDEN_ACCESS()));
+  }
+
+  try {
+    await prisma.timer.update({
+      where: {
+        userId: user.id,
+      },
+      data: {
+        startTimeMillis: timer.startTimeMillis,
+        endTimeMillis: timer.endTimeMillis,
+      },
+    });
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
+
+  const connectToTimerResponseBody: ConnectToTimerResponseBody = {
+    startTimeMillis: Number(timer.startTimeMillis),
+    endTimeMillis: Number(timer.endTimeMillis),
+  };
 
   return res.status(200).json(connectToTimerResponseBody);
 };

@@ -1,7 +1,10 @@
 import { Timer } from "../database/Timer";
 import { Expose } from "class-transformer";
 
-export type GetTimerResponseBody = Timer;
+export type GetTimerResponseBody = {
+  startTimeMillis: number;
+  endTimeMillis: number;
+};
 
 export type CreateTimerRequestBody = {
   startTimeMillis: string;
@@ -21,6 +24,12 @@ export const updateTimerRequestBodyProperties = [
   "endTimeMillis",
 ];
 
-export type UpdateTimerResponseBody = Timer;
+export type UpdateTimerResponseBody = {
+  startTimeMillis: number;
+  endTimeMillis: number;
+};
 
-export type ConnectToTimerResponseBody = Timer;
+export type ConnectToTimerResponseBody = {
+  startTimeMillis: number;
+  endTimeMillis: number;
+};

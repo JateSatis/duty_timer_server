@@ -13,8 +13,8 @@ import { deleteMessageRoute } from "./deleteMessageRoute/deleteMessageRoute";
 import { deleteChatRoute } from "./deleteChatRoute/deleteChatRoute";
 
 ///# --- UTILS ---
-import { handleFiles } from "./handleFilesMiddleware";
-import { handleFile } from "../utils/validation/handleFileMiddleware";
+import { getFilesMiddleware } from "../utils/handleFiles/handleFilesMiddleware";
+import { handleFile } from "../utils/handleFiles/handleFileMiddleware";
 import { sendBackgroundImage } from "./sendBackgroundImage/sendBackgroundImage";
 import { createGroupChat } from "./createGroupChat/createGroupChat";
 import { getDirectChatInfo } from "./getDirectChatInfo/getDirectChatInfo";
@@ -34,7 +34,12 @@ messengerRouter.get("/direct-chat/:chatId", auth, getDirectChatInfo);
 
 messengerRouter.get("/group-chat/:chatId", auth, getGroupChatInfo);
 
-messengerRouter.post("/create/:chatId", handleFiles, auth, createMessageRoute);
+messengerRouter.post(
+  "/create/:chatId",
+  getFilesMiddleware(10),
+  auth,
+  createMessageRoute
+);
 
 messengerRouter.post(
   "/update-all-unread-messages/:chatId",
@@ -46,7 +51,12 @@ messengerRouter.put("/edit-message/:messageId", auth, editMessageRoute);
 
 messengerRouter.delete("/delete-message/:messageId", auth, deleteMessageRoute);
 
-messengerRouter.post("/create-group-chat", handleFile, auth, createGroupChat);
+messengerRouter.post(
+  "/create-group-chat",
+  getFilesMiddleware(1),
+  auth,
+  createGroupChat
+);
 
 messengerRouter.delete("/delete-chat/:chatId", auth, deleteChatRoute);
 

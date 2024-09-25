@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { User } from "../../../model/database/User";
 import {
   UpdateSettingsRequestBody,
   updateSettingsRequestBodyProperties,
@@ -9,6 +8,8 @@ import { missingRequestField } from "../../utils/validation/missingRequestField"
 import { invalidInputFormat } from "./invalidInputFormat";
 import { Settings } from "../../../model/database/Settings";
 import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import { prisma } from "../../../model/config/prismaClient";
+import { Language, Theme, User } from "@prisma/client";
 
 export const updateSettings = async (req: Request, res: Response) => {
   const user: User = req.body.user;
@@ -21,13 +22,17 @@ export const updateSettings = async (req: Request, res: Response) => {
 
   if (invalidInputFormat(res, updateSettingsRequestBody)) return res;
 
-  const settings = user.settings;
-
-  settings.language = updateSettingsRequestBody.language;
-  settings.theme = updateSettingsRequestBody.theme;
-
   try {
-    await Settings.save(settings);
+    await prisma.settings.update({
+      where: {
+        userId: user.id,
+      },
+      data: {
+        language: Language.RUSSIAN,
+        theme: Theme.WHITE,
+        backgroundTint: updateSettingsRequestBody.backgroundTint,
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }

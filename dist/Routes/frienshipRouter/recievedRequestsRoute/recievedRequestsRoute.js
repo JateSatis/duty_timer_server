@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.recievedRequestRoute = void 0;
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
 const transformRequestsForResponse_1 = require("./transformRequestsForResponse");
-const prismaClient_1 = require("src/model/config/prismaClient");
+const prismaClient_1 = require("../../../model/config/prismaClient");
 const recievedRequestRoute = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.body.user;
     let recievedFriendshipRequests;

@@ -2,11 +2,9 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { dutyTimerDataSource } from "../../../model/config/initializeConfig";
 import { S3DataSource } from "../../../model/config/imagesConfig";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "../../../model/database/User";
 
 //# --- ERRORS ---
 import {
@@ -14,24 +12,50 @@ import {
   err,
   S3_STORAGE_ERROR,
 } from "../../utils/errors/GlobalErrors";
+import { User } from "@prisma/client";
+import { prisma } from "../../../model/config/prismaClient";
+import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 
 export const deleteAvatar = async (req: Request, res: Response) => {
-  const user: User = req.body.user;
+  let user;
+  try {
+    user = await prisma.user.findFirst({
+      where: {
+        id: req.body.user.id,
+      },
+      include: {
+        accountInfo: true,
+      },
+    });
+  } catch (error) {
+    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
 
-  const avatarImageName = user.avatarImageName;
+  if (!user) {
+    return res
+      .status(400)
+      .json(err(new DATA_NOT_FOUND("User", `id = ${req.body.user.id}`)));
+  }
+
+  const avatarImageName = user?.accountInfo!.avatarImageName;
 
   if (!avatarImageName) {
     return res.sendStatus(200);
   }
 
   try {
-    await dutyTimerDataSource
-      .getRepository(User)
-      .createQueryBuilder()
-      .update()
-      .set({ avatarImageName: () => "NULL" })
-      .where("id = :id", { id: user.id })
-      .execute();
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        accountInfo: {
+          update: {
+            avatarImageName: null,
+          },
+        },
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }

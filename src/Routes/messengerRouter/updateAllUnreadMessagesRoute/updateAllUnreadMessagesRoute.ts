@@ -1,12 +1,7 @@
 //# --- LIBS ---
 import { Request, Response } from "express";
 
-//# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
-
 //# --- DATABASE ENTITIES ---
-import { Message } from "../../../model/database/Message";
-import { User } from "../../../model/database/User";
 
 //# --- REQUEST ENTITIES ---
 import {
@@ -16,7 +11,6 @@ import {
 
 //# --- VALIDATE REQUEST ---
 import { emptyParam } from "../../utils/validation/emptyParam";
-import { invalidParamType } from "../../utils/validation/invalidParamType";
 
 //# --- ERRORS ---
 import {
@@ -27,47 +21,62 @@ import {
 
 //# --- UTILS ---
 import { webSocketChatsMap } from "../../../sockets/socketsConfig";
+import { User } from "@prisma/client";
+import { prisma } from "../../../model/config/prismaClient";
 
 export const updateAllUnreadMessagesRoute = async (
   req: Request,
   res: Response
 ) => {
-  if (invalidParamType(req, res, "chatId")) return res;
+  const user: User = req.body.user;
 
   if (emptyParam(req, res, "chatId")) return res;
 
-  const chatId = parseInt(req.params.chatId);
+  const chatId = req.params.chatId;
 
-  const user: User = req.body.user;
-
-  let chats;
+  let chat;
   try {
-    chats = await DB.getChatsByUserId(user.id);
+    chat = await prisma.chat.findFirst({
+      where: {
+        id: chatId,
+        users: {
+          some: { id: user.id },
+        },
+      },
+      include: {
+        users: {
+          include: {
+            accountInfo: true,
+          },
+        },
+        messages: {
+          include: {
+            sender: true,
+          },
+        },
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  const chat = chats.find((chat) => chat.id === chatId);
   if (!chat) {
-    return res.status(403).json(err(new FORBIDDEN_ACCESS()));
-  }
-
-  let unreadMessages;
-  try {
-    unreadMessages = await DB.getUnreadMessagesFromChatId(chatId);
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+    return res.status(400).json(err(new FORBIDDEN_ACCESS()));
   }
 
   try {
-    await Promise.all(
-      unreadMessages.map(async (message) => {
-        if (message.sender.id !== user.id) {
-          message.isRead = true;
-        }
-        await Message.save(message);
-      })
-    );
+    await prisma.message.updateMany({
+      where: {
+        chatId,
+        isRead: false,
+        senderId: {
+          not: user.id,
+        },
+      },
+      data: {
+        isRead: true,
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }

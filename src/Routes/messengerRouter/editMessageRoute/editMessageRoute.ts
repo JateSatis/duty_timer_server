@@ -2,12 +2,9 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
 import { webSocketChatsMap } from "../../../sockets/socketsConfig";
 
 //# --- DATABASE ENTITIES ---
-import { Message } from "../../../model/database/Message";
-import { User } from "../../../model/database/User";
 
 //# --- REQUEST ENTITIES ---
 import {
@@ -32,11 +29,14 @@ import {
   err,
   FORBIDDEN_ACCESS,
 } from "../../utils/errors/GlobalErrors";
+import { User } from "@prisma/client";
+import { prisma } from "../../../model/config/prismaClient";
 
 export const editMessageRoute = async (req: Request, res: Response) => {
-  if (invalidParamType(req, res, "messageId")) return res;
+  const user: User = req.body.user;
+
   if (emptyParam(req, res, "messageId")) return res;
-  const messageId = parseInt(req.params.messageId);
+  const messageId = req.params.messageId;
 
   if (missingRequestField(req, res, editMessageRequestBodyProperties))
     return res;
@@ -46,23 +46,34 @@ export const editMessageRoute = async (req: Request, res: Response) => {
 
   if (invalidInputFormat(res, editMessageRequestBody)) return res;
 
-  const user: User = req.body.user;
-
-  let messages;
+  let message;
   try {
-    messages = await DB.getMessagesFromUserId(user.id);
+    message = await prisma.message.findFirst({
+      where: {
+        id: messageId,
+        senderId: user.id,
+      },
+      include: {
+        chat: true,
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  const message = messages.find((message) => message.id === messageId);
   if (!message) {
     return res.status(400).json(err(new FORBIDDEN_ACCESS()));
   }
 
-  message.text = editMessageRequestBody.text;
   try {
-    await Message.save(message);
+    await prisma.message.update({
+      where: {
+        id: messageId,
+      },
+      data: {
+        text: editMessageRequestBody.text,
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }

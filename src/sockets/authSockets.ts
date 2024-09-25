@@ -3,8 +3,17 @@ import * as jsonwebtoken from "jsonwebtoken";
 import * as path from "path";
 import * as fs from "fs";
 import url from "url";
-import { dutyTimerDataSource } from "../model/config/initializeConfig";
-import { User } from "../model/database/User";
+import { User } from "@prisma/client";
+import { prisma } from "../model/config/prismaClient";
+import {
+  DATA_NOT_FOUND,
+  INCORRECT_AUTHORIZATION_HEADER,
+  INVALID_INPUT_FORMAT,
+	JWT_ERROR,
+} from "../Routes/utils/errors/AuthErrors";
+import {
+  DATABASE_ERROR,
+} from "../Routes/utils/errors/GlobalErrors";
 
 const pathToPublicAccessKey = path.join(
   __dirname,
@@ -19,7 +28,7 @@ export const authenticateSocket = async (
 
   //# Проверяем есть ли в запросе header под названием authorization
   if (!authorization) {
-    throw new Error("You are not authorized");
+    throw new INCORRECT_AUTHORIZATION_HEADER();
   }
 
   const tokenBearer = authorization.split(" ")[0];
@@ -27,28 +36,35 @@ export const authenticateSocket = async (
 
   //# Проверяем является ли наполнение authorization токеном
   if (tokenBearer != "Bearer" || !token.match(/\S+.\S+.\S+/)) {
-    throw new Error("You are not authorized");
+    throw new INVALID_INPUT_FORMAT();
   } else {
-    //# С помощью публчного ключа проверяем токен на подлинность
-    const verification = jsonwebtoken.verify(token, PUB_ACCESS_KEY, {
-      algorithms: ["RS256"],
-    });
+		//# С помощью публчного ключа проверяем токен на подлинность
+		let verification;
+    try {
+      verification = jsonwebtoken.verify(token, PUB_ACCESS_KEY, {
+        algorithms: ["RS256"],
+      });
+    } catch (error) {
+      throw new JWT_ERROR(error);
+    }
 
     //# Если ошибки не произошло, добавляем в тело запроса токен, чтобы использовать его в следующих
     //# middleware
+    const userId = verification.sub!! as string;
 
-    const userId = parseInt(verification.sub!! as string);
-
-    const user = await dutyTimerDataSource
-      .getRepository(User)
-      .createQueryBuilder("user")
-      .leftJoinAndSelect("user.chats", "chat")
-      .leftJoinAndSelect("user.friends", "friend")
-      .where("user.id = :userId", { userId })
-      .getOne();
+    let user;
+    try {
+      user = await prisma.user.findFirst({
+        where: {
+          id: userId,
+        },
+      });
+    } catch (error) {
+      throw new DATABASE_ERROR(error);
+    }
 
     if (!user) {
-      throw new Error("There is no user with such id");
+      throw new DATA_NOT_FOUND("User", `id = ${userId}`);
     }
 
     return user;

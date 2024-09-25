@@ -94,12 +94,10 @@ const sendOtpVerification = (req, res) => __awaiter(void 0, void 0, void 0, func
     if (existingOtp && BigInt(currentTime) - existingOtp.createdAt < 60 * 1000) {
         return res.status(400).json((0, GlobalErrors_1.err)(new AuthErrors_1.OTP_SENDING_UNAVAILABLE()));
     }
-    console.log("Getting access token");
     const accessToken = yield getGmailAccessToken();
     if (!accessToken) {
         return res.status(400).json((0, GlobalErrors_1.err)(new AuthErrors_1.OTP_SENDING_UNAVAILABLE()));
     }
-    console.log("Access token obtained:", accessToken ? "Success" : "Failed");
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpSalt = crypto.randomBytes(32).toString("hex");
     const otpHash = crypto
@@ -134,7 +132,6 @@ const sendOtpVerification = (req, res) => __awaiter(void 0, void 0, void 0, func
             },
         });
     }
-    console.log("Creating Nodemailer transporter");
     const transporter = nodemailer.createTransport({
         service: "gmail",
         port: 465,
@@ -148,16 +145,13 @@ const sendOtpVerification = (req, res) => __awaiter(void 0, void 0, void 0, func
             accessToken: accessToken,
         },
     });
-    console.log("Nodemailer transporter created");
     const mailOptions = {
         from: process.env.OAUTH2_EMAIL_ADRESS,
         subject: "Your verification code",
         to: sendOtpVerificationRequestBody.email,
         text: `Code: ${otp}`,
     };
-    console.log("Preparing to send email");
     try {
-        console.log("Sending email...");
         yield transporter.sendMail(mailOptions);
     }
     catch (error) {

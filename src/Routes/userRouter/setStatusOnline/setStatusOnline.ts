@@ -2,7 +2,6 @@
 import { Request, Response } from "express";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "../../../model/database/User";
 
 //# --- ERRORS ---
 import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
@@ -13,13 +12,27 @@ import {
   UserOnlineResponseBodyWS,
   WebSocketStatusMessage,
 } from "../../../model/routesEntities/WebSocketRouterEntities";
+import { User } from "@prisma/client";
+import { prisma } from "../../../model/config/prismaClient";
 
 export const setStatusOnline = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
+  const lastSeenOnlineTime = Date.now();
   try {
-    user.isOnline = false;
-    await User.save(user);
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        accountInfo: {
+          update: {
+            isOnline: false,
+            lastSeenOnline: lastSeenOnlineTime,
+          },
+        },
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }

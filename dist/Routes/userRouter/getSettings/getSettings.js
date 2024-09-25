@@ -12,9 +12,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSettings = void 0;
 const imagesConfig_1 = require("../../../model/config/imagesConfig");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
+const prismaClient_1 = require("../../../model/config/prismaClient");
+const AuthErrors_1 = require("../../utils/errors/AuthErrors");
 const getSettings = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.body.user;
-    const settings = user.settings;
+    let settings;
+    try {
+        settings = yield prismaClient_1.prisma.settings.findFirst({
+            where: {
+                userId: user.id,
+            },
+        });
+    }
+    catch (error) {
+        return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
+    }
+    if (!settings) {
+        return res
+            .status(400)
+            .json((0, GlobalErrors_1.err)(new AuthErrors_1.DATA_NOT_FOUND("Settings", `userId = ${user.id}`)));
+    }
     let backgroundImageLink = null;
     if (settings.backgroundImageName) {
         try {
@@ -26,6 +43,7 @@ const getSettings = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
     const getSettingsResponseBody = {
         backgroundImageLink,
+        backgroundTint: settings.backgroundTint,
         language: settings.language,
         theme: settings.theme,
     };

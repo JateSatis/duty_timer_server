@@ -1,27 +1,33 @@
 import { IncomingMessage } from "http";
 import { WebSocket, Data } from "ws";
-import { User } from "../model/database/User";
 import { authenticateSocket } from "./authSockets";
 import {
   WebSocketFriendsMapValue,
   WebSocketChatMessage,
   WebSocketStatusMessage,
 } from "../model/routesEntities/WebSocketRouterEntities";
-import { err, FORBIDDEN_ACCESS } from "../Routes/utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  err,
+  FORBIDDEN_ACCESS,
+} from "../Routes/utils/errors/GlobalErrors";
 import { WebSocketChatsMapValue } from "../model/routesEntities/WebSocketRouterEntities";
+import { User } from "@prisma/client";
+import { prisma } from "../model/config/prismaClient";
+import { DATA_NOT_FOUND } from "../Routes/utils/errors/AuthErrors";
 
 // TODO: Check if maps works correctly after users connect and disconnect.
 
 //# Содержит чатрумы и их пользователей. В качестве ключа используется уникальный ключ чата
 //# в качестве значения используется список подключенных к данному чату пользователей
-export const webSocketChatsMap = new Map<number, WebSocketChatsMapValue[]>();
-export const webSocketFriendsMap = new Map<number, WebSocketFriendsMapValue>();
+export const webSocketChatsMap = new Map<string, WebSocketChatsMapValue[]>();
+export const webSocketFriendsMap = new Map<string, WebSocketFriendsMapValue>();
 
 export const webSocketOnConnection = async (
   ws: WebSocket,
   req: IncomingMessage
 ) => {
-  let user;
+  let user: User;
   try {
     user = await authenticateSocket(req);
   } catch (error) {
@@ -30,8 +36,8 @@ export const webSocketOnConnection = async (
     return;
   }
 
-  connectToFriends(user, ws);
-  const chatIds = connectToChatrooms(user, ws);
+  await connectToFriends(user.id, ws);
+  const chatIds = await connectToChatrooms(user.id, ws);
 
   ws.on("error", console.error);
 
@@ -50,8 +56,42 @@ export const webSocketOnConnection = async (
   });
 };
 
-const connectToFriends = (user: User, ws: WebSocket) => {
-  const friendIds = user.friends.map((friend) => friend.friendId);
+const connectToFriends = async (userId: string, ws: WebSocket) => {
+  let user;
+  try {
+    user = await prisma.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+  } catch (error) {
+    ws.send(new DATABASE_ERROR(error).toString());
+    ws.close();
+    return;
+  }
+
+  if (!user) {
+    ws.send(new DATA_NOT_FOUND("User", `id = ${userId}`).toString());
+    ws.close();
+    return;
+  }
+
+  let friendships;
+  try {
+    friendships = await prisma.frienship.findMany({
+      where: {
+        OR: [{ user1Id: userId }, { user2Id: userId }],
+      },
+    });
+  } catch (error) {
+    ws.send(new DATABASE_ERROR(error).toString());
+    ws.close();
+    return;
+  }
+
+  const friendIds = friendships.map((friendship) => {
+    return friendship.user1Id === userId ? friendship.user2Id : friendship.user1Id;
+  });
 
   const webSocketFriendsMapValue: WebSocketFriendsMapValue = {
     friendIds,
@@ -89,7 +129,29 @@ const sendStatusMessage = (data: Data) => {
   });
 };
 
-const connectToChatrooms = (user: User, ws: WebSocket) => {
+const connectToChatrooms = async (userId: string, ws: WebSocket) => {
+  let user;
+  try {
+    user = await prisma.user.findFirst({
+      where: {
+        id: userId,
+      },
+      include: {
+        chats: true,
+      },
+    });
+  } catch (error) {
+    ws.send(new DATABASE_ERROR(error).toString());
+    ws.close();
+    return [];
+  }
+
+  if (!user) {
+    ws.send(new DATA_NOT_FOUND("User", `id = ${userId}`).toString());
+    ws.close();
+    return [];
+  }
+
   const webSocketChatsMapValue: WebSocketChatsMapValue = {
     userId: user.id,
     socket: ws,
@@ -107,7 +169,7 @@ const connectToChatrooms = (user: User, ws: WebSocket) => {
   return chatIds;
 };
 
-const disconnectFromChatrooms = (chatIds: number[], user: User) => {
+const disconnectFromChatrooms = (chatIds: string[], user: User) => {
   chatIds.forEach((chatId) => {
     const connectedUsers = webSocketChatsMap.get(chatId);
 

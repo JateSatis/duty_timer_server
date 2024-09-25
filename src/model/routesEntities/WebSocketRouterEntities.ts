@@ -2,13 +2,13 @@ import { WebSocket } from "ws";
 import { MessageResponseBody } from "./MessageRoutesEntities";
 
 export type WebSocketChatsMapValue = {
-  userId: number;
+  userId: string;
   socket: WebSocket;
 };
 
 export type WebSocketFriendsMapValue = {
   socket: WebSocket;
-  friendIds: number[];
+  friendIds: string[];
 };
 
 export type WebSocketStatusMessage = {
@@ -37,38 +37,38 @@ export type WebSocketChatMessage = {
 };
 
 export type UserOnlineResponseBodyWS = {
-  userId: number;
+  userId: string;
 };
 
 export type UserOfflineResponseBodyWS = {
-  userId: number;
+  userId: string;
 };
 
 export type CreateMessageResponseBodyWS = MessageResponseBody;
 
 export type DeleteMessageResponseBodyWS = {
-  chatId: number;
-  messageId: number;
+  chatId: string;
+  messageId: string;
 };
 
 export type EditMessageResponseBodyWS = {
-  chatId: number;
-  messageId: number;
+  chatId: string;
+  messageId: string;
   text: string;
 };
 
 export type UpdateAllUnreadMessagesResponseBodyWS = {
-  chatId: number;
+  chatId: string;
 };
 
 export type UserTypingResponseBodyWS = {
-  chatId: number;
-  userId: number;
+  chatId: string;
+  userId: string;
   name: string;
 };
 
 export type UserStoppedTypingResponseBodyWS = {
-  chatId: number;
-  userId: number;
+  chatId: string;
+  userId: string;
   name: string;
 };

@@ -50,7 +50,7 @@ const transformChatForResponse = (chatId, userId) => __awaiter(void 0, void 0, v
         chatResponseBody.lastMessageText = lastMessage.text;
         chatResponseBody.lastMessageCreationTime = timeFormat;
         chatResponseBody.lastMessageSenderName =
-            lastMessage.user.accountInfo.nickname;
+            lastMessage.sender.accountInfo.nickname;
     }
     return chatResponseBody;
 });
@@ -68,7 +68,7 @@ const getChatById = (chatId) => __awaiter(void 0, void 0, void 0, function* () {
             },
             messages: {
                 include: {
-                    user: {
+                    sender: {
                         include: {
                             accountInfo: true,
                         },

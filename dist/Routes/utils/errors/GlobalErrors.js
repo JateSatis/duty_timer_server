@@ -1,10 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.INVALID_FILE_FORMAT = exports.FORBIDDEN_ACCESS = exports.S3_STORAGE_ERROR = exports.DATABASE_ERROR = exports.EMPTY_PARAMETER = exports.INVALID_PARAMETER_FORMAT = exports.INVALID_PARAMETER_TYPE = exports.EMPTY_FIELD = exports.MISSING_REQUEST_FIELD = exports.err = exports.ServerError = void 0;
-class ServerError {
+exports.INVALID_FILE_FORMAT = exports.FORBIDDEN_ACCESS = exports.S3_STORAGE_ERROR = exports.DATABASE_ERROR = exports.EMPTY_PARAMETER = exports.INVALID_PARAMETER_FORMAT = exports.INVALID_PARAMETER_TYPE = exports.EMPTY_FIELD = exports.MISSING_REQUEST_FIELD = exports.UNKNOWN_ERROR = exports.err = exports.ServerError = void 0;
+class ServerError extends Error {
     constructor(name, message) {
+        super(name);
         this.name = name;
         this.message = message;
+    }
+    toString() {
+        return `
+			{
+				name: ${this.name},
+				message: ${this.message}
+			}
+			`;
     }
 }
 exports.ServerError = ServerError;
@@ -15,6 +24,12 @@ const err = (serverError) => {
     };
 };
 exports.err = err;
+class UNKNOWN_ERROR extends ServerError {
+    constructor(message) {
+        super("UNKNOWN_ERROR", `Unknown error occured. Error: ${message}`);
+    }
+}
+exports.UNKNOWN_ERROR = UNKNOWN_ERROR;
 class MISSING_REQUEST_FIELD extends ServerError {
     constructor(missingFields) {
         const message = `The following required fields are missing: ${JSON.stringify(missingFields)}. Please provide all required fields and try again.`;

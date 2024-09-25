@@ -12,8 +12,8 @@ export const invalidInputFormat = (
   const { startTimeMillis, endTimeMillis } = updateTimerRequestBody;
 
   if (
-    !allowedTimeMillis.test(startTimeMillis) ||
-    !allowedTimeMillis.test(endTimeMillis)
+    !allowedTimeMillis.test(startTimeMillis.toString()) ||
+    !allowedTimeMillis.test(endTimeMillis.toString())
   ) {
     res.status(400).json(err(new INVALID_INPUT_FORMAT()));
     return true;

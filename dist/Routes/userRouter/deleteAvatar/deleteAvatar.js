@@ -10,24 +10,47 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteAvatar = void 0;
-const initializeConfig_1 = require("../../../model/config/initializeConfig");
 const imagesConfig_1 = require("../../../model/config/imagesConfig");
-const User_1 = require("../../../model/database/User");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
+const prismaClient_1 = require("../../../model/config/prismaClient");
+const AuthErrors_1 = require("../../utils/errors/AuthErrors");
 const deleteAvatar = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = req.body.user;
-    const avatarImageName = user.avatarImageName;
+    let user;
+    try {
+        user = yield prismaClient_1.prisma.user.findFirst({
+            where: {
+                id: req.body.user.id,
+            },
+            include: {
+                accountInfo: true,
+            },
+        });
+    }
+    catch (error) {
+        return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
+    }
+    if (!user) {
+        return res
+            .status(400)
+            .json((0, GlobalErrors_1.err)(new AuthErrors_1.DATA_NOT_FOUND("User", `id = ${req.body.user.id}`)));
+    }
+    const avatarImageName = user === null || user === void 0 ? void 0 : user.accountInfo.avatarImageName;
     if (!avatarImageName) {
         return res.sendStatus(200);
     }
     try {
-        yield initializeConfig_1.dutyTimerDataSource
-            .getRepository(User_1.User)
-            .createQueryBuilder()
-            .update()
-            .set({ avatarImageName: () => "NULL" })
-            .where("id = :id", { id: user.id })
-            .execute();
+        yield prismaClient_1.prisma.user.update({
+            where: {
+                id: user.id,
+            },
+            data: {
+                accountInfo: {
+                    update: {
+                        avatarImageName: null,
+                    },
+                },
+            },
+        });
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));

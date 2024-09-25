@@ -40,34 +40,45 @@ const jsonwebtoken = __importStar(require("jsonwebtoken"));
 const path = __importStar(require("path"));
 const fs = __importStar(require("fs"));
 const url_1 = __importDefault(require("url"));
-const initializeConfig_1 = require("../model/config/initializeConfig");
-const User_1 = require("../model/database/User");
+const prismaClient_1 = require("../model/config/prismaClient");
+const AuthErrors_1 = require("../Routes/utils/errors/AuthErrors");
+const GlobalErrors_1 = require("../Routes/utils/errors/GlobalErrors");
 const pathToPublicAccessKey = path.join(__dirname, "../auth/jwt/keys/public_access_key.pem");
 const PUB_ACCESS_KEY = fs.readFileSync(pathToPublicAccessKey);
 const authenticateSocket = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const authorization = url_1.default.parse(req.url, true).query.token;
     if (!authorization) {
-        throw new Error("You are not authorized");
+        throw new AuthErrors_1.INCORRECT_AUTHORIZATION_HEADER();
     }
     const tokenBearer = authorization.split(" ")[0];
     const token = authorization.split(" ")[1];
     if (tokenBearer != "Bearer" || !token.match(/\S+.\S+.\S+/)) {
-        throw new Error("You are not authorized");
+        throw new AuthErrors_1.INVALID_INPUT_FORMAT();
     }
     else {
-        const verification = jsonwebtoken.verify(token, PUB_ACCESS_KEY, {
-            algorithms: ["RS256"],
-        });
-        const userId = parseInt(verification.sub);
-        const user = yield initializeConfig_1.dutyTimerDataSource
-            .getRepository(User_1.User)
-            .createQueryBuilder("user")
-            .leftJoinAndSelect("user.chats", "chat")
-            .leftJoinAndSelect("user.friends", "friend")
-            .where("user.id = :userId", { userId })
-            .getOne();
+        let verification;
+        try {
+            verification = jsonwebtoken.verify(token, PUB_ACCESS_KEY, {
+                algorithms: ["RS256"],
+            });
+        }
+        catch (error) {
+            throw new AuthErrors_1.JWT_ERROR(error);
+        }
+        const userId = verification.sub;
+        let user;
+        try {
+            user = yield prismaClient_1.prisma.user.findFirst({
+                where: {
+                    id: userId,
+                },
+            });
+        }
+        catch (error) {
+            throw new GlobalErrors_1.DATABASE_ERROR(error);
+        }
         if (!user) {
-            throw new Error("There is no user with such id");
+            throw new AuthErrors_1.DATA_NOT_FOUND("User", `id = ${userId}`);
         }
         return user;
     }

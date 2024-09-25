@@ -5,7 +5,8 @@ import { Request, Response } from "express";
 import { S3DataSource } from "../../../model/config/imagesConfig";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "../../../model/database/User";
+import { prisma } from "../../../model/config/prismaClient";
+import { User } from "@prisma/client";
 
 //# --- REQUEST ENTITIES ---
 import { UploadAvatarResponseBody } from "../../../model/routesEntities/UserRouterEntities";
@@ -27,13 +28,13 @@ export const postAvatar = async (req: Request, res: Response) => {
 
   const imageName = req.file.originalname;
   const contentType = req.file.mimetype;
-  const body = req.file.buffer;
+  const buffer = req.file.buffer;
 
   let s3ImageName;
   try {
     s3ImageName = await S3DataSource.uploadImageToS3(
       imageName,
-      body,
+      buffer,
       contentType
     );
   } catch (error) {
@@ -41,7 +42,18 @@ export const postAvatar = async (req: Request, res: Response) => {
   }
 
   try {
-    await User.update(user.id, { avatarImageName: s3ImageName });
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        accountInfo: {
+          update: {
+            avatarImageName: s3ImageName,
+          },
+        },
+      },
+    });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }

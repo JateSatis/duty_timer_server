@@ -14,7 +14,7 @@ const emptyParam_1 = require("../../utils/validation/emptyParam");
 const AuthErrors_1 = require("../../utils/errors/AuthErrors");
 const FriendshipErrors_1 = require("../../utils/errors/FriendshipErrors");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
-const prismaClient_1 = require("src/model/config/prismaClient");
+const prismaClient_1 = require("../../../model/config/prismaClient");
 const sendRequestRoute = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.body.user;
     if ((0, emptyParam_1.emptyParam)(req, res, "recieverId"))

@@ -101,13 +101,11 @@ export const sendOtpVerification = async (req: Request, res: Response) => {
     return res.status(400).json(err(new OTP_SENDING_UNAVAILABLE()));
   }
 
-  console.log("Getting access token");
   //# If no access token was retrieved, return an error
   const accessToken = await getGmailAccessToken();
   if (!accessToken) {
     return res.status(400).json(err(new OTP_SENDING_UNAVAILABLE()));
   }
-  console.log("Access token obtained:", accessToken ? "Success" : "Failed");
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   const otpSalt = crypto.randomBytes(32).toString("hex");
@@ -146,7 +144,6 @@ export const sendOtpVerification = async (req: Request, res: Response) => {
     });
   }
 
-  console.log("Creating Nodemailer transporter");
   const transporter = nodemailer.createTransport({
     service: "gmail",
     port: 465,
@@ -160,7 +157,6 @@ export const sendOtpVerification = async (req: Request, res: Response) => {
       accessToken: accessToken,
     },
   });
-  console.log("Nodemailer transporter created");
 
   const mailOptions = {
     from: process.env.OAUTH2_EMAIL_ADRESS,
@@ -169,9 +165,7 @@ export const sendOtpVerification = async (req: Request, res: Response) => {
     text: `Code: ${otp}`,
   };
 
-  console.log("Preparing to send email");
   try {
-    console.log("Sending email...");
     await transporter.sendMail(mailOptions);
   } catch (error) {
     console.error("Error sending email:", error);

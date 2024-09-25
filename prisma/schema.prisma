@@ -71,8 +71,7 @@ model Settings {
   id                          String        @id @default(uuid())
   backgroundImageName         String?
   recievedBackgroundImageName String?
-  backgroundTint              String?
-  backgroundTintOpacity       Int           @default(50)
+  backgroundTint              Boolean       @default(false)
   backgroundAnimation         Boolean       @default(false)
   theme                       Theme         @default(WHITE)
   nicknameColor               NicknameColor @default(BLACK)
@@ -170,5 +169,5 @@ model Message {
   senderId     String
   attachments  Attachment[]
   chat         Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
-  user         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
 }
