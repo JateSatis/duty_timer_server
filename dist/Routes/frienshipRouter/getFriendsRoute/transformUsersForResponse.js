@@ -21,6 +21,9 @@ const transformUsersForResponse = (accountsInfo) => __awaiter(void 0, void 0, vo
             id: accountInfo.userId,
             nickname: accountInfo.nickname,
             avatarLink,
+            isFriend: true,
+            isFriendshipRequestRecieved: true,
+            isFriendshipRequestSent: true,
         };
         return getUserInfoResponseBody;
     })));

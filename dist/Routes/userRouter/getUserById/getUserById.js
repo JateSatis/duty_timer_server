@@ -52,6 +52,9 @@ const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         id: user.id,
         nickname: user.accountInfo.nickname,
         avatarLink,
+        isFriend: true,
+        isFriendshipRequestRecieved: true,
+        isFriendshipRequestSent: true,
     };
     return res.status(200).json(getForeignUserInfoResponseBody);
 });

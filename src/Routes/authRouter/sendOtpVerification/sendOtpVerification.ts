@@ -26,23 +26,24 @@ import {
   DATA_NOT_FOUND,
   OTP_SENDING_UNAVAILABLE,
 } from "../../utils/errors/AuthErrors";
+import { runPythonScript } from "./runPythonScript";
 
 dotenv.config();
 
-const OAuth2 = google.auth.OAuth2;
+// const OAuth2 = google.auth.OAuth2;
 
-console.log("Creating OAuth2 client");
-const oauth2Client = new OAuth2(
-  process.env.OAUTH2_EMAIL_CLIENT_ID,
-  process.env.OAUTH2_EMAIL_CLIENT_SECRET,
-  process.env.OAUTH2_EMAIL_REDIRECT_URI
-);
-console.log("OAuth2 client created");
+// console.log("Creating OAuth2 client");
+// const oauth2Client = new OAuth2(
+//   process.env.OAUTH2_EMAIL_CLIENT_ID,
+//   process.env.OAUTH2_EMAIL_CLIENT_SECRET,
+//   process.env.OAUTH2_EMAIL_REDIRECT_URI
+// );
+// console.log("OAuth2 client created");
 
-oauth2Client.setCredentials({
-  scope: "https://mail.google.com",
-  refresh_token: process.env.OAUTH2_EMAIL_REFRESH_TOKEN,
-});
+// oauth2Client.setCredentials({
+//   scope: "https://mail.google.com",
+//   refresh_token: process.env.OAUTH2_EMAIL_REFRESH_TOKEN,
+// });
 
 export const sendOtpVerification = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, sendOtpVerificationRequestBodyProperties))
@@ -102,10 +103,10 @@ export const sendOtpVerification = async (req: Request, res: Response) => {
   }
 
   //# If no access token was retrieved, return an error
-  const accessToken = await getGmailAccessToken();
-  if (!accessToken) {
-    return res.status(400).json(err(new OTP_SENDING_UNAVAILABLE()));
-  }
+  // const accessToken = await getGmailAccessToken();
+  // if (!accessToken) {
+  //   return res.status(400).json(err(new OTP_SENDING_UNAVAILABLE()));
+  // }
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   const otpSalt = crypto.randomBytes(32).toString("hex");
@@ -144,61 +145,71 @@ export const sendOtpVerification = async (req: Request, res: Response) => {
     });
   }
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    port: 465,
-    secure: true,
-    auth: {
-      type: "OAuth2",
-      user: process.env.OAUTH2_EMAIL_ADRESS,
-      clientId: process.env.OAUTH2_EMAIL_CLIENT_ID,
-      clientSecret: process.env.OAUTH2_EMAIL_CLIENT_SECRET,
-      refreshToken: process.env.OAUTH2_EMAIL_REFRESH_TOKEN,
-      accessToken: accessToken,
-    },
-  });
-
-  const mailOptions = {
-    from: process.env.OAUTH2_EMAIL_ADRESS,
-    subject: "Your verification code",
-    to: sendOtpVerificationRequestBody.email,
-    text: `Code: ${otp}`,
-  };
-
   try {
-    await transporter.sendMail(mailOptions);
+    runPythonScript(
+      sendOtpVerificationRequestBody.email,
+      "Код подтверждения DMB Timer",
+      `Code: ${otp}`
+    );
   } catch (error) {
-    console.error("Error sending email:", error);
-    if (error.code === "ETIMEDOUT") {
-      console.error(
-        "Connection timed out. Network or firewall issue may be present."
-      );
-    }
-    if (error.code === "ECONNREFUSED") {
-      console.error(
-        "Connection refused. Check if outgoing SMTP connections are allowed."
-      );
-    }
-    if (error.responseCode) {
-      console.error("SMTP response code:", error.responseCode);
-    }
-    throw error;
+    return res.status(400).json(new OTP_SENDING_UNAVAILABLE());
   }
+
+  // const transporter = nodemailer.createTransport({
+  //   service: "gmail",
+  //   port: 465,
+  //   secure: true,
+  //   auth: {
+  //     type: "OAuth2",
+  //     user: process.env.OAUTH2_EMAIL_ADRESS,
+  //     clientId: process.env.OAUTH2_EMAIL_CLIENT_ID,
+  //     clientSecret: process.env.OAUTH2_EMAIL_CLIENT_SECRET,
+  //     refreshToken: process.env.OAUTH2_EMAIL_REFRESH_TOKEN,
+  //     accessToken: accessToken,
+  //   },
+  // });
+
+  // const mailOptions = {
+  //   from: process.env.OAUTH2_EMAIL_ADRESS,
+  //   subject: "Your verification code",
+  //   to: sendOtpVerificationRequestBody.email,
+  //   text: `Code: ${otp}`,
+  // };
+
+  // try {
+  //   await transporter.sendMail(mailOptions);
+  // } catch (error) {
+  //   console.error("Error sending email:", error);
+  //   if (error.code === "ETIMEDOUT") {
+  //     console.error(
+  //       "Connection timed out. Network or firewall issue may be present."
+  //     );
+  //   }
+  //   if (error.code === "ECONNREFUSED") {
+  //     console.error(
+  //       "Connection refused. Check if outgoing SMTP connections are allowed."
+  //     );
+  //   }
+  //   if (error.responseCode) {
+  //     console.error("SMTP response code:", error.responseCode);
+  //   }
+  //   throw error;
+  // }
 
   return res.sendStatus(200);
 };
 
-const getGmailAccessToken = async () => {
-  let accessToken;
-  if (
-    oauth2Client.credentials.access_token &&
-    oauth2Client.credentials.expiry_date &&
-    oauth2Client.credentials.expiry_date > Date.now()
-  ) {
-    accessToken = oauth2Client.credentials.access_token;
-  } else {
-    const accessTokenObject = await oauth2Client.getAccessToken();
-    if (accessTokenObject) accessToken = accessTokenObject.token;
-  }
-  return accessToken;
-};
+// const getGmailAccessToken = async () => {
+//   let accessToken;
+//   if (
+//     oauth2Client.credentials.access_token &&
+//     oauth2Client.credentials.expiry_date &&
+//     oauth2Client.credentials.expiry_date > Date.now()
+//   ) {
+//     accessToken = oauth2Client.credentials.access_token;
+//   } else {
+//     const accessTokenObject = await oauth2Client.getAccessToken();
+//     if (accessTokenObject) accessToken = accessTokenObject.token;
+//   }
+//   return accessToken;
+// };

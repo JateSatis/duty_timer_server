@@ -1,4 +1,4 @@
-export type DirectMessageResponseBody = {
+export type MessageResponseBody = {
   messageId: string;
   chatId: string;
   senderId: string;
@@ -12,19 +12,8 @@ export type DirectMessageResponseBody = {
   isSender: boolean;
 };
 
-export type MessageResponseBody = {
-  messageId: string;
-  chatId: string;
-  senderId: string;
-  senderNickname: string;
+export type GroupMessageResponseBody = MessageResponseBody & {
   senderAvatarLink: string | null;
-  text: string;
-  attachmentLinks: string[];
-  creationDate: string;
-  creationTime: string;
-  isRead: boolean;
-  isEdited: boolean;
-  isSender: boolean;
 };
 
 export type ChatResponseBody = {
@@ -47,14 +36,16 @@ export type ParticipantInfo = {
 
 export type GetAllChatsResponseBody = ChatResponseBody[];
 
+export type getMessagesResponseBody = MessageResponseBody[];
+
 export type GetDirectChatInfoResponseBody = {
   companion: ParticipantInfo;
-  messages: DirectMessageResponseBody[];
+  messages: MessageResponseBody[];
 };
 
 export type GetGroupChatInfoResponseBody = {
   participants: ParticipantInfo[];
-  messages: MessageResponseBody[];
+  messages: GroupMessageResponseBody[];
 };
 
 export type CreateMessageRequestBody = {
@@ -63,7 +54,7 @@ export type CreateMessageRequestBody = {
 
 export const createMessageRequestBodyProperties = ["data"];
 
-export type CreateMessageResponseBody = MessageResponseBody;
+export type CreateMessageResponseBody = GroupMessageResponseBody;
 
 export type EditMessageRequestBody = {
   text: string;
@@ -74,7 +65,6 @@ export type CreateGroupChatRequestBody = {
   name: string;
   participantIds: string[];
 };
-
 export const createGroupChatRequestBodyProperties = ["name", "participantIds"];
 
 export type CreateGroupChatResponseBody = ChatResponseBody;

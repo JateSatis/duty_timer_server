@@ -1,5 +1,4 @@
-import { Request, Response } from "express";
-import { Language, Theme } from "../../../model/utils/Enums";
+import { Response } from "express";
 import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
 import { err } from "../../utils/errors/GlobalErrors";
 import { UpdateSettingsRequestBody } from "../../../model/routesEntities/UserRouterEntities";

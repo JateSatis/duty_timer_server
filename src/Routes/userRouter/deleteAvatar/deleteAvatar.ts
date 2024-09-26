@@ -4,7 +4,9 @@ import { Request, Response } from "express";
 //# --- CONFIG ---
 import { S3DataSource } from "../../../model/config/imagesConfig";
 
-//# --- DATABASE ENTITIES ---
+//# --- DATABASE ---
+import { prisma } from "../../../model/config/prismaClient";
+import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 
 //# --- ERRORS ---
 import {
@@ -12,9 +14,6 @@ import {
   err,
   S3_STORAGE_ERROR,
 } from "../../utils/errors/GlobalErrors";
-import { User } from "@prisma/client";
-import { prisma } from "../../../model/config/prismaClient";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 
 export const deleteAvatar = async (req: Request, res: Response) => {
   let user;

@@ -10,11 +10,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateTimerRoute = void 0;
+const prismaClient_1 = require("../../../model/config/prismaClient");
 const TimerRouterEntities_1 = require("../../../model/routesEntities/TimerRouterEntities");
 const emptyField_1 = require("../../utils/validation/emptyField");
 const missingRequestField_1 = require("../../utils/validation/missingRequestField");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
-const prismaClient_1 = require("../../../model/config/prismaClient");
 const AuthErrors_1 = require("../../utils/errors/AuthErrors");
 const updateTimerRoute = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.body.user;
@@ -43,11 +43,7 @@ const updateTimerRoute = (req, res) => __awaiter(void 0, void 0, void 0, functio
             .status(400)
             .json((0, GlobalErrors_1.err)(new AuthErrors_1.DATA_NOT_FOUND("Timer", `userId = ${user.id}`)));
     }
-    const updateTimerResponseBody = {
-        startTimeMillis: Number(timer.startTimeMillis),
-        endTimeMillis: Number(timer.endTimeMillis),
-    };
-    return res.status(200).json(updateTimerResponseBody);
+    return res.sendStatus(200);
 });
 exports.updateTimerRoute = updateTimerRoute;
 //# sourceMappingURL=updateTimerRoute.js.map

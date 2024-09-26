@@ -2,7 +2,6 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
 import { S3DataSource } from "../../../model/config/imagesConfig";
 
 //# --- REQUEST ENTITIES ---

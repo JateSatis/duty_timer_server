@@ -1,9 +1,10 @@
-import { UserType } from "../utils/Enums";
-
 export type ForeignUserInfoResponseBody = {
   id: string;
   nickname: string;
-  avatarLink: string | null;
+	avatarLink: string | null;
+	isFriend: boolean;
+	isFriendshipRequestSent: boolean,
+	isFriendshipRequestRecieved: boolean
 };
 
 export type GetUserInfoResponseBody = {
@@ -27,7 +28,7 @@ export type UploadAvatarResponseBody = {
 };
 
 export type GetAvatarLinkResponseBody = {
-  imageUrl: string | null;
+  avatarLink: string | null;
 };
 
 export type UpdateSettingsRequestBody = {

@@ -6,11 +6,9 @@ import { Request, Response } from "express";
 //# --- DATABASE ENTITIES ---
 
 //# --- REQUEST ENTITIES ---
-import { FriendshipRequest } from "../../../model/database/FriendshipRequest";
 
 //# --- VALIDATE REQUEST ---
 import { emptyParam } from "../../utils/validation/emptyParam";
-import { invalidParamType } from "../../utils/validation/invalidParamType";
 
 //# --- ERRORS ---
 import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";

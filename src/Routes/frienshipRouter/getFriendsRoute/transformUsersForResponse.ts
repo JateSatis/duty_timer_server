@@ -14,10 +14,14 @@ export const transformUsersForResponse = async (
         );
       }
 
+      // TODO: Make the response right
       const getUserInfoResponseBody: ForeignUserInfoResponseBody = {
         id: accountInfo.userId,
         nickname: accountInfo.nickname,
         avatarLink,
+        isFriend: true,
+        isFriendshipRequestRecieved: true,
+        isFriendshipRequestSent: true,
       };
 
       return getUserInfoResponseBody;

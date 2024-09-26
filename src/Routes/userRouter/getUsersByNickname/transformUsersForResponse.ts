@@ -9,12 +9,18 @@ export const transformUsersForResponse = async (
     users.map(async (user) => {
       let avatarLink = null;
       if (user.accountInfo!.avatarImageName) {
-        avatarLink = await S3DataSource.getImageUrlFromS3(user.accountInfo!.avatarImageName);
+        avatarLink = await S3DataSource.getImageUrlFromS3(
+          user.accountInfo!.avatarImageName
+        );
       }
+      // TODO: Make this response right
       const getUserInfoResponseBody: ForeignUserInfoResponseBody = {
         id: user.id,
         nickname: user.accountInfo!.nickname,
         avatarLink,
+        isFriend: true,
+        isFriendshipRequestRecieved: true,
+        isFriendshipRequestSent: true,
       };
       return getUserInfoResponseBody;
     })

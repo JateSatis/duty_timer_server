@@ -6,7 +6,6 @@ import {
 import { emptyField } from "../../utils/validation/emptyField";
 import { missingRequestField } from "../../utils/validation/missingRequestField";
 import { invalidInputFormat } from "./invalidInputFormat";
-import { Settings } from "../../../model/database/Settings";
 import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
 import { prisma } from "../../../model/config/prismaClient";
 import { Language, Theme, User } from "@prisma/client";

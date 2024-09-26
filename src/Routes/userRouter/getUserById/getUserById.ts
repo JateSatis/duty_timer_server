@@ -2,17 +2,14 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { dutyTimerDataSource } from "../../../model/config/initializeConfig";
 import { S3DataSource } from "../../../model/config/imagesConfig";
 
 //# --- DATABASE ENTITIES ---
-import { User } from "../../../model/database/User";
 
 //# --- REQUEST ENTITIES ---
 import { GetUserByIdResponseBody } from "../../../model/routesEntities/UserRouterEntities";
 
 //# --- VALIDATE REQUEST ---
-import { invalidParamType } from "../../utils/validation/invalidParamType";
 import { emptyParam } from "../../utils/validation/emptyParam";
 
 //# --- ERRORS ---
@@ -56,10 +53,14 @@ export const getUserById = async (req: Request, res: Response) => {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
   }
 
+  // TODO: Make the reponse right
   const getForeignUserInfoResponseBody: GetUserByIdResponseBody = {
     id: user.id,
     nickname: user.accountInfo!.nickname,
     avatarLink,
+    isFriend: true,
+    isFriendshipRequestRecieved: true,
+    isFriendshipRequestSent: true,
   };
   return res.status(200).json(getForeignUserInfoResponseBody);
 };

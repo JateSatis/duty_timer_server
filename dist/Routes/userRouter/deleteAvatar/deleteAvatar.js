@@ -11,9 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteAvatar = void 0;
 const imagesConfig_1 = require("../../../model/config/imagesConfig");
-const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
 const prismaClient_1 = require("../../../model/config/prismaClient");
 const AuthErrors_1 = require("../../utils/errors/AuthErrors");
+const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
 const deleteAvatar = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let user;
     try {

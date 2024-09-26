@@ -2,7 +2,6 @@ import * as dotenv from "dotenv";
 import express from "express";
 
 //# Model import
-import { dutyTimerDataSource } from "./model/config/initializeConfig";
 
 //# Routes import
 import { userRouter } from "./Routes/userRouter/userRouter";
@@ -35,19 +34,7 @@ app.use("/event", eventsRouter);
 app.use("/timer", timerRouter);
 app.use("/messenger", messengerRouter);
 
-const initalizeDatabaseConnection = async () => {
-  await dutyTimerDataSource.initialize();
-
-  console.log("Connected to DB");
-};
-
 const main = async () => {
-  try {
-    await initalizeDatabaseConnection();
-  } catch (error) {
-    console.error(error.message);
-  }
-
   try {
     wss.on("connection", (socket, req) => {
       webSocketOnConnection(socket, req);

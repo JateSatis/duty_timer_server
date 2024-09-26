@@ -38,7 +38,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.wss = void 0;
 const dotenv = __importStar(require("dotenv"));
 const express_1 = __importDefault(require("express"));
-const initializeConfig_1 = require("./model/config/initializeConfig");
 const userRouter_1 = require("./Routes/userRouter/userRouter");
 const authRouter_1 = require("./Routes/authRouter/authRouter");
 const friendshipRouter_1 = require("./Routes/frienshipRouter/friendshipRouter");
@@ -61,17 +60,7 @@ app.use("/friendship", friendshipRouter_1.friendshipRouter);
 app.use("/event", eventsRouter_1.eventsRouter);
 app.use("/timer", timerRouter_1.timerRouter);
 app.use("/messenger", messengerRouter_1.messengerRouter);
-const initalizeDatabaseConnection = () => __awaiter(void 0, void 0, void 0, function* () {
-    yield initializeConfig_1.dutyTimerDataSource.initialize();
-    console.log("Connected to DB");
-});
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        yield initalizeDatabaseConnection();
-    }
-    catch (error) {
-        console.error(error.message);
-    }
     try {
         exports.wss.on("connection", (socket, req) => {
             (0, socketsConfig_1.webSocketOnConnection)(socket, req);

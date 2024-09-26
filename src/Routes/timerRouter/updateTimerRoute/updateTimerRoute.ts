@@ -1,17 +1,14 @@
 //# --- LIBS ---
 import { Request, Response } from "express";
 
-//# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
-
-//# --- DATABASE ENTITIES ---
-import { Timer } from "../../../model/database/Timer";
+//# --- DATABASE ---
+import { prisma } from "../../../model/config/prismaClient";
+import { User } from "@prisma/client";
 
 //# --- REQUEST ENTITIES ---
 import {
-  UpdateTimerRequestBody,
+	UpdateTimerRequestBody,
   updateTimerRequestBodyProperties,
-  UpdateTimerResponseBody,
 } from "../../../model/routesEntities/TimerRouterEntities";
 
 //# --- VALIDATE REQUEST ---
@@ -20,8 +17,6 @@ import { missingRequestField } from "../../utils/validation/missingRequestField"
 
 //# --- ERRORS ---
 import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
-import { User } from "@prisma/client";
-import { prisma } from "../../../model/config/prismaClient";
 import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 
 export const updateTimerRoute = async (req: Request, res: Response) => {
@@ -54,10 +49,5 @@ export const updateTimerRoute = async (req: Request, res: Response) => {
       .json(err(new DATA_NOT_FOUND("Timer", `userId = ${user.id}`)));
   }
 
-  const updateTimerResponseBody: UpdateTimerResponseBody = {
-    startTimeMillis: Number(timer.startTimeMillis),
-    endTimeMillis: Number(timer.endTimeMillis),
-  };
-
-  return res.status(200).json(updateTimerResponseBody);
+  return res.sendStatus(200);
 };

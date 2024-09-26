@@ -35,8 +35,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendOtpVerification = void 0;
 const dotenv = __importStar(require("dotenv"));
 const crypto = __importStar(require("crypto"));
-const googleapis_1 = require("googleapis");
-const nodemailer = __importStar(require("nodemailer"));
 const prismaClient_1 = require("../../../model/config/prismaClient");
 const AuthRouterEntities_1 = require("../../../model/routesEntities/AuthRouterEntities");
 const emptyField_1 = require("../../utils/validation/emptyField");
@@ -44,15 +42,8 @@ const missingRequestField_1 = require("../../utils/validation/missingRequestFiel
 const invalidInput_1 = require("./invalidInput");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
 const AuthErrors_1 = require("../../utils/errors/AuthErrors");
+const runPythonScript_1 = require("./runPythonScript");
 dotenv.config();
-const OAuth2 = googleapis_1.google.auth.OAuth2;
-console.log("Creating OAuth2 client");
-const oauth2Client = new OAuth2(process.env.OAUTH2_EMAIL_CLIENT_ID, process.env.OAUTH2_EMAIL_CLIENT_SECRET, process.env.OAUTH2_EMAIL_REDIRECT_URI);
-console.log("OAuth2 client created");
-oauth2Client.setCredentials({
-    scope: "https://mail.google.com",
-    refresh_token: process.env.OAUTH2_EMAIL_REFRESH_TOKEN,
-});
 const sendOtpVerification = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if ((0, missingRequestField_1.missingRequestField)(req, res, AuthRouterEntities_1.sendOtpVerificationRequestBodyProperties))
         return res;
@@ -94,10 +85,6 @@ const sendOtpVerification = (req, res) => __awaiter(void 0, void 0, void 0, func
     if (existingOtp && BigInt(currentTime) - existingOtp.createdAt < 60 * 1000) {
         return res.status(400).json((0, GlobalErrors_1.err)(new AuthErrors_1.OTP_SENDING_UNAVAILABLE()));
     }
-    const accessToken = yield getGmailAccessToken();
-    if (!accessToken) {
-        return res.status(400).json((0, GlobalErrors_1.err)(new AuthErrors_1.OTP_SENDING_UNAVAILABLE()));
-    }
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const otpSalt = crypto.randomBytes(32).toString("hex");
     const otpHash = crypto
@@ -132,56 +119,13 @@ const sendOtpVerification = (req, res) => __awaiter(void 0, void 0, void 0, func
             },
         });
     }
-    const transporter = nodemailer.createTransport({
-        service: "gmail",
-        port: 465,
-        secure: true,
-        auth: {
-            type: "OAuth2",
-            user: process.env.OAUTH2_EMAIL_ADRESS,
-            clientId: process.env.OAUTH2_EMAIL_CLIENT_ID,
-            clientSecret: process.env.OAUTH2_EMAIL_CLIENT_SECRET,
-            refreshToken: process.env.OAUTH2_EMAIL_REFRESH_TOKEN,
-            accessToken: accessToken,
-        },
-    });
-    const mailOptions = {
-        from: process.env.OAUTH2_EMAIL_ADRESS,
-        subject: "Your verification code",
-        to: sendOtpVerificationRequestBody.email,
-        text: `Code: ${otp}`,
-    };
     try {
-        yield transporter.sendMail(mailOptions);
+        (0, runPythonScript_1.runPythonScript)(sendOtpVerificationRequestBody.email, "Код подтверждения DMB Timer", `Code: ${otp}`);
     }
     catch (error) {
-        console.error("Error sending email:", error);
-        if (error.code === "ETIMEDOUT") {
-            console.error("Connection timed out. Network or firewall issue may be present.");
-        }
-        if (error.code === "ECONNREFUSED") {
-            console.error("Connection refused. Check if outgoing SMTP connections are allowed.");
-        }
-        if (error.responseCode) {
-            console.error("SMTP response code:", error.responseCode);
-        }
-        throw error;
+        return res.status(400).json(new AuthErrors_1.OTP_SENDING_UNAVAILABLE());
     }
     return res.sendStatus(200);
 });
 exports.sendOtpVerification = sendOtpVerification;
-const getGmailAccessToken = () => __awaiter(void 0, void 0, void 0, function* () {
-    let accessToken;
-    if (oauth2Client.credentials.access_token &&
-        oauth2Client.credentials.expiry_date &&
-        oauth2Client.credentials.expiry_date > Date.now()) {
-        accessToken = oauth2Client.credentials.access_token;
-    }
-    else {
-        const accessTokenObject = yield oauth2Client.getAccessToken();
-        if (accessTokenObject)
-            accessToken = accessTokenObject.token;
-    }
-    return accessToken;
-});
 //# sourceMappingURL=sendOtpVerification.js.map

@@ -42,7 +42,7 @@ export const getAvatarLink = async (req: Request, res: Response) => {
 
   if (!avatarImageName) {
     const getAvatarLinkResponseBody: GetAvatarLinkResponseBody = {
-      imageUrl: null,
+      avatarLink: null,
     };
     return res.status(200).json(getAvatarLinkResponseBody);
   }
@@ -54,15 +54,8 @@ export const getAvatarLink = async (req: Request, res: Response) => {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error.message)));
   }
 
-  if (!url) {
-    const getAvatarLinkResponseBody: GetAvatarLinkResponseBody = {
-      imageUrl: null,
-    };
-    return res.status(200).json(getAvatarLinkResponseBody);
-  }
-
   const getAvatarLinkResponseBody: GetAvatarLinkResponseBody = {
-    imageUrl: url,
+    avatarLink: url,
   };
 
   return res.status(200).json(getAvatarLinkResponseBody);

@@ -9,7 +9,7 @@
     "watch": "npm run build && tsc --watch",
     "dev": "nodemon -r tsconfig-paths/register dist/index.js",
     "build": "npm run clean && tsc",
-    "postbuild": "xcopy src\\*.pem dist\\ /s",
+    "postbuild": "xcopy src\\*.pem dist\\ /s && xcopy src\\*.py dist\\ /s",
     "start": "node dist/index.js"
   },
   "author": "",

@@ -1,4 +1,4 @@
-import { MessageResponseBody } from "../../model/routesEntities/MessageRoutesEntities";
+import { GroupMessageResponseBody } from "../../model/routesEntities/MessageRoutesEntities";
 import { S3DataSource } from "../../model/config/imagesConfig";
 import { formatDateForMessage } from "./formatDateForMessage";
 import { prisma } from "../../model/config/prismaClient";
@@ -90,7 +90,7 @@ export const transformMessageForResponse = async (
 
   const isSender = message.sender.id === user.id;
 
-  const messageResponseBody: MessageResponseBody = {
+  const messageResponseBody: GroupMessageResponseBody = {
     messageId: message.id,
     chatId: chat.id,
     senderId: message.sender.id,

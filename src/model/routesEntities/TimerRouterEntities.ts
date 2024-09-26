@@ -1,6 +1,3 @@
-import { Timer } from "../database/Timer";
-import { Expose } from "class-transformer";
-
 export type GetTimerResponseBody = {
   startTimeMillis: number;
   endTimeMillis: number;

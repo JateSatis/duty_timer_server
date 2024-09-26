@@ -2,7 +2,6 @@
 import { Request, Response } from "express";
 
 //# --- CONFIG ---
-import { DB } from "../../../model/config/initializeConfig";
 
 //# --- REQUEST ENTITIES ---
 import { GetUsersByNameResponseBody } from "../../../model/routesEntities/UserRouterEntities";

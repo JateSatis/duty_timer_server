@@ -37,7 +37,7 @@ const getAvatarLink = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     const avatarImageName = user.accountInfo.avatarImageName;
     if (!avatarImageName) {
         const getAvatarLinkResponseBody = {
-            imageUrl: null,
+            avatarLink: null,
         };
         return res.status(200).json(getAvatarLinkResponseBody);
     }
@@ -48,14 +48,8 @@ const getAvatarLink = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.S3_STORAGE_ERROR(error.message)));
     }
-    if (!url) {
-        const getAvatarLinkResponseBody = {
-            imageUrl: null,
-        };
-        return res.status(200).json(getAvatarLinkResponseBody);
-    }
     const getAvatarLinkResponseBody = {
-        imageUrl: url,
+        avatarLink: url,
     };
     return res.status(200).json(getAvatarLinkResponseBody);
 });

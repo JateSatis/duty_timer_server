@@ -9,7 +9,6 @@ import { emptyParam } from "../../utils/validation/emptyParam";
 import { transformMessageForResponse } from "../transformMessageForResponse";
 import { S3DataSource } from "../../../model/config/imagesConfig";
 import { GetDirectChatInfoResponseBody } from "../../../model/routesEntities/MessageRoutesEntities";
-import { Chat, User } from "@prisma/client";
 import { prisma } from "../../../model/config/prismaClient";
 import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 import { String } from "aws-sdk/clients/apigateway";
