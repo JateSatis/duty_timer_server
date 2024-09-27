@@ -12,6 +12,7 @@ import { GetDirectChatInfoResponseBody } from "../../../model/routesEntities/Mes
 import { prisma } from "../../../model/config/prismaClient";
 import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
 import { String } from "aws-sdk/clients/apigateway";
+import { ChatType } from "@prisma/client";
 
 export const getDirectChatInfo = async (req: Request, res: Response) => {
   const user = await prisma.user.findFirst({
@@ -48,7 +49,7 @@ export const getDirectChatInfo = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  if (!chat || chat.isGroup) {
+  if (!chat || chat.chatType !== ChatType.DIRECT) {
     return res.status(403).json(err(new FORBIDDEN_ACCESS()));
   }
 

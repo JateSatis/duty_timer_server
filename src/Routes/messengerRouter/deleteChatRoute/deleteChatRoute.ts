@@ -13,7 +13,7 @@ import {
   err,
   FORBIDDEN_ACCESS,
 } from "../../utils/errors/GlobalErrors";
-import { User } from "@prisma/client";
+import { ChatType, User } from "@prisma/client";
 import { prisma } from "../../../model/config/prismaClient";
 
 export const deleteChatRoute = async (req: Request, res: Response) => {
@@ -46,7 +46,7 @@ export const deleteChatRoute = async (req: Request, res: Response) => {
   }
 
   //# If it's a direct chat, delete it entirely
-  if (!chat.isGroup) {
+  if (chat.chatType === ChatType.DIRECT) {
     try {
       await prisma.chat.delete({
         where: { id: chatId },

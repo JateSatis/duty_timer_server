@@ -18,10 +18,13 @@ import {
 } from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
-import { transformUsersForResponse } from "./transformUsersForResponse";
 import { prisma } from "../../../model/config/prismaClient";
+import { transformForeignUserInfoForResponse } from "../transformForeignUserInfoForResponse";
+import { User } from "@prisma/client";
 
 export const getUsersByNickname = async (req: Request, res: Response) => {
+  const user: User = req.body.user;
+
   if (invalidParamFormat(req, res, "userNickname")) return res;
   if (emptyParam(req, res, "userNickname")) return res;
   const userNickname = req.params.userNickname;
@@ -30,18 +33,15 @@ export const getUsersByNickname = async (req: Request, res: Response) => {
     return res.status(200).json([]);
   }
 
-  let users;
+  let foreignUsers;
   try {
-    users = await prisma.user.findMany({
+    foreignUsers = await prisma.user.findMany({
       where: {
         accountInfo: {
           nickname: {
             startsWith: userNickname,
           },
         },
-      },
-      include: {
-        accountInfo: true,
       },
     });
   } catch (error) {
@@ -50,10 +50,15 @@ export const getUsersByNickname = async (req: Request, res: Response) => {
 
   let usersInfo;
   try {
-    usersInfo = await transformUsersForResponse(users);
+    usersInfo = await Promise.all(
+      foreignUsers.map(async (foreignUser) => {
+        return transformForeignUserInfoForResponse(user.id, foreignUser.id);
+      })
+    );
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
-  }
+	}
+	
   const getUsersByNameResponseBody: GetUsersByNameResponseBody = usersInfo;
   return res.status(200).json(getUsersByNameResponseBody);
 };

@@ -10,7 +10,7 @@ import {
 import { emptyParam } from "../../utils/validation/emptyParam";
 import { invalidParamType } from "../../utils/validation/invalidParamType";
 import { transformMessageForResponse } from "../transformMessageForResponse";
-import { AccountInfo, Chat, Prisma, User } from "@prisma/client";
+import { AccountInfo, Chat, ChatType, Prisma, User } from "@prisma/client";
 import { prisma } from "../../../model/config/prismaClient";
 import { send } from "process";
 
@@ -46,7 +46,7 @@ export const getGroupChatInfo = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  if (!chat || !chat.isGroup) {
+  if (!chat || chat.chatType === ChatType.DIRECT) {
     return res.status(400).json(err(new FORBIDDEN_ACCESS()));
   }
 

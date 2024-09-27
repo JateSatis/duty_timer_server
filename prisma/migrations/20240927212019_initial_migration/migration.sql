@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "ChatType" AS ENUM ('GLOBAL', 'GROUP', 'DIRECT');
+
+-- CreateEnum
 CREATE TYPE "Language" AS ENUM ('ENGLISH', 'RUSSIAN', 'BELORUSIAN', 'UKRANIAN');
 
 -- CreateEnum
@@ -107,7 +110,7 @@ CREATE TABLE "Chat" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "imageName" TEXT,
-    "isGroup" BOOLEAN NOT NULL,
+    "chatType" "ChatType" NOT NULL,
     "creationTime" BIGINT NOT NULL,
     "lastUpdateTimeMillis" BIGINT NOT NULL,
 

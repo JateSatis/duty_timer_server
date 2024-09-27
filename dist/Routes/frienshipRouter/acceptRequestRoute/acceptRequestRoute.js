@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.acceptRequestRoute = void 0;
 const prismaClient_1 = require("../../../model/config/prismaClient");
+const client_1 = require("@prisma/client");
 const emptyParam_1 = require("../../utils/validation/emptyParam");
 const AuthErrors_1 = require("../../utils/errors/AuthErrors");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
@@ -80,7 +81,7 @@ const acceptRequestRoute = (req, res) => __awaiter(void 0, void 0, void 0, funct
     try {
         existingChat = yield prismaClient_1.prisma.chat.findFirst({
             where: {
-                isGroup: false,
+                chatType: client_1.ChatType.DIRECT,
                 users: {
                     every: {
                         id: { in: [user.id, senderId] },
@@ -104,7 +105,7 @@ const acceptRequestRoute = (req, res) => __awaiter(void 0, void 0, void 0, funct
                     connect: [{ id: senderId }, { id: user.id }],
                 },
                 name: `${sender.accountInfo.nickname}, ${userAccountInfo.nickname}`,
-                isGroup: false,
+                chatType: client_1.ChatType.DIRECT,
                 creationTime: Date.now(),
                 lastUpdateTimeMillis: Date.now(),
             },

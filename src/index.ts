@@ -41,7 +41,7 @@ const main = async () => {
     });
   } catch (error) {
     console.error(error.message);
-  }
+	}
 
   const serverPort = parseInt(process.env.SERVER_PORT!) || 3000;
   app.listen(serverPort, () => {

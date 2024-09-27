@@ -1,7 +1,15 @@
 import { spawn } from "child_process";
 
-const pathToScript =
-  "C:/Users/danil/OneDrive/Рабочий стол 2/duty_timer/src/python/sendEmail.py";
+import * as dotenv from "dotenv";
+
+dotenv.config();
+
+let pathToScript;
+if (process.env.NODE_ENV === "production") {
+  pathToScript = process.env.PYTHON_SCRIPT_REMOTE_PATH;
+} else {
+  pathToScript = process.env.PYTHON_SCRIPT_LOCAL_PATH;
+}
 
 // Функция для запуска Python-скрипта
 export const runPythonScript = async (
@@ -12,7 +20,8 @@ export const runPythonScript = async (
   return new Promise((resolve, reject) => {
     // Запуск Python-скрипта с передачей аргументов
     const pythonProcess = spawn("python", [
-      pathToScript,
+      pathToScript ??
+        "C:/Users/danil/OneDrive/Рабочий стол 2/duty_timer/src/python/sendEmail.py",
       email,
       subject,
       message,

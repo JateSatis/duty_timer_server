@@ -10,52 +10,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUserById = void 0;
-const imagesConfig_1 = require("../../../model/config/imagesConfig");
 const emptyParam_1 = require("../../utils/validation/emptyParam");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
-const GlobalErrors_2 = require("../../utils/errors/GlobalErrors");
-const AuthErrors_1 = require("../../utils/errors/AuthErrors");
-const prismaClient_1 = require("../../../model/config/prismaClient");
+const transformForeignUserInfoForResponse_1 = require("../transformForeignUserInfoForResponse");
 const getUserById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    if ((0, emptyParam_1.emptyParam)(req, res, "userId"))
+    let user = req.body.user;
+    if ((0, emptyParam_1.emptyParam)(req, res, "foreignUserId"))
         return res;
-    const userId = req.params.userId;
-    let user;
+    const foreignUserId = req.params.foreignUserId;
+    let getForeignUserInfoResponseBody;
     try {
-        user = yield prismaClient_1.prisma.user.findFirst({
-            where: {
-                id: userId,
-            },
-            include: {
-                accountInfo: true,
-            },
-        });
+        getForeignUserInfoResponseBody = yield (0, transformForeignUserInfoForResponse_1.transformForeignUserInfoForResponse)(user.id, foreignUserId);
     }
     catch (error) {
-        return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_2.DATABASE_ERROR(error)));
-    }
-    if (!user) {
-        return res
-            .status(400)
-            .json((0, GlobalErrors_1.err)(new AuthErrors_1.DATA_NOT_FOUND("user", `id = ${userId}`)));
-    }
-    let avatarLink = null;
-    try {
-        if (user.accountInfo.avatarImageName) {
-            avatarLink = yield imagesConfig_1.S3DataSource.getImageUrlFromS3(user.accountInfo.avatarImageName);
+        if (error instanceof GlobalErrors_1.ServerError) {
+            return res.status(400).json((0, GlobalErrors_1.err)(error));
+        }
+        else {
+            return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.UNKNOWN_ERROR(error)));
         }
     }
-    catch (error) {
-        return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.S3_STORAGE_ERROR(error)));
-    }
-    const getForeignUserInfoResponseBody = {
-        id: user.id,
-        nickname: user.accountInfo.nickname,
-        avatarLink,
-        isFriend: true,
-        isFriendshipRequestRecieved: true,
-        isFriendshipRequestSent: true,
-    };
     return res.status(200).json(getForeignUserInfoResponseBody);
 });
 exports.getUserById = getUserById;

@@ -36,6 +36,7 @@ exports.verifyEmailRoute = void 0;
 const crypto = __importStar(require("crypto"));
 const issueJWT_1 = require("../../../auth/jwt/issueJWT");
 const prismaClient_1 = require("../../../model/config/prismaClient");
+const client_1 = require("@prisma/client");
 const AuthRouterEntities_1 = require("../../../model/routesEntities/AuthRouterEntities");
 const missingRequestField_1 = require("../../utils/validation/missingRequestField");
 const emptyField_1 = require("../../utils/validation/emptyField");
@@ -142,6 +143,28 @@ const verifyEmailRoute = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
+    }
+    try {
+        const globalChat = yield prismaClient_1.prisma.chat.findFirst({
+            where: {
+                chatType: client_1.ChatType.GLOBAL,
+            },
+        });
+        if (globalChat) {
+            yield prismaClient_1.prisma.chat.update({
+                where: {
+                    id: globalChat.id,
+                },
+                data: {
+                    users: {
+                        connect: { id: user.id },
+                    },
+                },
+            });
+        }
+    }
+    catch (error) {
+        return res.status(400).json(new GlobalErrors_1.DATABASE_ERROR(error));
     }
     const verifyEmailResponseBody = {
         accessToken: accessToken.token,

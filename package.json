@@ -6,11 +6,17 @@
   "scripts": {
     "clean": "rimraf dist",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "npm run build && tsc --watch",
-    "dev": "nodemon -r tsconfig-paths/register dist/index.js",
-    "build": "npm run clean && tsc",
+    "build:dev": "cross-env NOVE_ENV=development npm run clean && npm run postbuild && tsc",
+    "build:prod": "cross-env NOVE_ENV=production npm run clean && npm run postbuild && tsc",
+    "build-watch:dev": "cross-env NOVE_ENV=development npm run build:dev && tsc --watch",
+    "build-watch:prod": "cross-env NOVE_ENV=production npm run build:prod && tsc --watch",
     "postbuild": "xcopy src\\*.pem dist\\ /s && xcopy src\\*.py dist\\ /s",
-    "start": "node dist/index.js"
+    "start:dev": "cross-env NODE_ENV=development node dist/index.js",
+    "start:prod": "cross-env NODE_ENV=production node dist/index.js",
+    "start-watch:dev": "cross-env NOVE_ENV=development nodemon -r tsconfig-paths/register dist/index.js",
+    "start-watch:prod": "cross-env NOVE_ENV=production nodemon -r tsconfig-paths/register dist/index.js",
+    "prisma:migrate-dev": "cross-env NODE_ENV=development && node ./prisma/prisma-migrate.js && node ./prisma/prisma-seed.js",
+    "prisma:migrate-prod": "cross-env NODE_ENV=production && node ./prisma/prisma-migrate.js && node ./prisma/prisma-seed.js"
   },
   "author": "",
   "license": "ISC",
@@ -48,6 +54,7 @@
     "@types/nodemailer": "^6.4.15",
     "@types/uuid": "^10.0.0",
     "@types/ws": "^8.5.10",
+    "cross-env": "^7.0.3",
     "prisma": "^5.19.1",
     "tsconfig-paths": "^4.2.0"
   },

@@ -26,7 +26,7 @@ userRouter.put("/set-status-online", auth, setStatusOnline);
 
 userRouter.put("/set-status-offline", auth, setStatusOffline);
 
-userRouter.get("/id/:userId", getUserById);
+userRouter.get("/id/:foreignUserId", auth, getUserById);
 
 userRouter.get("/nickname/:userNickname", auth, getUsersByNickname);
 

@@ -19,7 +19,7 @@ exports.userRouter = (0, express_1.Router)();
 exports.userRouter.get("/", authMiddleware_1.auth, getUserInfo_1.getUserInfo);
 exports.userRouter.put("/set-status-online", authMiddleware_1.auth, setStatusOnline_1.setStatusOnline);
 exports.userRouter.put("/set-status-offline", authMiddleware_1.auth, setStatusOffline_1.setStatusOffline);
-exports.userRouter.get("/id/:userId", getUserById_1.getUserById);
+exports.userRouter.get("/id/:foreignUserId", authMiddleware_1.auth, getUserById_1.getUserById);
 exports.userRouter.get("/nickname/:userNickname", authMiddleware_1.auth, getUsersByNickname_1.getUsersByNickname);
 exports.userRouter.post("/avatar", (0, handleFilesMiddleware_1.getFilesMiddleware)(1), authMiddleware_1.auth, postAvatar_1.postAvatar);
 exports.userRouter.get("/avatar", authMiddleware_1.auth, getAvatarLink_1.getAvatarLink);

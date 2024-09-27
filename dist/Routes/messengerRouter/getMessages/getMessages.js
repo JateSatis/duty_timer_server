@@ -10,9 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMessages = void 0;
+const client_1 = require("@prisma/client");
 const prismaClient_1 = require("../../../model/config/prismaClient");
 const AuthErrors_1 = require("../../utils/errors/AuthErrors");
-const GlobalErrors_1 = require("src/Routes/utils/errors/GlobalErrors");
+const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
 const transformMessageForResponse_1 = require("../transformMessageForResponse");
 const imagesConfig_1 = require("../../../model/config/imagesConfig");
 const emptyParam_1 = require("../../utils/validation/emptyParam");
@@ -108,7 +109,7 @@ const getMessages = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.S3_STORAGE_ERROR(error)));
     }
-    if (!chat.isGroup) {
+    if (chat.chatType === client_1.ChatType.DIRECT) {
         const getMessagesResponseBody = messagesInfo;
         return res.status(200).json(getMessagesResponseBody);
     }

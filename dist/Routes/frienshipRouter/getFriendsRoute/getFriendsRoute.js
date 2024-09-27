@@ -11,8 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getFriendsRoute = void 0;
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
-const transformUsersForResponse_1 = require("./transformUsersForResponse");
 const prismaClient_1 = require("../../../model/config/prismaClient");
+const transformForeignUserInfoForResponse_1 = require("../../userRouter/transformForeignUserInfoForResponse");
 const getFriendsRoute = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.body.user;
     let friendIds;
@@ -30,24 +30,26 @@ const getFriendsRoute = (req, res) => __awaiter(void 0, void 0, void 0, function
     if (friendIds.length == 0) {
         return res.status(200).json([]);
     }
-    let friendsInfo;
+    let friends;
     try {
-        friendsInfo = yield prismaClient_1.prisma.accountInfo.findMany({
+        friends = yield prismaClient_1.prisma.user.findMany({
             where: {
-                userId: { in: friendIds },
+                id: { in: friendIds },
             },
         });
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
     }
+    let getAllFriendsResponseBody;
     try {
-        friendsInfo = yield (0, transformUsersForResponse_1.transformUsersForResponse)(friendsInfo);
+        getAllFriendsResponseBody = yield Promise.all(friends.map((friend) => __awaiter(void 0, void 0, void 0, function* () {
+            return yield (0, transformForeignUserInfoForResponse_1.transformForeignUserInfoForResponse)(friend.id, user.id, true, false, false);
+        })));
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.S3_STORAGE_ERROR(error)));
     }
-    const getAllFriendsResponseBody = friendsInfo || [];
     return res.status(200).json(getAllFriendsResponseBody);
 });
 exports.getFriendsRoute = getFriendsRoute;

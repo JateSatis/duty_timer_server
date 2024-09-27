@@ -1,3 +1,5 @@
+import { ChatType } from "@prisma/client";
+
 export type MessageResponseBody = {
   messageId: string;
   chatId: string;
@@ -24,7 +26,7 @@ export type ChatResponseBody = {
   lastMessageCreationTime: string | null;
   lastMessageSenderName: string | null;
   unreadMessagesAmount: number | null;
-  isGroupChat: boolean;
+  chatType: ChatType;
   isOnline: boolean;
 };
 
@@ -34,7 +36,10 @@ export type ParticipantInfo = {
   avatarLink: string | null;
 };
 
-export type GetAllChatsResponseBody = ChatResponseBody[];
+export type GetAllChatsResponseBody = {
+  globalChat: ChatResponseBody;
+  chats: ChatResponseBody[];
+};
 
 export type getMessagesResponseBody = MessageResponseBody[];
 

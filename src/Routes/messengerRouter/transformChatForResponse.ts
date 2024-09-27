@@ -1,7 +1,7 @@
 import { ChatResponseBody } from "../../model/routesEntities/MessageRoutesEntities";
 import { S3DataSource } from "../../model/config/imagesConfig";
 import { formatDateForMessage } from "./formatDateForMessage";
-import { Chat, User } from "@prisma/client";
+import { Chat, ChatType, User } from "@prisma/client";
 import { prisma } from "../../model/config/prismaClient";
 
 export const transformChatForResponse = async (
@@ -14,7 +14,6 @@ export const transformChatForResponse = async (
     (participant) => participant.id !== userId
   );
 
-  const isGroupChat = chat.isGroup;
   const messages = chat.messages;
 
   //# Define default values for chat
@@ -26,11 +25,11 @@ export const transformChatForResponse = async (
     lastMessageText: "В данном чате нет сообщений",
     lastMessageCreationTime: formatDateForMessage(Date.now()).timeFormat,
     lastMessageSenderName: "ДМБ таймер",
-    isGroupChat,
+    chatType: chat.chatType,
     isOnline: false,
   };
 
-  if (isGroupChat) {
+  if (chat.chatType !== ChatType.DIRECT) {
     //# If group chat -> take image frim image name
     const imageName = chat.imageName;
     if (imageName)

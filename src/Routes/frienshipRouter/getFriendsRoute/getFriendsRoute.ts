@@ -12,9 +12,9 @@ import {
   err,
   S3_STORAGE_ERROR,
 } from "../../utils/errors/GlobalErrors";
-import { transformUsersForResponse } from "./transformUsersForResponse";
 import { User } from "@prisma/client";
 import { prisma } from "../../../model/config/prismaClient";
+import { transformForeignUserInfoForResponse } from "../../userRouter/transformForeignUserInfoForResponse";
 
 export const getFriendsRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
@@ -39,25 +39,33 @@ export const getFriendsRoute = async (req: Request, res: Response) => {
     return res.status(200).json([]);
   }
 
-  let friendsInfo;
+  let friends;
   try {
-    friendsInfo = await prisma.accountInfo.findMany({
+    friends = await prisma.user.findMany({
       where: {
-        userId: { in: friendIds },
+        id: { in: friendIds },
       },
     });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
+  let getAllFriendsResponseBody: GetAllFriendsResponseBody;
   try {
-    friendsInfo = await transformUsersForResponse(friendsInfo);
+    getAllFriendsResponseBody = await Promise.all(
+      friends.map(async (friend) => {
+        return await transformForeignUserInfoForResponse(
+          friend.id,
+          user.id,
+          true,
+          false,
+          false
+        );
+      })
+    );
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
   }
-
-  const getAllFriendsResponseBody: GetAllFriendsResponseBody =
-    friendsInfo || [];
 
   return res.status(200).json(getAllFriendsResponseBody);
 };

@@ -14,6 +14,7 @@ const imagesConfig_1 = require("../../../model/config/imagesConfig");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
 const emptyParam_1 = require("../../utils/validation/emptyParam");
 const transformMessageForResponse_1 = require("../transformMessageForResponse");
+const client_1 = require("@prisma/client");
 const prismaClient_1 = require("../../../model/config/prismaClient");
 const getGroupChatInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.body.user;
@@ -46,7 +47,7 @@ const getGroupChatInfo = (req, res) => __awaiter(void 0, void 0, void 0, functio
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
     }
-    if (!chat || !chat.isGroup) {
+    if (!chat || chat.chatType === client_1.ChatType.DIRECT) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.FORBIDDEN_ACCESS()));
     }
     let participantsInfo;

@@ -16,6 +16,7 @@ const transformMessageForResponse_1 = require("../transformMessageForResponse");
 const imagesConfig_1 = require("../../../model/config/imagesConfig");
 const prismaClient_1 = require("../../../model/config/prismaClient");
 const AuthErrors_1 = require("../../utils/errors/AuthErrors");
+const client_1 = require("@prisma/client");
 const getDirectChatInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = yield prismaClient_1.prisma.user.findFirst({
         where: {
@@ -49,7 +50,7 @@ const getDirectChatInfo = (req, res) => __awaiter(void 0, void 0, void 0, functi
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
     }
-    if (!chat || chat.isGroup) {
+    if (!chat || chat.chatType !== client_1.ChatType.DIRECT) {
         return res.status(403).json((0, GlobalErrors_1.err)(new GlobalErrors_1.FORBIDDEN_ACCESS()));
     }
     let companionInfo;

@@ -15,6 +15,7 @@ const emptyField_1 = require("../../utils/validation/emptyField");
 const missingRequestField_1 = require("../../utils/validation/missingRequestField");
 const invalidInput_1 = require("./invalidInput");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
+const client_1 = require("@prisma/client");
 const imagesConfig_1 = require("../../../model/config/imagesConfig");
 const transformChatForResponse_1 = require("../transformChatForResponse");
 const prismaClient_1 = require("../../../model/config/prismaClient");
@@ -71,7 +72,7 @@ const createGroupChat = (req, res) => __awaiter(void 0, void 0, void 0, function
             data: {
                 name: createGroupChatRequestBody.name,
                 imageName: s3ChatImageName,
-                isGroup: true,
+                chatType: client_1.ChatType.GROUP,
                 creationTime: Date.now(),
                 lastUpdateTimeMillis: Date.now(),
                 users: {

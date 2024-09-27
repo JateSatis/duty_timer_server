@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteChatRoute = void 0;
 const emptyParam_1 = require("../../utils/validation/emptyParam");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
+const client_1 = require("@prisma/client");
 const prismaClient_1 = require("../../../model/config/prismaClient");
 const deleteChatRoute = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.body.user;
@@ -40,7 +41,7 @@ const deleteChatRoute = (req, res) => __awaiter(void 0, void 0, void 0, function
     if (!chat) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.FORBIDDEN_ACCESS()));
     }
-    if (!chat.isGroup) {
+    if (chat.chatType === client_1.ChatType.DIRECT) {
         try {
             yield prismaClient_1.prisma.chat.delete({
                 where: { id: chatId },

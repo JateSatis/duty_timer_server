@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 
 //# --- DATABASE ---
 import { prisma } from "../../../model/config/prismaClient";
-import { User } from "@prisma/client";
+import { ChatType, User } from "@prisma/client";
 
 //# --- REQUEST ENTITIES ---
 import { GetAllChatsResponseBody } from "../../../model/routesEntities/MessageRoutesEntities";
@@ -38,11 +38,19 @@ export const getAllChatsRoute = async (req: Request, res: Response) => {
 
   let getAllChatsResponseBody: GetAllChatsResponseBody;
   try {
-    getAllChatsResponseBody = await Promise.all(
+    const transformedChats = await Promise.all(
       chats.map(
         async (chat) => await transformChatForResponse(chat.id, user.id)
       )
     );
+    getAllChatsResponseBody = {
+      globalChat: transformedChats.find(
+        (transformedChat) => transformedChat.chatType === ChatType.GLOBAL
+      )!!,
+      chats: transformedChats.filter(
+        (transformedChat) => transformedChat.chatType !== ChatType.GLOBAL
+      ),
+    };
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
   }

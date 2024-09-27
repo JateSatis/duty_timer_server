@@ -90,7 +90,9 @@ const connectToFriends = async (userId: string, ws: WebSocket) => {
   }
 
   const friendIds = friendships.map((friendship) => {
-    return friendship.user1Id === userId ? friendship.user2Id : friendship.user1Id;
+    return friendship.user1Id === userId
+      ? friendship.user2Id
+      : friendship.user1Id;
   });
 
   const webSocketFriendsMapValue: WebSocketFriendsMapValue = {

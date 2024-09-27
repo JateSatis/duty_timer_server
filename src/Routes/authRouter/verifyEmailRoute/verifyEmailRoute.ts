@@ -10,7 +10,7 @@ import {
 
 //# --- DATABASE ---
 import { prisma } from "../../../model/config/prismaClient";
-import { OtpVerification } from "@prisma/client";
+import { ChatType, OtpVerification } from "@prisma/client";
 
 //# --- REQUEST ENTITIES ---
 import {
@@ -158,6 +158,30 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
     });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
+  }
+
+  //# Connect user to global chat
+  try {
+    const globalChat = await prisma.chat.findFirst({
+      where: {
+        chatType: ChatType.GLOBAL,
+      },
+    });
+
+    if (globalChat) {
+      await prisma.chat.update({
+        where: {
+          id: globalChat.id,
+        },
+        data: {
+          users: {
+            connect: { id: user.id },
+          },
+        },
+      });
+    }
+  } catch (error) {
+    return res.status(400).json(new DATABASE_ERROR(error));
   }
 
   const verifyEmailResponseBody: VerifyEmailResponseBody = {

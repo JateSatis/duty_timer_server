@@ -12,11 +12,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.transformChatForResponse = void 0;
 const imagesConfig_1 = require("../../model/config/imagesConfig");
 const formatDateForMessage_1 = require("./formatDateForMessage");
+const client_1 = require("@prisma/client");
 const prismaClient_1 = require("../../model/config/prismaClient");
 const transformChatForResponse = (chatId, userId) => __awaiter(void 0, void 0, void 0, function* () {
     const chat = yield getChatById(chatId);
     const companions = chat.users.filter((participant) => participant.id !== userId);
-    const isGroupChat = chat.isGroup;
     const messages = chat.messages;
     const chatResponseBody = {
         chatId: chat.id,
@@ -26,10 +26,10 @@ const transformChatForResponse = (chatId, userId) => __awaiter(void 0, void 0, v
         lastMessageText: "В данном чате нет сообщений",
         lastMessageCreationTime: (0, formatDateForMessage_1.formatDateForMessage)(Date.now()).timeFormat,
         lastMessageSenderName: "ДМБ таймер",
-        isGroupChat,
+        chatType: chat.chatType,
         isOnline: false,
     };
-    if (isGroupChat) {
+    if (chat.chatType !== client_1.ChatType.DIRECT) {
         const imageName = chat.imageName;
         if (imageName)
             chatResponseBody.imageLink = yield imagesConfig_1.S3DataSource.getImageUrlFromS3(imageName);

@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 
 //# --- DATABASE ---
 import { prisma } from "../../../model/config/prismaClient";
-import { User } from "@prisma/client";
+import { ChatType, User } from "@prisma/client";
 
 //# --- REQUEST ENTITIES ---
 import { AcceptFriendshipResponseBody } from "../../../model/routesEntities/FriendshipRouterEntities";
@@ -101,7 +101,7 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
   try {
     existingChat = await prisma.chat.findFirst({
       where: {
-        isGroup: false,
+        chatType: ChatType.DIRECT,
         users: {
           every: {
             id: { in: [user.id, senderId] },
@@ -129,7 +129,7 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
           connect: [{ id: senderId }, { id: user.id }],
         },
         name: `${sender.accountInfo!.nickname}, ${userAccountInfo.nickname}`,
-        isGroup: false,
+        chatType: ChatType.DIRECT,
         creationTime: Date.now(),
         lastUpdateTimeMillis: Date.now(),
       },

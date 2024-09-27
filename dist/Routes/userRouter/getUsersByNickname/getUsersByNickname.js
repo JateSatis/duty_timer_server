@@ -13,9 +13,10 @@ exports.getUsersByNickname = void 0;
 const invalidParamFormat_1 = require("../../utils/validation/invalidParamFormat");
 const emptyParam_1 = require("../../utils/validation/emptyParam");
 const GlobalErrors_1 = require("../../utils/errors/GlobalErrors");
-const transformUsersForResponse_1 = require("./transformUsersForResponse");
 const prismaClient_1 = require("../../../model/config/prismaClient");
+const transformForeignUserInfoForResponse_1 = require("../transformForeignUserInfoForResponse");
 const getUsersByNickname = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.body.user;
     if ((0, invalidParamFormat_1.invalidParamFormat)(req, res, "userNickname"))
         return res;
     if ((0, emptyParam_1.emptyParam)(req, res, "userNickname"))
@@ -24,18 +25,15 @@ const getUsersByNickname = (req, res) => __awaiter(void 0, void 0, void 0, funct
     if (userNickname.length <= 3) {
         return res.status(200).json([]);
     }
-    let users;
+    let foreignUsers;
     try {
-        users = yield prismaClient_1.prisma.user.findMany({
+        foreignUsers = yield prismaClient_1.prisma.user.findMany({
             where: {
                 accountInfo: {
                     nickname: {
                         startsWith: userNickname,
                     },
                 },
-            },
-            include: {
-                accountInfo: true,
             },
         });
     }
@@ -44,7 +42,9 @@ const getUsersByNickname = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
     let usersInfo;
     try {
-        usersInfo = yield (0, transformUsersForResponse_1.transformUsersForResponse)(users);
+        usersInfo = yield Promise.all(foreignUsers.map((foreignUser) => __awaiter(void 0, void 0, void 0, function* () {
+            return (0, transformForeignUserInfoForResponse_1.transformForeignUserInfoForResponse)(user.id, foreignUser.id);
+        })));
     }
     catch (error) {
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.S3_STORAGE_ERROR(error)));

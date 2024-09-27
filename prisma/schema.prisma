@@ -80,31 +80,6 @@ model Settings {
   user                        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-enum Language {
-  ENGLISH
-  RUSSIAN
-  BELORUSIAN
-  UKRANIAN
-}
-
-enum NicknameColor {
-  BLACK
-  RED
-}
-
-enum Theme {
-  WHITE
-  BLACK
-}
-
-enum UserType {
-  SOLDIER
-  OFFICER
-  CADET
-  RELATIVE
-  DEFAULT
-}
-
 model Timer {
   id              String @id @default(uuid())
   startTimeMillis BigInt
@@ -124,7 +99,7 @@ model Chat {
   id                   String    @id @default(uuid())
   name                 String
   imageName            String?
-  isGroup              Boolean
+  chatType             ChatType
   creationTime         BigInt
   lastUpdateTimeMillis BigInt
   messages             Message[]
@@ -170,4 +145,35 @@ model Message {
   attachments  Attachment[]
   chat         Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
   sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+enum ChatType {
+  GLOBAL
+  GROUP
+  DIRECT
+}
+
+enum Language {
+  ENGLISH
+  RUSSIAN
+  BELORUSIAN
+  UKRANIAN
+}
+
+enum NicknameColor {
+  BLACK
+  RED
+}
+
+enum Theme {
+  WHITE
+  BLACK
+}
+
+enum UserType {
+  SOLDIER
+  OFFICER
+  CADET
+  RELATIVE
+  DEFAULT
 }

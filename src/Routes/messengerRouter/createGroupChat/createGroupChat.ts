@@ -13,7 +13,7 @@ import {
   FORBIDDEN_ACCESS,
   S3_STORAGE_ERROR,
 } from "../../utils/errors/GlobalErrors";
-import { Chat, User } from "@prisma/client";
+import { Chat, ChatType, User } from "@prisma/client";
 import { S3DataSource } from "../../../model/config/imagesConfig";
 import { transformChatForResponse } from "../transformChatForResponse";
 import { prisma } from "../../../model/config/prismaClient";
@@ -84,7 +84,7 @@ export const createGroupChat = async (req: Request, res: Response) => {
       data: {
         name: createGroupChatRequestBody.name,
         imageName: s3ChatImageName,
-        isGroup: true,
+        chatType: ChatType.GROUP,
         creationTime: Date.now(),
         lastUpdateTimeMillis: Date.now(),
         users: {

@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import { ChatType, User } from "@prisma/client";
 import { Request, Response } from "express";
 import { prisma } from "../../../model/config/prismaClient";
 import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
@@ -6,7 +6,7 @@ import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
-} from "src/Routes/utils/errors/GlobalErrors";
+} from "../../utils/errors/GlobalErrors";
 import { transformMessageForResponse } from "../transformMessageForResponse";
 import { getMessagesResponseBody } from "../../../model/routesEntities/MessageRoutesEntities";
 import { S3DataSource } from "../../../model/config/imagesConfig";
@@ -120,7 +120,7 @@ export const getMessages = async (req: Request, res: Response) => {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
   }
 
-  if (!chat.isGroup) {
+  if (chat.chatType === ChatType.DIRECT) {
     const getMessagesResponseBody: getMessagesResponseBody = messagesInfo;
     return res.status(200).json(getMessagesResponseBody);
   } else {
