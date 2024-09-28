@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/index.ts",
+  "type": "module",
   "scripts": {
     "clean": "rimraf dist",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -15,8 +16,8 @@
     "start:prod": "cross-env NODE_ENV=production node dist/index.js",
     "start-watch:dev": "cross-env NOVE_ENV=development nodemon -r tsconfig-paths/register dist/index.js",
     "start-watch:prod": "cross-env NOVE_ENV=production nodemon -r tsconfig-paths/register dist/index.js",
-    "prisma:migrate-dev": "cross-env NODE_ENV=development && node ./prisma/prisma-migrate.js && node ./prisma/prisma-seed.js",
-    "prisma:migrate-prod": "cross-env NODE_ENV=production && node ./prisma/prisma-migrate.js && node ./prisma/prisma-seed.js"
+    "prisma:migrate-dev": "cross-env NODE_ENV=development node ./prisma/prisma-migrate.js && node ./prisma/prisma-seed.js",
+    "prisma:migrate-prod": "cross-env NODE_ENV=production node ./prisma/prisma-migrate.js && node ./prisma/prisma-seed.js"
   },
   "author": "",
   "license": "ISC",

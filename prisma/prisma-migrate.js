@@ -1,5 +1,7 @@
-require("dotenv").config();
-const execSync = require("child_process").execSync;
+import * as dotenv from "dotenv";
+import { execSync } from "child_process";
+
+dotenv.config();
 
 const nodeEnv = process.env.NODE_ENV || "development";
 
@@ -24,9 +26,12 @@ if (!databaseUrl || !shadowDatabaseUrl) {
 }
 
 try {
-  execSync(`cross-env DATABASE_URL=${databaseUrl} npx prisma ${command}`, {
-    stdio: "inherit",
-  });
+  execSync(
+    `cross-env DATABASE_URL=${databaseUrl} SHADOW_DATABASE_URL=${shadowDatabaseUrl} npx prisma ${command}`,
+    {
+      stdio: "inherit",
+    }
+  );
 } catch (error) {
   console.error(`Error running prisma migration: ${error}`);
   process.exit(1);

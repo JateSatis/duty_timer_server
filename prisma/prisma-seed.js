@@ -1,6 +1,4 @@
-const client = require("@prisma/client");
-const PrismaClient = client.PrismaClient;
-const ChatType = client.ChatType;
+import { PrismaClient, ChatType } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
