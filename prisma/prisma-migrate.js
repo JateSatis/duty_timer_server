@@ -24,9 +24,12 @@ if (!databaseUrl || !shadowDatabaseUrl) {
 }
 
 try {
-  execSync(`cross-env DATABASE_URL=${databaseUrl} npx prisma ${command}`, {
-    stdio: "inherit",
-  });
+  execSync(
+    `cross-env DATABASE_URL=${databaseUrl} SHADOW_DATABASE_URL=${shadowDatabaseUrl} npx prisma ${command}`,
+    {
+      stdio: "inherit",
+    }
+  );
 } catch (error) {
   console.error(`Error running prisma migration: ${error}`);
   process.exit(1);
