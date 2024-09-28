@@ -46,6 +46,8 @@ const timerRouter_1 = require("./Routes/timerRouter/timerRouter");
 const messengerRouter_1 = require("./Routes/messengerRouter/messengerRouter");
 const socketsConfig_1 = require("./sockets/socketsConfig");
 const ws_1 = require("ws");
+const prismaClient_1 = require("./model/config/prismaClient");
+const client_1 = require("@prisma/client");
 dotenv.config();
 const app = (0, express_1.default)();
 const webSocketServerPort = parseInt(process.env.WEB_SOCKET_SERVER_PORT) || 4000;
@@ -60,11 +62,38 @@ app.use("/friendship", friendshipRouter_1.friendshipRouter);
 app.use("/event", eventsRouter_1.eventsRouter);
 app.use("/timer", timerRouter_1.timerRouter);
 app.use("/messenger", messengerRouter_1.messengerRouter);
+const seed = () => __awaiter(void 0, void 0, void 0, function* () {
+    const globalChat = yield prismaClient_1.prisma.chat.findFirst({
+        where: {
+            chatType: client_1.ChatType.GLOBAL,
+        },
+    });
+    if (!globalChat) {
+        yield prismaClient_1.prisma.chat.create({
+            data: {
+                name: "Общий чат",
+                creationTime: Date.now(),
+                lastUpdateTimeMillis: Date.now(),
+                chatType: client_1.ChatType.GLOBAL,
+            },
+        });
+        console.log("Global chat created");
+    }
+    else {
+        console.log("Global chat already exists");
+    }
+});
 const main = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         exports.wss.on("connection", (socket, req) => {
             (0, socketsConfig_1.webSocketOnConnection)(socket, req);
         });
+    }
+    catch (error) {
+        console.error(error.message);
+    }
+    try {
+        yield seed();
     }
     catch (error) {
         console.error(error.message);
