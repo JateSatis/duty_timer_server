@@ -37,7 +37,6 @@ export type ParticipantInfo = {
 };
 
 export type GetAllChatsResponseBody = {
-  globalChat: ChatResponseBody;
   chats: ChatResponseBody[];
 };
 
