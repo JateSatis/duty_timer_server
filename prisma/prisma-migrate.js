@@ -5,16 +5,8 @@ const nodeEnv = process.env.NODE_ENV || "development";
 
 const command = nodeEnv === "production" ? "migrate deploy" : "migrate dev";
 
-let databaseUrl;
-let shadowDatabaseUrl;
-
-if (nodeEnv === "production") {
-  databaseUrl = process.env.DATABASE_URL_PROD;
-  shadowDatabaseUrl = process.env.SHADOW_DATABASE_URL_PROD;
-} else {
-  databaseUrl = process.env.DATABASE_URL_DEV;
-  shadowDatabaseUrl = process.env.SHADOW_DATABASE_URL_DEV;
-}
+let databaseUrl = process.env.DATABASE_URL;
+let shadowDatabaseUrl = process.env.SHADOW_DATABASE_URL;
 
 if (!databaseUrl || !shadowDatabaseUrl) {
   console.error(
@@ -25,7 +17,7 @@ if (!databaseUrl || !shadowDatabaseUrl) {
 
 try {
   execSync(
-    `cross-env DATABASE_URL=${databaseUrl} SHADOW_DATABASE_URL=${shadowDatabaseUrl} npx prisma ${command}`,
+    `cross-env npx prisma ${command}`,
     {
       stdio: "inherit",
     }
