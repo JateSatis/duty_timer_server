@@ -21,8 +21,8 @@ const transformRequestsForResponse = (requestIds) => __awaiter(void 0, void 0, v
         }
         const recievedFriendshipRequestInfo = {
             id: request.id,
-            senderId: request.reciever.id,
-            senderNickname: request.reciever.accountInfo.nickname,
+            senderId: request.senderId,
+            senderNickname: request.sender.accountInfo.nickname,
             senderAvatarLink: avatarLink,
         };
         return recievedFriendshipRequestInfo;

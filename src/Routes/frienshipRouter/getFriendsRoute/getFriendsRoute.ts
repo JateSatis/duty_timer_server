@@ -23,7 +23,9 @@ export const getFriendsRoute = async (req: Request, res: Response) => {
   try {
     const friendships = await prisma.frienship.findMany({
       where: {
-        OR: [{ user1Id: user.id }, { user2Id: user.id }],
+        OR: [{ user1Id: user.id }, { user2Id: user.id },
+					
+				],
       },
     });
 

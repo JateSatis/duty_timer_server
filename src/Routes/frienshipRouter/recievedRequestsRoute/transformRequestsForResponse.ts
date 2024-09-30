@@ -16,8 +16,8 @@ export const transformRequestsForResponse = async (requestIds: string[]) => {
 
       const recievedFriendshipRequestInfo: RecievedFriendshipRequestInfo = {
         id: request.id,
-        senderId: request.reciever.id,
-        senderNickname: request.reciever.accountInfo!.nickname,
+        senderId: request.senderId,
+        senderNickname: request.sender.accountInfo!.nickname,
         senderAvatarLink: avatarLink,
       };
 

@@ -19,7 +19,8 @@ const getFriendsRoute = (req, res) => __awaiter(void 0, void 0, void 0, function
     try {
         const friendships = yield prismaClient_1.prisma.frienship.findMany({
             where: {
-                OR: [{ user1Id: user.id }, { user2Id: user.id }],
+                OR: [{ user1Id: user.id }, { user2Id: user.id },
+                ],
             },
         });
         friendIds = friendships.map((friendship) => friendship.user1Id === user.id ? friendship.user2Id : friendship.user1Id);
