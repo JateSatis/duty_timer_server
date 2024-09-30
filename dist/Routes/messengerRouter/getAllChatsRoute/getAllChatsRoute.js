@@ -35,8 +35,8 @@ const getAllChatsRoute = (req, res) => __awaiter(void 0, void 0, void 0, functio
     try {
         const transformedChats = yield Promise.all(chats.map((chat) => __awaiter(void 0, void 0, void 0, function* () { return yield (0, transformChatForResponse_1.transformChatForResponse)(chat.id, user.id); })));
         getAllChatsResponseBody = {
-            globalChat: transformedChats.find((transformedChat) => transformedChat.chatType === client_1.ChatType.GLOBAL),
-            chats: transformedChats.filter((transformedChat) => transformedChat.chatType !== client_1.ChatType.GLOBAL),
+            globalChat: transformedChats.find((chat) => chat.chatType === client_1.ChatType.GLOBAL),
+            chats: transformedChats.filter((chat) => chat.chatType !== client_1.ChatType.GLOBAL),
         };
     }
     catch (error) {

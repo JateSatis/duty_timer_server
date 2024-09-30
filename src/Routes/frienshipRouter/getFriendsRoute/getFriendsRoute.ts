@@ -55,8 +55,8 @@ export const getFriendsRoute = async (req: Request, res: Response) => {
     getAllFriendsResponseBody = await Promise.all(
       friends.map(async (friend) => {
         return await transformForeignUserInfoForResponse(
-          friend.id,
           user.id,
+          friend.id,
           true,
           false,
           false

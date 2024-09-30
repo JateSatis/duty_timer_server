@@ -44,7 +44,12 @@ export const getAllChatsRoute = async (req: Request, res: Response) => {
       )
     );
     getAllChatsResponseBody = {
-      chats: transformedChats,
+      globalChat: transformedChats.find(
+        (chat) => chat.chatType === ChatType.GLOBAL
+      )!,
+      chats: transformedChats.filter(
+        (chat) => chat.chatType !== ChatType.GLOBAL
+      ),
     };
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));

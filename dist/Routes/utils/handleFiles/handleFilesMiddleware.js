@@ -42,7 +42,6 @@ const getSingleUpload = (upload, req, res, next) => {
             return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.INVALID_FILE_FORMAT()));
         }
         const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
-        console.log(req.file);
         if (!allowedTypes.includes(req.file.mimetype)) {
             return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.INVALID_FILE_FORMAT()));
         }

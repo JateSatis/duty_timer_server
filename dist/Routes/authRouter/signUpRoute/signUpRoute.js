@@ -51,7 +51,6 @@ const signUpRoute = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         return res.sendStatus(200);
     }
     catch (error) {
-        console.log(error);
         return res.status(400).json((0, GlobalErrors_1.err)(new GlobalErrors_1.DATABASE_ERROR(error)));
     }
 });

@@ -41,8 +41,6 @@ const getSingleUpload = (
 
     const allowedTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
 
-    console.log(req.file);
-
     // Check if file type is valid
     if (!allowedTypes.includes(req.file.mimetype)) {
       return res.status(400).json(err(new INVALID_FILE_FORMAT()));

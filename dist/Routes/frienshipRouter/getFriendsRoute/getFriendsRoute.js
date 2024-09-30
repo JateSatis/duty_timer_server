@@ -44,7 +44,7 @@ const getFriendsRoute = (req, res) => __awaiter(void 0, void 0, void 0, function
     let getAllFriendsResponseBody;
     try {
         getAllFriendsResponseBody = yield Promise.all(friends.map((friend) => __awaiter(void 0, void 0, void 0, function* () {
-            return yield (0, transformForeignUserInfoForResponse_1.transformForeignUserInfoForResponse)(friend.id, user.id, true, false, false);
+            return yield (0, transformForeignUserInfoForResponse_1.transformForeignUserInfoForResponse)(user.id, friend.id, true, false, false);
         })));
     }
     catch (error) {

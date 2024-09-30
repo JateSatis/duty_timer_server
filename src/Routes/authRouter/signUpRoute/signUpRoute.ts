@@ -64,7 +64,6 @@ export const signUpRoute = async (req: Request, res: Response) => {
 
     return res.sendStatus(200);
   } catch (error) {
-    console.log(error);
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 };
