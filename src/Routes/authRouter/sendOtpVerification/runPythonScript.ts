@@ -8,6 +8,7 @@ let pathToScript = process.env.PYTHON_SCRIPT_PATH;
 
 if (!pathToScript) {
   console.error("No environment variable found for python script path");
+  process.exit(1);
 }
 
 // Функция для запуска Python-скрипта
@@ -19,8 +20,7 @@ export const runPythonScript = async (
   return new Promise((resolve, reject) => {
     // Запуск Python-скрипта с передачей аргументов
     const pythonProcess = spawn("python", [
-      pathToScript ??
-        "C:/Users/danil/OneDrive/Рабочий стол 2/duty_timer/src/python/sendEmail.py",
+      pathToScript,
       email,
       subject,
       message,

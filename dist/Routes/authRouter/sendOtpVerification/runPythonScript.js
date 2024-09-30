@@ -36,17 +36,15 @@ exports.runPythonScript = void 0;
 const child_process_1 = require("child_process");
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
-let pathToScript;
-if (process.env.NODE_ENV === "production") {
-    pathToScript = process.env.PYTHON_SCRIPT_REMOTE_PATH;
-}
-else {
-    pathToScript = process.env.PYTHON_SCRIPT_LOCAL_PATH;
+let pathToScript = process.env.PYTHON_SCRIPT_PATH;
+if (!pathToScript) {
+    console.error("No environment variable found for python script path");
+    process.exit(1);
 }
 const runPythonScript = (email, subject, message) => __awaiter(void 0, void 0, void 0, function* () {
     return new Promise((resolve, reject) => {
         const pythonProcess = (0, child_process_1.spawn)("python", [
-            pathToScript !== null && pathToScript !== void 0 ? pathToScript : "C:/Users/danil/OneDrive/Рабочий стол 2/duty_timer/src/python/sendEmail.py",
+            pathToScript,
             email,
             subject,
             message,
