@@ -4,11 +4,10 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-let pathToScript;
-if (process.env.NODE_ENV === "production") {
-  pathToScript = process.env.PYTHON_SCRIPT_REMOTE_PATH;
-} else {
-  pathToScript = process.env.PYTHON_SCRIPT_LOCAL_PATH;
+let pathToScript = process.env.PYTHON_SCRIPT_PATH;
+
+if (!pathToScript) {
+  console.error("No environment variable found for python script path");
 }
 
 // Функция для запуска Python-скрипта
