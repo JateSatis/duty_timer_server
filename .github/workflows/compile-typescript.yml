@@ -33,7 +33,9 @@ jobs:
       - name: Push compiled code to 'compiled-code' branch
         if: ${{ github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/heads/release/') }}
         run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "actions@github.com"
           git checkout -B compiled-code
-          git add dist
+          git add -f dist
           git commit -m "Add compiled code"
           git push -f origin compiled-code
