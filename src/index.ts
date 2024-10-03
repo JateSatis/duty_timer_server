@@ -4,12 +4,12 @@ import express from "express";
 //# Model import
 
 //# Routes import
-import { userRouter } from "./Routes/userRouter/userRouter";
-import { authRouter } from "./Routes/authRouter/authRouter";
-import { friendshipRouter } from "./Routes/frienshipRouter/friendshipRouter";
-import { eventsRouter } from "./Routes/eventsRouter/eventsRouter";
-import { timerRouter } from "./Routes/timerRouter/timerRouter";
-import { messengerRouter } from "./Routes/messengerRouter/messengerRouter";
+import { userRouter } from "./routes/userRouter/userRouter";
+import { authRouter } from "./routes/authRouter/authRouter";
+import { friendshipRouter } from "./routes/frienshipRouter/friendshipRouter";
+import { eventsRouter } from "./routes/eventsRouter/eventsRouter";
+import { timerRouter } from "./routes/timerRouter/timerRouter";
+import { messengerRouter } from "./routes/messengerRouter/messengerRouter";
 import { webSocketOnConnection } from "./sockets/socketsConfig";
 import { WebSocketServer } from "ws";
 import { prisma } from "./model/config/prismaClient";

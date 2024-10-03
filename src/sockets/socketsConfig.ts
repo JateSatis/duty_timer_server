@@ -10,11 +10,11 @@ import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-} from "../Routes/utils/errors/GlobalErrors";
+} from "../routes/utils/errors/GlobalErrors";
 import { WebSocketChatsMapValue } from "../model/routesEntities/WebSocketRouterEntities";
 import { User } from "@prisma/client";
 import { prisma } from "../model/config/prismaClient";
-import { DATA_NOT_FOUND } from "../Routes/utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../routes/utils/errors/AuthErrors";
 
 // TODO: Check if maps works correctly after users connect and disconnect.
 

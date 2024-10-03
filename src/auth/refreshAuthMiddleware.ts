@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import * as jsonwebtoken from "jsonwebtoken";
 import * as path from "path";
 import * as fs from "fs";
-import { DATABASE_ERROR, err } from "../Routes/utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err } from "../routes/utils/errors/GlobalErrors";
 import {
   ABSENT_JWT_SUB,
   AUTHORIZATION_HEADER_ABSENT,
@@ -13,7 +13,7 @@ import {
   TOKEN_EXPIRED,
   UNKNOWN_AUTH_ERROR,
   ACCOUNT_NOT_VERIFIED,
-} from "../Routes/utils/errors/AuthErrors";
+} from "../routes/utils/errors/AuthErrors";
 import { prisma } from "../model/config/prismaClient";
 
 export const pathToPublicRefreshKey = path.join(

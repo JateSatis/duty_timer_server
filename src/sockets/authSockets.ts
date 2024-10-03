@@ -9,11 +9,9 @@ import {
   DATA_NOT_FOUND,
   INCORRECT_AUTHORIZATION_HEADER,
   INVALID_INPUT_FORMAT,
-	JWT_ERROR,
-} from "../Routes/utils/errors/AuthErrors";
-import {
-  DATABASE_ERROR,
-} from "../Routes/utils/errors/GlobalErrors";
+  JWT_ERROR,
+} from "../routes/utils/errors/AuthErrors";
+import { DATABASE_ERROR } from "../routes/utils/errors/GlobalErrors";
 
 const pathToPublicAccessKey = path.join(
   __dirname,
@@ -38,8 +36,8 @@ export const authenticateSocket = async (
   if (tokenBearer != "Bearer" || !token.match(/\S+.\S+.\S+/)) {
     throw new INVALID_INPUT_FORMAT();
   } else {
-		//# С помощью публчного ключа проверяем токен на подлинность
-		let verification;
+    //# С помощью публчного ключа проверяем токен на подлинность
+    let verification;
     try {
       verification = jsonwebtoken.verify(token, PUB_ACCESS_KEY, {
         algorithms: ["RS256"],

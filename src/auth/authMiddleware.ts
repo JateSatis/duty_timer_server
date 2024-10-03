@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import * as jsonwebtoken from "jsonwebtoken";
 import * as path from "path";
 import * as fs from "fs";
-import { DATABASE_ERROR, err } from "../Routes/utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err } from "../routes/utils/errors/GlobalErrors";
 import {
   AUTHORIZATION_HEADER_ABSENT,
   INCORRECT_AUTHORIZATION_HEADER,
@@ -14,7 +14,7 @@ import {
   DATA_NOT_FOUND,
   ACCOUNT_NOT_VERIFIED,
   ACCOUNT_HAS_NO_TIMER,
-} from "../Routes/utils/errors/AuthErrors";
+} from "../routes/utils/errors/AuthErrors";
 import { prisma } from "../model/config/prismaClient";
 
 export const pathToPublicAcessKey = path.join(
