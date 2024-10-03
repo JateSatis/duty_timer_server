@@ -54,9 +54,5 @@
     "cross-env": "^7.0.3",
     "prisma": "^5.19.1",
     "tsconfig-paths": "^4.2.0"
-  },
-  "_moduleAliases": {
-    "@src": "dist/src",
-    "@utils": "dist/utils"
   }
 }
