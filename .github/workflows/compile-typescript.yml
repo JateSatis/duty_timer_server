@@ -40,4 +40,4 @@ jobs:
           git checkout -B compiled-code
           git add -f dist
           git commit -m "Add compiled code"
-          git push -f https://x-access-token:${GITHUB_TOKEN}@github.com/JateSatis/duty_timer_server.git compiled-code
+          git push -f origin compiled-code
