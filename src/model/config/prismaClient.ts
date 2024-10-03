@@ -1,15 +1,9 @@
 import { PrismaClient } from "@prisma/client";
 
-const nodeEnv = process.env.NODE_ENV || "development";
-
-let datasourceUrl;
-
-if (nodeEnv === "production") {
-  datasourceUrl = process.env.DATABASE_URL_PROD;
-} else {
-  datasourceUrl = process.env.DATABASE_URL_DEV;
-}
+let datasourceUrl = process.env.DATABASE_URL;
 
 export const prisma = new PrismaClient({
-  datasourceUrl,
+  datasourceUrl:
+    datasourceUrl ||
+    "postgresql://postgres:6Akshn21@localhost:5433/duty_timer_prisma?schema=public",
 });

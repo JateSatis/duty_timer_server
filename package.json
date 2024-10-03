@@ -6,17 +6,13 @@
   "scripts": {
     "clean": "rimraf dist",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:dev": "cross-env NOVE_ENV=development npm run clean && npm run postbuild && tsc",
-    "build:prod": "cross-env NOVE_ENV=production npm run clean && npm run postbuild && tsc",
-    "build-watch:dev": "cross-env NOVE_ENV=development npm run build:dev && tsc --watch",
-    "build-watch:prod": "cross-env NOVE_ENV=production npm run build:prod && tsc --watch",
+    "build": "npm run clean && npm run postbuild && tsc",
+    "build-watch": "npm run build:dev && tsc --watch",
     "postbuild": "xcopy src\\*.pem dist\\ /s && xcopy src\\*.py dist\\ /s",
-    "start:dev": "cross-env NODE_ENV=development node dist/index.js",
-    "start:prod": "cross-env NODE_ENV=production node dist/index.js",
-    "start-watch:dev": "cross-env NOVE_ENV=development nodemon dist/index.js",
-    "start-watch:prod": "cross-env NOVE_ENV=production nodemon dist/index.js",
-    "prisma:migrate-dev": "cross-env NODE_ENV=development node ./prisma/prisma-migrate.js",
-    "prisma:migrate-prod": "cross-env NODE_ENV=production node ./prisma/prisma-migrate.js"
+    "start": "node dist/index.js",
+    "start-watch": "nodemon dist/index.js",
+    "prisma:migrate-dev": "cross-env NODE_ENV=development npx prisma migrate dev",
+    "prisma:migrate-prod": "cross-env NODE_ENV=production npx prisma migrate deploy"
   },
   "author": "",
   "license": "ISC",
