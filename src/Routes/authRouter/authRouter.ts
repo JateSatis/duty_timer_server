@@ -15,6 +15,8 @@ import { refreshTokenRoute } from "./refreshTokenRoute/refreshTokenRoute";
 import { deleteAccountRoute } from "./deleteAccountRoute/deleteAccountRoute";
 import { verifyEmailRoute } from "./verifyEmailRoute/verifyEmailRoute";
 import { sendOtpVerification } from "./sendOtpVerification/sendOtpVerification";
+
+// # --- ERRORS ---
 import { err, RATE_LIMIT_EXCEEDED } from "../utils/errors/GlobalErrors";
 
 dotenv.config();

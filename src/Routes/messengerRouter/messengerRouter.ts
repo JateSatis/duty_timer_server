@@ -1,5 +1,6 @@
 //# --- LIBS ---
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
+import rateLimit, { RateLimitExceededEventHandler } from "express-rate-limit";
 
 //# --- AUTH ---
 import { auth } from "../../auth/authMiddleware";
@@ -20,7 +21,26 @@ import { createGroupChat } from "./createGroupChat/createGroupChat";
 import { getDirectChatInfo } from "./getDirectChatInfo/getDirectChatInfo";
 import { getGroupChatInfo } from "./getGroupChatInfo/getGroupChatInfo";
 
+//# --- ERRORS ---
+import { err, RATE_LIMIT_EXCEEDED } from "../utils/errors/GlobalErrors";
+
+const rateLimitExceededHandler: RateLimitExceededEventHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  return res.status(429).json(err(new RATE_LIMIT_EXCEEDED()));
+};
+
+const messengerLimiter = rateLimit({
+  windowMs: 60 * 1000, // # One minite time
+  limit: 30, // # User can send a request every 2 seconds basically
+  handler: rateLimitExceededHandler,
+});
+
 export const messengerRouter = Router();
+
+messengerRouter.use(messengerLimiter);
 
 //? Idea: make it so that attachments can also be edited when editing the message, so they can be
 //? deleted or added new.

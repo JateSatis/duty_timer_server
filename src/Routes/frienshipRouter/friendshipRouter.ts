@@ -1,5 +1,6 @@
-//# --- ROUTE ---
-import { Router } from "express";
+//# --- LIBS ---
+import rateLimit, { RateLimitExceededEventHandler } from "express-rate-limit";
+import { NextFunction, Request, Response, Router } from "express";
 
 //# --- AUTH ---
 import { auth } from "../../auth/authMiddleware";
@@ -12,7 +13,26 @@ import { sendRequestRoute } from "./sendRequestRoute/sendRequestRoute";
 import { acceptRequestRoute } from "./acceptRequestRoute/acceptRequestRoute";
 import { deleteFriendRoute } from "./deleteFriendRoute/deleteFriendRoute";
 
+// # --- ERRORS ---
+import { err, RATE_LIMIT_EXCEEDED } from "../utils/errors/GlobalErrors";
+
+const rateLimitExceededHandler: RateLimitExceededEventHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  return res.status(429).json(err(new RATE_LIMIT_EXCEEDED()));
+};
+
+const friendshipLimiter = rateLimit({
+  windowMs: 60 * 1000, // # One minite time
+  limit: 10,
+  handler: rateLimitExceededHandler,
+});
+
 export const friendshipRouter = Router();
+
+friendshipRouter.use(friendshipLimiter);
 
 friendshipRouter.get("/friends", auth, getFriendsRoute);
 

@@ -6,8 +6,8 @@
   "scripts": {
     "clean": "rimraf dist",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm run clean && npm run postbuild && tsc",
-    "build-watch": "npm run build:dev && tsc --watch",
+    "build": "npm run clean && tsc",
+    "build-watch": "npm run build && tsc --watch",
     "postbuild": "xcopy src\\*.pem dist\\ /s && xcopy src\\*.py dist\\ /s",
     "start": "node dist/index.js",
     "start-watch": "nodemon dist/index.js",

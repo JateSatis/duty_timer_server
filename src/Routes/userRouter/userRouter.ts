@@ -1,5 +1,6 @@
 //# --- LIBS ---
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
+import rateLimit, { RateLimitExceededEventHandler } from "express-rate-limit";
 
 //# --- AUTH ---
 import { auth } from "../../auth/authMiddleware";
@@ -18,7 +19,26 @@ import { getSettings } from "./getSettings/getSettings";
 import { getFilesMiddleware } from "../utils/handleFiles/handleFilesMiddleware";
 import { uploadBackgroundImage } from "./uploadBackgroundImage/uploadBackgroundImage";
 
+//# --- ERRORS ---
+import { err, RATE_LIMIT_EXCEEDED } from "../utils/errors/GlobalErrors";
+
+const rateLimitExceededHandler: RateLimitExceededEventHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  return res.status(429).json(err(new RATE_LIMIT_EXCEEDED()));
+};
+
+const userLimiter = rateLimit({
+  windowMs: 60 * 1000, // # One minite time
+  limit: 10,
+  handler: rateLimitExceededHandler,
+});
+
 export const userRouter = Router();
+
+userRouter.use(userLimiter);
 
 userRouter.get("/", auth, getUserInfo);
 
