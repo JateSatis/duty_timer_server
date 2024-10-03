@@ -5,3 +5,5 @@ DB_SCHEMA.txt
 
 private_key.pem
 public_key.pem
+
+dist
