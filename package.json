@@ -30,6 +30,7 @@
     "class-transformer": "^0.5.1",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
     "googleapis": "^144.0.0",
     "jsonwebtoken": "^9.0.2",
     "module-alias": "^2.2.3",

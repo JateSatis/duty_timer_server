@@ -1,6 +1,7 @@
 //# --- LIBS ---
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import * as dotenv from "dotenv";
+import { rateLimit, RateLimitExceededEventHandler } from "express-rate-limit";
 
 //# --- AUTH ---
 import { auth } from "../../auth/authMiddleware";
@@ -14,10 +15,27 @@ import { refreshTokenRoute } from "./refreshTokenRoute/refreshTokenRoute";
 import { deleteAccountRoute } from "./deleteAccountRoute/deleteAccountRoute";
 import { verifyEmailRoute } from "./verifyEmailRoute/verifyEmailRoute";
 import { sendOtpVerification } from "./sendOtpVerification/sendOtpVerification";
+import { err, RATE_LIMIT_EXCEEDED } from "../utils/errors/GlobalErrors";
 
 dotenv.config();
 
+const rateLimitExceededHandler: RateLimitExceededEventHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  return res.status(429).json(err(new RATE_LIMIT_EXCEEDED()));
+};
+
+const authLimiter = rateLimit({
+  windowMs: 60 * 1000, // # One minite time
+  limit: 10,
+  handler: rateLimitExceededHandler,
+});
+
 export const authRouter = Router();
+
+authRouter.use(authLimiter);
 
 authRouter.post("/sign-up", signUpRoute);
 

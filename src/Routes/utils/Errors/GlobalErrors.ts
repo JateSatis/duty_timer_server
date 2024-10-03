@@ -25,6 +25,12 @@ export const err = (serverError: ServerError) => {
   };
 };
 
+export class RATE_LIMIT_EXCEEDED extends ServerError {
+  constructor() {
+    super("RATE_LIMIT_EXCEEDED", `Too many requests, pleare try again later`);
+  }
+}
+
 export class UNKNOWN_ERROR extends ServerError {
   constructor(message: string) {
     super("UNKNOWN_ERROR", `Unknown error occured. Error: ${message}`);
