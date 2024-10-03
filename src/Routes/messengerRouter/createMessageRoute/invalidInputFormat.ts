@@ -10,7 +10,7 @@ export const invalidInputFormat = (
 ): boolean => {
   const { data } = createMessageRequestBody;
 
-  if (data.length <= 4096) {
+  if (data.length <= 1000 && data.split("\n").length <= 50) {
     return false;
   }
 
