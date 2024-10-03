@@ -3,37 +3,37 @@ name: Compile TypeScript
 on:
   push:
     branches:
-      - develop          # Compile code when pushing to develop
-      - release/*        # Compile code for any release branch
-      - feature/*        # Optionally compile code for feature branches
+      - dev # Compile code when pushing to dev
+      - release/* # Compile code for any release branch
+      - feature/* # Optionally compile code for feature branches
   pull_request:
     branches:
-      - develop          # Trigger when pull requests target develop
-      - master             # Trigger when pull requests target main for releases
+      - dev # Trigger when pull requests target develop
+      - master # Trigger when pull requests target main for releases
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '21' # Adjust based on your project
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "21" # Adjust based on your project
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Compile TypeScript
-      run: npm run build # Compiles TypeScript to dist
+      - name: Compile TypeScript
+        run: npm run build # Compiles TypeScript to dist
 
-    - name: Push compiled code to 'compiled-code' branch
-      if: ${{ github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/release/') }}
-      run: |
-        git checkout -B compiled-code
-        git add dist
-        git commit -m "Add compiled code"
-        git push -f origin compiled-code
+      - name: Push compiled code to 'compiled-code' branch
+        if: ${{ github.ref == 'refs/heads/dev' || startsWith(github.ref, 'refs/heads/release/') }}
+        run: |
+          git checkout -B compiled-code
+          git add dist
+          git commit -m "Add compiled code"
+          git push -f origin compiled-code
