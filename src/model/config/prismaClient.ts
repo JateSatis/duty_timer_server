@@ -1,4 +1,7 @@
 import { PrismaClient } from "@prisma/client";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 let datasourceUrl = process.env.DATABASE_URL;
 
