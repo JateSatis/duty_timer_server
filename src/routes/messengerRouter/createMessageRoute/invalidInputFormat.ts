@@ -10,6 +10,8 @@ export const invalidInputFormat = (
 ): boolean => {
   const { data } = createMessageRequestBody;
 
+  createMessageRequestBody.data = data.trim().replace(/\s+/g, " ");
+
   if (data.length <= 1000 && data.split("\n").length <= 50) {
     return false;
   }

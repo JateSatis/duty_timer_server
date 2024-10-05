@@ -29,6 +29,7 @@ import { emptyField } from "../../utils/validation/emptyField";
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
+  EMPTY_FIELD,
   err,
   FORBIDDEN_ACCESS,
   S3_STORAGE_ERROR,
@@ -37,11 +38,12 @@ import {
 } from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
-import { compressFile } from "../../utils/handleFiles/compressFile";
 import { transformMessageForResponse } from "../transformMessageForResponse";
-import { User } from "@prisma/client";
 import { prisma } from "../../../model/config/prismaClient";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import {
+  DATA_NOT_FOUND,
+  INVALID_INPUT_FORMAT,
+} from "../../utils/errors/AuthErrors";
 
 export const createMessageRoute = async (req: Request, res: Response) => {
   let user;
@@ -70,13 +72,16 @@ export const createMessageRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, createMessageRequestBodyProperties))
     return res;
 
-  if (emptyField(req, res, createMessageRequestBodyProperties)) return res;
   const createMessageRequestBody: CreateMessageRequestBody = req.body;
 
   if (invalidInputFormat(res, createMessageRequestBody)) return res;
 
   const files = (req.files as Express.Multer.File[]) || [];
   const imageNames: string[] = [];
+
+  if (files.length === 0 && createMessageRequestBody.data === "") {
+    return res.status(400).json(err(new EMPTY_FIELD(["image", "data"])));
+  }
 
   let chats;
   try {
