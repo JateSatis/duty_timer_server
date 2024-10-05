@@ -21,6 +21,7 @@ import { uploadBackgroundImage } from "./uploadBackgroundImage/uploadBackgroundI
 
 //# --- ERRORS ---
 import { err, RATE_LIMIT_EXCEEDED } from "../utils/errors/GlobalErrors";
+import { deleteBackgroundImage } from "./deleteBackgroundImage/deleteBackgroundImage";
 
 const rateLimitExceededHandler: RateLimitExceededEventHandler = (
   req: Request,
@@ -66,3 +67,5 @@ userRouter.post(
   auth,
   uploadBackgroundImage
 );
+
+userRouter.delete("/background-image", auth, deleteBackgroundImage);
