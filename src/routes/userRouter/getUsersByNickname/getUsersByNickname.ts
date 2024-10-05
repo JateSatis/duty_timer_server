@@ -57,8 +57,11 @@ export const getUsersByNickname = async (req: Request, res: Response) => {
     );
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
-	}
-	
-  const getUsersByNameResponseBody: GetUsersByNameResponseBody = usersInfo;
+  }
+
+  //# Excluding sender of the request from the response array
+  const getUsersByNameResponseBody: GetUsersByNameResponseBody =
+    usersInfo.filter((userInfo) => userInfo.id !== user.id);
+
   return res.status(200).json(getUsersByNameResponseBody);
 };
