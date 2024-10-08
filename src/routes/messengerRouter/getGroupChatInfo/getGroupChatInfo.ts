@@ -39,6 +39,9 @@ export const getGroupChatInfo = async (req: Request, res: Response) => {
           include: {
             sender: true,
           },
+          orderBy: {
+            creationTime: "desc",
+          },
         },
       },
     });

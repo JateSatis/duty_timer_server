@@ -84,6 +84,9 @@ export const getDirectChatInfo = async (req: Request, res: Response) => {
       include: {
         sender: true,
       },
+      orderBy: {
+        creationTime: "desc",
+      },
     });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
