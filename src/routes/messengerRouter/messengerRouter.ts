@@ -23,6 +23,7 @@ import { getGroupChatInfo } from "./getGroupChatInfo/getGroupChatInfo";
 
 //# --- ERRORS ---
 import { err, RATE_LIMIT_EXCEEDED } from "../utils/errors/GlobalErrors";
+import { getMessages } from "./getMessages/getMessages";
 
 const rateLimitExceededHandler: RateLimitExceededEventHandler = (
   req: Request,
@@ -86,3 +87,5 @@ messengerRouter.post(
   auth,
   sendBackgroundImage
 );
+
+messengerRouter.get("/messages/:chatId", auth, getMessages);

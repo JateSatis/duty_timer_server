@@ -6,37 +6,25 @@ import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
+  ServerError,
+  UNKNOWN_ERROR,
 } from "../../utils/errors/GlobalErrors";
 import { transformMessageForResponse } from "../transformMessageForResponse";
 import { getMessagesResponseBody } from "../../../model/routesEntities/MessageRoutesEntities";
 import { S3DataSource } from "../../../model/config/imagesConfig";
 import { emptyParam } from "../../utils/validation/emptyParam";
+import {
+  getFirstMessages,
+  getMessagesBeforeLatest,
+} from "./messagesRepository";
 
-export const getMessages = async (req: Request, res: Response) => {
+export const getGroupMessages = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
-  if (emptyParam(req, res, "chatId") || emptyParam(req, res, "latestMessageId"))
-    return res;
+  if (emptyParam(req, res, "chatId")) return res;
 
   const chatId = req.params.chatId;
-  const latestMessageId = req.params.latestMessageId;
-
-  let latestMessage;
-  try {
-    latestMessage = await prisma.message.findFirst({
-      where: {
-        id: latestMessageId,
-      },
-    });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
-  }
-
-  if (!latestMessage) {
-    return res
-      .status(400)
-      .json(err(new DATA_NOT_FOUND("Message", `id = ${latestMessageId}`)));
-  }
+  const latestMessageId = req.query.latestMessageId as string;
 
   let chat;
   try {
@@ -50,20 +38,6 @@ export const getMessages = async (req: Request, res: Response) => {
         },
       },
       include: {
-        messages: {
-          where: {
-            creationTime: {
-              lt: latestMessage.creationTime,
-            },
-          },
-          include: {
-            attachments: true,
-          },
-          orderBy: {
-            creationTime: "desc",
-          },
-          take: 10,
-        },
         users: {
           include: {
             accountInfo: true,
@@ -81,7 +55,20 @@ export const getMessages = async (req: Request, res: Response) => {
       .json(err(new DATA_NOT_FOUND("Chat", `id = ${chatId}`)));
   }
 
-  const messages = chat.messages;
+  let messages;
+  try {
+    if (latestMessageId) {
+      messages = await getMessagesBeforeLatest(chatId, latestMessageId);
+    } else {
+      messages = await getFirstMessages(chatId);
+    }
+  } catch (error) {
+    if (error instanceof ServerError) {
+      return res.status(400).json(err(error));
+    } else {
+      return res.status(400).json(err(new UNKNOWN_ERROR(error)));
+    }
+  }
 
   const usersAvatarsMap = new Map<string, string | null>();
   try {
@@ -120,18 +107,13 @@ export const getMessages = async (req: Request, res: Response) => {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
   }
 
-  if (chat.chatType === ChatType.DIRECT) {
-    const getMessagesResponseBody: getMessagesResponseBody = messagesInfo;
-    return res.status(200).json(getMessagesResponseBody);
-  } else {
-    const getMessagesResponseBody: getMessagesResponseBody = messagesInfo.map(
-      (messageInfo) => {
-        return {
-          ...messageInfo,
-          senderAvatarLink: usersAvatarsMap.get(messageInfo.senderId) ?? null,
-        };
-      }
-    );
-    return res.status(200).json(getMessagesResponseBody);
-  }
+  const getMessagesResponseBody: getMessagesResponseBody = messagesInfo.map(
+    (messageInfo) => {
+      return {
+        ...messageInfo,
+        senderAvatarLink: usersAvatarsMap.get(messageInfo.senderId) ?? null,
+      };
+    }
+  );
+  return res.status(200).json(getMessagesResponseBody);
 };
