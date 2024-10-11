@@ -36,10 +36,7 @@ export type ParticipantInfo = {
   avatarLink: string | null;
 };
 
-export type GetAllChatsResponseBody = {
-	globalChat: ChatResponseBody,
-  chats: ChatResponseBody[];
-};
+export type GetAllChatsResponseBody = ChatResponseBody[];
 
 export type getMessagesResponseBody = MessageResponseBody[];
 

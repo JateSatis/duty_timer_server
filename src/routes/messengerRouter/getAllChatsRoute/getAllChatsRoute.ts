@@ -30,6 +30,9 @@ export const getAllChatsRoute = async (req: Request, res: Response) => {
             id: user.id,
           },
         },
+        chatType: {
+          not: "GLOBAL",
+        },
       },
     });
   } catch (error) {
@@ -43,14 +46,9 @@ export const getAllChatsRoute = async (req: Request, res: Response) => {
         async (chat) => await transformChatForResponse(chat.id, user.id)
       )
     );
-    getAllChatsResponseBody = {
-      globalChat: transformedChats.find(
-        (chat) => chat.chatType === ChatType.GLOBAL
-      )!,
-      chats: transformedChats.filter(
-        (chat) => chat.chatType !== ChatType.GLOBAL
-      ),
-    };
+    getAllChatsResponseBody = transformedChats.filter(
+      (chat) => chat.chatType !== ChatType.GLOBAL
+    );
   } catch (error) {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
   }
