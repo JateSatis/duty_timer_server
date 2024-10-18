@@ -32,15 +32,23 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
   try {
     existingRequest = await prisma.friendshipRequest.findFirst({
       where: {
-        senderId: user.id,
-        recieverId: recieverId,
+        OR: [
+          {
+            senderId: user.id,
+            recieverId: recieverId,
+          },
+          {
+            senderId: recieverId,
+            recieverId: user.id,
+          },
+        ],
       },
     });
   } catch (error) {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  //# If friendship request is already sent to this user, return error
+  //# If friendship request is already sent to this user, or recieved from a user, return error
   if (existingRequest) {
     return res.status(400).json(err(new FORBIDDEN_ACCESS()));
   }
