@@ -58,9 +58,11 @@ export const getGroupMessages = async (req: Request, res: Response) => {
   let messages;
   try {
     if (latestMessageId) {
-      messages = await getMessagesBeforeLatest(chatId, latestMessageId);
+      messages = (
+        await getMessagesBeforeLatest(chatId, latestMessageId)
+      ).toReversed();
     } else {
-      messages = await getFirstMessages(chatId);
+      messages = (await getFirstMessages(chatId)).toReversed();
     }
   } catch (error) {
     if (error instanceof ServerError) {
