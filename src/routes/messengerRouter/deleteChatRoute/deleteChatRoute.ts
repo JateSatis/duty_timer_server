@@ -5,16 +5,17 @@ import { Request, Response } from "express";
 
 //# --- VALIDATE REQUEST ---
 import { emptyParam } from "../../utils/validation/emptyParam";
-import { invalidParamType } from "../../utils/validation/invalidParamType";
 
 //# --- ERRORS ---
 import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
+  S3_STORAGE_ERROR,
 } from "../../utils/errors/GlobalErrors";
 import { ChatType, User } from "@prisma/client";
 import { prisma } from "../../../model/config/prismaClient";
+import { S3DataSource } from "../../../model/config/imagesConfig";
 
 export const deleteChatRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
@@ -35,6 +36,11 @@ export const deleteChatRoute = async (req: Request, res: Response) => {
       },
       include: {
         users: true,
+        messages: {
+          include: {
+            attachments: true,
+          },
+        },
       },
     });
   } catch (error) {
@@ -44,6 +50,11 @@ export const deleteChatRoute = async (req: Request, res: Response) => {
   if (!chat) {
     return res.status(400).json(err(new FORBIDDEN_ACCESS()));
   }
+
+  const attachments = chat.messages
+    .map((message) => message.attachments)
+    .flat();
+  const attachmentNames = attachments.map((attachment) => attachment.name);
 
   //# If it's a direct chat, delete it entirely
   if (chat.chatType === ChatType.DIRECT) {
@@ -87,5 +98,15 @@ export const deleteChatRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  return res.sendStatus(200);
+  res.sendStatus(200);
+
+  for (let name of attachmentNames) {
+    try {
+      await S3DataSource.deleteImageFromS3(name);
+    } catch (error) {
+      return res.status(400).json(new S3_STORAGE_ERROR(error));
+    }
+  }
+
+  return res;
 };

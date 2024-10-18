@@ -19,8 +19,10 @@ import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
+  S3_STORAGE_ERROR,
 } from "../../utils/errors/GlobalErrors";
 import { webSocketChatsMap } from "../../../sockets/socketsConfig";
+import { S3DataSource } from "../../../model/config/imagesConfig";
 
 export const deleteMessageRoute = async (req: Request, res: Response) => {
   if (emptyParam(req, res, "messageId")) return res;
@@ -41,6 +43,7 @@ export const deleteMessageRoute = async (req: Request, res: Response) => {
             messages: true,
           },
         },
+        attachments: true,
       },
     });
   } catch (error) {
@@ -50,6 +53,10 @@ export const deleteMessageRoute = async (req: Request, res: Response) => {
   if (!message) {
     return res.status(400).json(err(new FORBIDDEN_ACCESS()));
   }
+
+  const attachmentNames = message.attachments.map(
+    (attachment) => attachment.name
+  );
 
   try {
     await prisma.message.delete({
@@ -110,5 +117,15 @@ export const deleteMessageRoute = async (req: Request, res: Response) => {
     return res.status(400).json(err(new DATABASE_ERROR(error)));
   }
 
-  return res.sendStatus(200);
+  res.sendStatus(200);
+
+  for (let name of attachmentNames) {
+    try {
+      await S3DataSource.deleteImageFromS3(name);
+    } catch (error) {
+      return res.status(400).json(new S3_STORAGE_ERROR(error));
+    }
+  }
+
+  return res;
 };
