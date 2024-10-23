@@ -32,23 +32,20 @@ export type ChatResponseBody = {
 
 export type ParticipantInfo = {
   id: string;
-  nickname: string;
-  avatarLink: string | null;
+  name: string;
+  chatImageLink: string | null;
 };
 
 export type GetAllChatsResponseBody = ChatResponseBody[];
 
 export type getMessagesResponseBody = MessageResponseBody[];
 
-export type GetDirectChatInfoResponseBody = {
-  companion: ParticipantInfo;
-  messages: MessageResponseBody[];
-};
+export type GetDirectChatInfoResponseBody = ParticipantInfo
 
 export type GetGroupChatInfoResponseBody = {
-  participants: ParticipantInfo[];
-  messages: GroupMessageResponseBody[];
-};
+	name: string,
+	chatImageLink: string | null,
+}
 
 export type CreateMessageRequestBody = {
   data: string;

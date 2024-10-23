@@ -6,12 +6,10 @@ import {
   S3_STORAGE_ERROR,
 } from "../../utils/errors/GlobalErrors";
 import { emptyParam } from "../../utils/validation/emptyParam";
-import { transformMessageForResponse } from "../transformMessageForResponse";
 import { S3DataSource } from "../../../model/config/imagesConfig";
 import { GetDirectChatInfoResponseBody } from "../../../model/routesEntities/MessageRoutesEntities";
 import { prisma } from "../../../model/config/prismaClient";
 import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
-import { String } from "aws-sdk/clients/apigateway";
 import { ChatType } from "@prisma/client";
 
 export const getDirectChatInfo = async (req: Request, res: Response) => {
@@ -60,58 +58,10 @@ export const getDirectChatInfo = async (req: Request, res: Response) => {
     return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
   }
 
-  let userAvatarLink = null;
-  if (user.accountInfo!.avatarImageName) {
-    try {
-      userAvatarLink = await S3DataSource.getUserAvatarLink(
-        user.accountInfo!.avatarImageName
-      );
-    } catch (error) {
-      return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
-    }
-  }
-
-  const usersAvatarsMap = new Map<String, string | null>();
-  usersAvatarsMap.set(companionInfo.id, companionInfo.avatarLink);
-  usersAvatarsMap.set(user.id, userAvatarLink);
-
-  let messages;
-  try {
-    messages = await prisma.message.findMany({
-      where: {
-        chatId,
-      },
-      include: {
-        sender: true,
-      },
-      orderBy: {
-        creationTime: "desc",
-      },
-    });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
-  }
-
-  let messagesInfo;
-  try {
-    messagesInfo = await Promise.all(
-      messages.map(async (message) => {
-        const sender = message.sender;
-        const avatarLink = usersAvatarsMap.get(sender.id) ?? null;
-        return await transformMessageForResponse(
-          message.id,
-          chatId,
-          user.id,
-          avatarLink
-        );
-      })
-    );
-  } catch (error) {
-    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
-  }
   const getDirectChatInfoResponseBody: GetDirectChatInfoResponseBody = {
-    companion: companionInfo,
-    messages: messagesInfo,
+    id: companionInfo.id,
+    name: companionInfo.nickname,
+    chatImageLink: companionInfo.avatarLink,
   };
   return res.status(200).json(getDirectChatInfoResponseBody);
 };
