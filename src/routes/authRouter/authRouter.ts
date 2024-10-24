@@ -33,6 +33,9 @@ const authLimiter = rateLimit({
   windowMs: 60 * 1000, // # One minite time
   limit: 10,
   handler: rateLimitExceededHandler,
+  validate: {
+    xForwardedForHeader: false,
+  },
 });
 
 export const authRouter = Router();
