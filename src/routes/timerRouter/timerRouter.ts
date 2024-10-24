@@ -21,7 +21,7 @@ const rateLimitExceededHandler: RateLimitExceededEventHandler = (
 
 const timerLimiter = rateLimit({
   windowMs: 60 * 1000, // # One minite time
-  limit: 10,
+  limit: 20,
   handler: rateLimitExceededHandler,
   validate: {
     xForwardedForHeader: false,

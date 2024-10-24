@@ -36,7 +36,7 @@ const rateLimitExceededHandler: RateLimitExceededEventHandler = (
 
 const messengerLimiter = rateLimit({
   windowMs: 60 * 1000, // # One minite time
-  limit: 30, // # User can send a request every 2 seconds basically
+  limit: 120, // # User can send a request every 2 seconds basically
   handler: rateLimitExceededHandler,
   validate: {
     xForwardedForHeader: false,
