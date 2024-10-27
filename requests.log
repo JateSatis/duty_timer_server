@@ -1,0 +1,6 @@
+::1 - - [24/Oct/2024:14:19:47 +0000] "POST /auth/sign-in HTTP/1.1" 200 1790 "-" "PostmanRuntime/7.42.0"
+::1 - - [24/Oct/2024:14:20:33 +0000] "GET /friendship/friends HTTP/1.1" 200 587 "-" "PostmanRuntime/7.42.0"
+::1 - - [24/Oct/2024:14:20:35 +0000] "GET /friendship/friends HTTP/1.1" 200 587 "-" "PostmanRuntime/7.42.0"
+::1 - - [24/Oct/2024:14:20:41 +0000] "GET /timer HTTP/1.1" 200 63 "-" "PostmanRuntime/7.42.0"
+::1 - - [24/Oct/2024:14:22:02 +0000] "GET /timer HTTP/1.1" 200 63 "-" "PostmanRuntime/7.42.0"
+::1 - - [24/Oct/2024:14:22:16 +0000] "POST /auth/sign-in HTTP/1.1" 200 1790 "-" "PostmanRuntime/7.42.0"

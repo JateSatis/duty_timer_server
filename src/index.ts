@@ -1,5 +1,8 @@
 import * as dotenv from "dotenv";
 import express from "express";
+import morgan from "morgan";
+import fs from "fs";
+import path from "path";
 
 //# Model import
 
@@ -24,6 +27,12 @@ const webSocketServerPort =
 export const wss: WebSocketServer = new WebSocketServer({
   port: webSocketServerPort,
 });
+
+app.use(
+  morgan("combined", {
+    stream: fs.createWriteStream(path.resolve("requests.log"), { flags: "a" }),
+  })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
