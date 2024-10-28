@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import { VitePluginNode } from "vite-plugin-node";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import compression from "vite-plugin-compression";
+import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
 
 export default defineConfig({
   plugins: [
@@ -24,6 +25,10 @@ export default defineConfig({
     compression({
       algorithm: "brotliCompress", // Use Brotli for better compression
       threshold: 1024, // Compress files larger than 1 KB
+    }),
+    NodeGlobalsPolyfillPlugin({
+      process: true,
+      buffer: true,
     }),
   ],
 

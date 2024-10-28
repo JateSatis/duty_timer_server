@@ -5,13 +5,10 @@
   "main": "src/index.ts",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite build & node dist/index.cjs",
     "build": "vite build",
     "start": "node dist/index.cjs",
-    "clean": "rimraf dist",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-watch": "npm run build && tsc --watch",
-    "start-watch": "nodemon dist/index.js",
     "prisma:migrate-dev": "npx prisma migrate dev",
     "prisma:migrate-prod": "npx prisma migrate deploy"
   },
@@ -20,6 +17,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.614.0",
     "@aws-sdk/s3-request-presigner": "^3.620.0",
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@prisma/client": "^5.19.1",
     "aws-sdk": "^2.1658.0",
     "dotenv": "^16.4.5",
