@@ -42,7 +42,7 @@ export default defineConfig({
 		rollupOptions: {
       input: "./src/index.ts", // Specify your server entry point
       output: {
-        entryFileNames: "[name].js", // Output main entry as [name].js
+        entryFileNames: "[name].cjs", // Output main entry as [name].js
         format: "cjs", // Use CommonJS format for Node.js compatibility
       },
     },
