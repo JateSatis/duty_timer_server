@@ -26,7 +26,6 @@ def send_email(recipient_email: str, subject: str, message: str) -> None:
         server.starttls()  # Включение TLS
         server.login(sender_email, sender_password)  # Авторизация на сервере
         server.send_message(msg)  # Отправка сообщения
-        print("Письмо успешно отправлено!")
     except Exception as e:
         print(f"Ошибка при отправке письма: {e}")
     finally:

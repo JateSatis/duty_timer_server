@@ -1,10 +1,11 @@
 import { spawn } from "child_process";
 
 import * as dotenv from "dotenv";
+import path from "path";
 
 dotenv.config();
 
-let pathToScript = process.env.PYTHON_SCRIPT_PATH;
+let pathToScript = path.join(__dirname, "/python/sendEmail.py");
 
 if (!pathToScript) {
   console.error("No environment variable found for python script path");

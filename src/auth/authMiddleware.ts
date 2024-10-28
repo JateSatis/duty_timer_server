@@ -19,7 +19,7 @@ import { prisma } from "../model/config/prismaClient";
 
 export const pathToPublicAcessKey = path.join(
   __dirname,
-  "/jwt/keys/public_access_key.pem"
+  "/keys/public_access_key.pem"
 );
 export const PUB_ACCESS_KEY = fs.readFileSync(pathToPublicAcessKey);
 

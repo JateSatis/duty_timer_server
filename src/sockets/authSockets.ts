@@ -15,7 +15,7 @@ import { DATABASE_ERROR } from "../routes/utils/errors/GlobalErrors";
 
 const pathToPublicAccessKey = path.join(
   __dirname,
-  "../auth/jwt/keys/public_access_key.pem"
+  "/keys/public_access_key.pem"
 );
 const PUB_ACCESS_KEY = fs.readFileSync(pathToPublicAccessKey);
 

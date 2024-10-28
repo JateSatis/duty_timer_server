@@ -18,7 +18,7 @@ import { prisma } from "../model/config/prismaClient";
 
 export const pathToPublicRefreshKey = path.join(
   __dirname,
-  "/jwt/keys/public_refresh_key.pem"
+  "/keys/public_refresh_key.pem"
 );
 export const PUB_REFRESH_KEY = fs.readFileSync(pathToPublicRefreshKey);
 
