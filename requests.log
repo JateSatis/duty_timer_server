@@ -4,3 +4,6 @@
 ::1 - - [24/Oct/2024:14:20:41 +0000] "GET /timer HTTP/1.1" 200 63 "-" "PostmanRuntime/7.42.0"
 ::1 - - [24/Oct/2024:14:22:02 +0000] "GET /timer HTTP/1.1" 200 63 "-" "PostmanRuntime/7.42.0"
 ::1 - - [24/Oct/2024:14:22:16 +0000] "POST /auth/sign-in HTTP/1.1" 200 1790 "-" "PostmanRuntime/7.42.0"
+::1 - - [28/Oct/2024:15:22:24 +0000] "GET /user HTTP/1.1" 200 133 "-" "PostmanRuntime/7.42.0" 341.082 ms
+::1 - - [28/Oct/2024:15:22:49 +0000] "GET /user HTTP/1.1" 200 133 "-" "PostmanRuntime/7.42.0" 21.084 ms
+::1 - - [28/Oct/2024:15:23:05 +0000] "GET /user/nickname/test1 HTTP/1.1" 200 2 "-" "PostmanRuntime/7.42.0" 52.262 ms

@@ -29,9 +29,14 @@ export const wss: WebSocketServer = new WebSocketServer({
 });
 
 app.use(
-  morgan("combined", {
-    stream: fs.createWriteStream(path.resolve("requests.log"), { flags: "a" }),
-  })
+  morgan(
+    ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent" :response-time ms',
+    {
+      stream: fs.createWriteStream(path.resolve("requests.log"), {
+        flags: "a",
+      }),
+    }
+  )
 );
 
 app.use(express.json());
