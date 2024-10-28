@@ -37,7 +37,8 @@ export default defineConfig({
     outDir: "dist", // Output directory
     minify: "esbuild", // Use esbuild for fast and optimized minification
     sourcemap: false, // Disable sourcemaps in production
-		target: "esnext", // Optimize for modern browsers/Node.js environments
+		target: "node22", // Optimize for modern browsers/Node.js environments
+		ssr: true,
 		manifest: true,
 		rollupOptions: {
       input: "./src/index.ts", // Specify your server entry point
