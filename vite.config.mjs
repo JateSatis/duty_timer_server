@@ -18,6 +18,7 @@ export default defineConfig({
       targets: [
         { src: "src/keys/*.pem", dest: "keys" },
         { src: "src/python/sendEmail.py", dest: "python" },
+        { src: "src/views/*.html", dest: "views" },
       ],
     }),
 
@@ -37,13 +38,13 @@ export default defineConfig({
     outDir: "dist", // Output directory
     minify: "esbuild", // Use esbuild for fast and optimized minification
     sourcemap: false, // Disable sourcemaps in production
-		target: "node22", // Optimize for modern browsers/Node.js environments
-		ssr: true,
-		manifest: true,
-		rollupOptions: {
+    target: "node22", // Optimize for modern browsers/Node.js environments
+    ssr: true,
+    manifest: true,
+    rollupOptions: {
       input: "./src/index.ts", // Specify your server entry point
       output: {
-        entryFileNames: "[name].cjs", // Output main entry as [name].js
+        entryFileNames: "[name].js", // Output main entry as [name].js
         format: "cjs", // Use CommonJS format for Node.js compatibility
       },
     },

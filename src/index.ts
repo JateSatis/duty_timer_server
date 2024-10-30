@@ -13,6 +13,7 @@ import { friendshipRouter } from "./routes/frienshipRouter/friendshipRouter";
 import { eventsRouter } from "./routes/eventsRouter/eventsRouter";
 import { timerRouter } from "./routes/timerRouter/timerRouter";
 import { messengerRouter } from "./routes/messengerRouter/messengerRouter";
+import { documentsRouter } from "./routes/documentsRouter/privacyPolicyRouter";
 import { webSocketOnConnection } from "./sockets/socketsConfig";
 import { WebSocketServer } from "ws";
 import { prisma } from "./model/config/prismaClient";
@@ -49,6 +50,7 @@ app.use("/friendship", friendshipRouter);
 app.use("/event", eventsRouter);
 app.use("/timer", timerRouter);
 app.use("/messenger", messengerRouter);
+app.use("/privacy-policy", documentsRouter);
 
 const seed = async () => {
   const globalChat = await prisma.chat.findFirst({
