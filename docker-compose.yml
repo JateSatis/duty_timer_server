@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:latest
+    container_name: my_postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgree
+      POSTGRES_DB: duty_timer
+    ports:
+      - "5432:5432"
+    networks:
+      - my_network
+
+  server:
+    build: .
+    container_name: my_server
+    environment:
+      DATABASE_URL: postgresql://postgres:postgree@db:5432/duty_timer?schema=public
+    depends_on:
+      - db
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: bridge

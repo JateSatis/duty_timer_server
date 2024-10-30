@@ -19,7 +19,7 @@ WORKDIR /usr/src/app
 COPY --from=build /usr/src/app/dist ./dist
 COPY --from=build /usr/src/app/package*.json ./
 COPY --from=build /usr/src/app/prisma ./prisma
-
+COPY --from=build /usr/src/app/.env ./
 RUN npm ci --omit=dev
 ENV NODE_ENV=production
 
