@@ -31,21 +31,18 @@ export const wss: WebSocketServer = new WebSocketServer({
 });
 
 // Путь к директории логов
-const logDir = path.join(__dirname, "logs");
+const logDir = path.resolve("requests.log");
 
 // Создание папки logs, если она не существует
 if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
+  fs.mkdirSync(path.join(__dirname + "../requests.log"));
 }
 
 app.use(
   morgan(
     ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent" :response-time ms',
     {
-      // stream: fs.createWriteStream(path.resolve("requests.log"), {
-      // stream: fs.createWriteStream(
-      //   path.join(__dirname, "logs", "requests.log"),
-      stream: fs.createWriteStream(path.join(logDir, "requests.log"), {
+      stream: fs.createWriteStream(path.resolve("requests.log"), {
         flags: "a",
       }),
     }
