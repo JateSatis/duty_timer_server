@@ -18,6 +18,7 @@ import { webSocketOnConnection } from "./sockets/socketsConfig";
 import { WebSocketServer } from "ws";
 import { prisma } from "./model/config/prismaClient";
 import { ChatType } from "@prisma/client";
+import { logsController } from "./routes/controllers/logsController";
 
 dotenv.config();
 
@@ -29,11 +30,22 @@ export const wss: WebSocketServer = new WebSocketServer({
   port: webSocketServerPort,
 });
 
+// Путь к директории логов
+const logDir = path.join(__dirname, "logs");
+
+// Создание папки logs, если она не существует
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir);
+}
+
 app.use(
   morgan(
     ':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent" :response-time ms',
     {
-      stream: fs.createWriteStream(path.resolve("requests.log"), {
+      // stream: fs.createWriteStream(path.resolve("requests.log"), {
+      // stream: fs.createWriteStream(
+      //   path.join(__dirname, "logs", "requests.log"),
+      stream: fs.createWriteStream(path.join(logDir, "requests.log"), {
         flags: "a",
       }),
     }
@@ -51,6 +63,7 @@ app.use("/event", eventsRouter);
 app.use("/timer", timerRouter);
 app.use("/messenger", messengerRouter);
 app.use("/privacy-policy", documentsRouter);
+app.use("/logs", logsController);
 
 const seed = async () => {
   const globalChat = await prisma.chat.findFirst({
