@@ -4,7 +4,8 @@ import morgan from "morgan";
 import fs from "fs";
 import path from "path";
 
-//# Model import
+//# Testing
+import swaggerUi from "swagger-ui-express";
 
 //# Routes import
 import { userRouter } from "./routes/userRouter/userRouter";
@@ -51,6 +52,11 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+//# Serve Swagger documentation
+const swaggerFilePath = path.resolve(__dirname, "swagger.json");
+const swaggerDocument = JSON.parse(fs.readFileSync(swaggerFilePath, "utf-8"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //# Routes
 app.use("/user", userRouter);

@@ -19,6 +19,7 @@ export default defineConfig({
         { src: "src/keys/*.pem", dest: "keys" },
         { src: "src/python/sendEmail.py", dest: "python" },
         { src: "src/views/*.html", dest: "views" },
+        { src: "swagger.json", dest: "." },
       ],
     }),
 

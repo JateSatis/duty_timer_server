@@ -1,0 +1,86 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "ДБМ Таймер API",
+    "version": "1.0.0",
+    "description": "API Документация"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local server"
+    }
+  ],
+  "paths": {
+    "/user/": {
+      "get": {
+        "summary": "Получить данные своего аккаунта",
+        "description": "Используется для того, чтобы посмотреть данные своего собственного аккаунта",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Данные пользователя успешно найдены",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "UUID пользователя.",
+                      "example": "16763be4-6022-406e-a950-fcd5018633ca"
+                    },
+                    "nickname": {
+                      "type": "string",
+                      "description": "Никнейм пользователя.",
+                      "example": "soldat2004"
+                    },
+                    "login": {
+                      "type": "string",
+                      "description": "Почта, по которой зарегистрирован пользователь",
+                      "example": "example@gmail.com"
+                    },
+                    "avatarLink": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Ссылка на аватар пользователя, если она у него есть",
+                      "example": "url"
+                    },
+                    "userType": {
+                      "type": "string",
+                      "description": "Тип пользователя, который он выбрал при регистрации",
+                      "example": "SOLDIER"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Bearer": {
+        "type": "apiKey",
+        "name": "JWT токен",
+        "in": "заголовок \"Authorization\"",
+        "description": "Enter the token with the `Bearer: ` prefix, e.g. \"Bearer abcde12345\"."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "User",
+      "description": "Ручки для просмотра и управления данными аккаунта"
+    }
+  ]
+}
