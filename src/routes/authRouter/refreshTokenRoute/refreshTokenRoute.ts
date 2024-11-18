@@ -15,7 +15,6 @@ import { User } from "@prisma/client";
 import { RefreshTokenResponseBody } from "../../../model/routesEntities/AuthRouterEntities";
 
 //# --- ERRORS ---
-import { err } from "../../utils/errors/GlobalErrors";
 import {
   OUTDATED_REFRESH_TOKEN,
   REFRESH_TOKEN_REVOKED,
@@ -24,6 +23,31 @@ import {
   DATABASE_ERROR,
   DATA_NOT_FOUND,
 } from "../../utils/errors/GlobalErrors";
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     refreshTokenResponse:
+ *       type: object
+ *       properties:
+ *         accessToken:
+ *           type: string
+ *           description: Строковое значение JWT access токена
+ *           example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+ *         refreshToken:
+ *           type: string
+ *           description: Строковое значение JWT refresh токена
+ *           example: kpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ...
+ *         accessTokenExpiresAt:
+ *           type: integer
+ *           description: Числовое значение времени, когда access токен будет просрочен в миллисекундах
+ *           example: 1731928477008
+ *         refreshTokenExpiresAt:
+ *           type: integer
+ *           description: Числовое значение времени, когда refresh токен будет просрочен в миллисекундах
+ *           example: 1734528479133
+ */
 
 export const refreshTokenRoute = async (req: Request, res: Response) => {
   const refreshToken = req.body.refreshToken;
@@ -36,22 +60,26 @@ export const refreshTokenRoute = async (req: Request, res: Response) => {
         userId: user.id,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
-  if (!refreshTokenDB) {
+	if (!refreshTokenDB) {
+		const error = new DATA_NOT_FOUND("RefreshToken", `userId = ${user.id}`);
     return res
-      .status(404)
-      .json(err(new DATA_NOT_FOUND("RefreshToken", `userId = ${user.id}`)));
+      .status(error.code)
+      .json(error.toString());
   }
 
-  if (refreshTokenDB.isRevoked) {
-    return res.status(401).json(err(new REFRESH_TOKEN_REVOKED()));
+	if (refreshTokenDB.isRevoked) {
+		const error = new REFRESH_TOKEN_REVOKED();
+    return res.status(error.code).json(error.toString());
   }
 
-  if (refreshToken != refreshTokenDB.token) {
-    return res.status(401).json(err(new OUTDATED_REFRESH_TOKEN()));
+	if (refreshToken != refreshTokenDB.token) {
+		const error = new OUTDATED_REFRESH_TOKEN();
+    return res.status(error.code).json(error.toString());
   }
 
   const newAccessToken = issueAccessToken(user.id.toString());
@@ -67,8 +95,9 @@ export const refreshTokenRoute = async (req: Request, res: Response) => {
         isRevoked: false,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   const refreshTokenResponseBody: RefreshTokenResponseBody = {

@@ -22,6 +22,7 @@ const options = {
     "./src/routes/userRouter/userRouter.ts",
     "./src/routes/userRouter/*/*.ts",
     "./src/routes/authRouter/authRouter.ts",
+    "./src/routes/authRouter/*/*.ts",
   ],
 };
 

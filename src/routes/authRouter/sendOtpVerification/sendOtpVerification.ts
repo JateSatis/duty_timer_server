@@ -20,7 +20,11 @@ import { missingRequestField } from "../../utils/validation/missingRequestField"
 import { invalidInputFormat } from "./invalidInput";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, DATA_NOT_FOUND, err } from "../../utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  DATA_NOT_FOUND,
+  err,
+} from "../../utils/errors/GlobalErrors";
 import {
   ACCOUNT_ALREADY_VERIFIED,
   OTP_SENDING_UNAVAILABLE,
@@ -44,6 +48,18 @@ dotenv.config();
 //   refresh_token: process.env.OAUTH2_EMAIL_REFRESH_TOKEN,
 // });
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     sendOtpVerificationRequest:
+ *       type: object
+ *       properties:
+ *         email:
+ *           type: string
+ *           description: Email, на который нужно отправить код подтверждения
+ *           example: default_user@gmail.com
+ */
 export const sendOtpVerification = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, sendOtpVerificationRequestBodyProperties))
     return res;
@@ -71,34 +87,32 @@ export const sendOtpVerification = async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   //# If provided account doesn't exitst, OTP shouldn't be sent to it
   if (!user) {
-    return res
-      .status(404)
-      .json(
-        err(
-          new DATA_NOT_FOUND(
-            "User",
-            `email = ${sendOtpVerificationRequestBody.email}`
-          )
-        )
-      );
+    const error = new DATA_NOT_FOUND(
+      "User",
+      `email = ${sendOtpVerificationRequestBody.email}`
+    );
+    return res.status(error.code).json(error.toString());
   }
 
   //# If provided account is verified, OTP shouldn't be sent to it
   if (user.accountInfo!.isVerified) {
-    return res.status(404).json(err(new ACCOUNT_ALREADY_VERIFIED()));
+    const error = new ACCOUNT_ALREADY_VERIFIED();
+    return res.status(error.code).json(error.toString());
   }
 
   //# If last OTP was sent less than a minute ago, don't send a new OTP
   const existingOtp = user.accountInfo!.otpVerification;
   const currentTime = Date.now();
   if (existingOtp && BigInt(currentTime) - existingOtp.createdAt < 60 * 1000) {
-    return res.status(400).json(err(new OTP_SENDING_UNAVAILABLE()));
+    const error = new OTP_SENDING_UNAVAILABLE();
+    return res.status(error.code).json(error.toString());
   }
 
   //# If no access token was retrieved, return an error
@@ -150,8 +164,9 @@ export const sendOtpVerification = async (req: Request, res: Response) => {
       "Код подтверждения DMB Timer",
       `Code: ${otp}`
     );
-  } catch (error) {
-    return res.status(400).json(new OTP_SENDING_UNAVAILABLE());
+  } catch (err) {
+    const error = new OTP_SENDING_UNAVAILABLE();
+    return res.status(error.code).json(error.toString());
   }
 
   // const transporter = nodemailer.createTransport({

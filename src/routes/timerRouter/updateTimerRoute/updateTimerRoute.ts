@@ -7,7 +7,7 @@ import { User } from "@prisma/client";
 
 //# --- REQUEST ENTITIES ---
 import {
-	UpdateTimerRequestBody,
+  UpdateTimerRequestBody,
   updateTimerRequestBodyProperties,
 } from "../../../model/routesEntities/TimerRouterEntities";
 
@@ -39,8 +39,9 @@ export const updateTimerRoute = async (req: Request, res: Response) => {
         endTimeMillis: BigInt(updateTimerRequestBody.endTimeMillis),
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   if (!timer) {

@@ -44,8 +44,9 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
         ],
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   //# If friendship request is already sent to this user, or recieved from a user, return error
@@ -68,8 +69,9 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
         ],
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   //# Check if there is already a friendship between user and friend
@@ -84,8 +86,9 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
         id: recieverId,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   if (!reciever) {
@@ -101,8 +104,9 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
         recieverId: recieverId,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   return res.sendStatus(200);

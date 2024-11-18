@@ -50,8 +50,9 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
         recieverId: user.id,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   if (!userAccountInfo) {
@@ -92,8 +93,9 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
         user2Id: senderId,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   //# Check if chat between these two users already exist and if so do nothing
@@ -109,8 +111,9 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   if (existingChat) {
@@ -134,8 +137,9 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
         lastUpdateTimeMillis: Date.now(),
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   let acceptFriendshipResponseBody: AcceptFriendshipResponseBody;

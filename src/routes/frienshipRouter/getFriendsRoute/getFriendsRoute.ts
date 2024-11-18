@@ -23,9 +23,7 @@ export const getFriendsRoute = async (req: Request, res: Response) => {
   try {
     const friendships = await prisma.frienship.findMany({
       where: {
-        OR: [{ user1Id: user.id }, { user2Id: user.id },
-					
-				],
+        OR: [{ user1Id: user.id }, { user2Id: user.id }],
       },
     });
 
@@ -33,8 +31,9 @@ export const getFriendsRoute = async (req: Request, res: Response) => {
     friendIds = friendships.map((friendship) =>
       friendship.user1Id === user.id ? friendship.user2Id : friendship.user1Id
     );
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   if (friendIds.length == 0) {
@@ -48,8 +47,9 @@ export const getFriendsRoute = async (req: Request, res: Response) => {
         id: { in: friendIds },
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   let getAllFriendsResponseBody: GetAllFriendsResponseBody;

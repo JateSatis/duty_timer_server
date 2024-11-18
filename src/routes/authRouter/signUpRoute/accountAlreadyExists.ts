@@ -13,7 +13,8 @@ export const accountAlreadyExists = async (res: Response, email: string) => {
   });
 
   if (user) {
-    res.status(409).json(err(new ACCOUNT_ALREADY_EXISTS()));
+    const error = new ACCOUNT_ALREADY_EXISTS();
+    res.status(error.code).json(error.toString());
     return true;
   }
   return false;

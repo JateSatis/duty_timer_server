@@ -6,7 +6,6 @@ import { prisma } from "../../../model/config/prismaClient";
 import { User } from "@prisma/client";
 
 //# --- ERRORS ---
-import { err } from "../../utils/errors/GlobalErrors";
 import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
 import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 
@@ -20,14 +19,14 @@ export const logOutRoute = async (req: Request, res: Response) => {
         userId: user.id,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   if (!refreshToken) {
-    return res
-      .status(404)
-      .json(err(new DATA_NOT_FOUND("RefreshToken", `userId = ${user.id}`)));
+    const error = new DATA_NOT_FOUND("RefreshToken", `userId = ${user.id}`);
+    return res.status(error.code).json(error.toString());
   }
 
   try {
@@ -50,8 +49,9 @@ export const logOutRoute = async (req: Request, res: Response) => {
         isOnline: false,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   return res.sendStatus(200);

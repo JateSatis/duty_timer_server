@@ -23,7 +23,8 @@ export const invalidInputFormat = (
     return false;
   }
 
-  res.status(400).json(err(new INVALID_INPUT_FORMAT()));
+  const error = new INVALID_INPUT_FORMAT();
+  res.status(error.code).json(error.toString());
 
   return true;
 };

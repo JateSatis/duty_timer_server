@@ -46,8 +46,9 @@ export const deleteMessageRoute = async (req: Request, res: Response) => {
         attachments: true,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   if (!message) {
@@ -62,8 +63,9 @@ export const deleteMessageRoute = async (req: Request, res: Response) => {
     await prisma.message.delete({
       where: { id: messageId },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   const webSocketChatsMapValue = webSocketChatsMap.get(message.chat.id);
@@ -113,8 +115,9 @@ export const deleteMessageRoute = async (req: Request, res: Response) => {
         },
       });
     }
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   res.sendStatus(200);

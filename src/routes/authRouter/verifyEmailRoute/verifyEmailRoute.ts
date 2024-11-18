@@ -37,6 +37,31 @@ import {
   OTP_NOT_FOUND,
 } from "../../utils/errors/AuthErrors";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     verifyEmailRequest:
+ *       type: object
+ *       properties:
+ *         login:
+ *           type: string
+ *           descritption: Email, который пользователь ввел при регистрации
+ *           example: default_user@gmail.com
+ *         otp:
+ *           type: string
+ *           description: Единаразовый код, который пользователь ввел при подтверждении
+ *           example: 123456
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     verifyEmailResponse:
+ *       $ref: '#/components/schemas/refreshTokenResponse'
+ */
+
 export const verifyEmailRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, verifyEmailRequestBodyProperties))
     return res;
@@ -62,41 +87,44 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   //# if there is no account with this email, return an error
   if (!user) {
-    return res
-      .status(404)
-      .json(
-        err(
-          new DATA_NOT_FOUND("User", `email = ${verifyEmailRequestBody.email}`)
-        )
-      );
+    const error = new DATA_NOT_FOUND(
+      "User",
+      `email = ${verifyEmailRequestBody.email}`
+    );
+    return res.status(error.code).json(error.toString());
   }
 
   //# If provided account is verified, it shouldn't be verified again
   if (user.accountInfo!.isVerified) {
-    return res.status(404).json(err(new ACCOUNT_ALREADY_VERIFIED()));
+    const error = new ACCOUNT_ALREADY_VERIFIED();
+    return res.status(error.code).json(error.toString());
   }
 
   const otpVerification = user.accountInfo!.otpVerification;
 
   //# Case where no code was sent to this account
   if (!otpVerification) {
-    return res.status(400).json(err(new OTP_NOT_FOUND()));
+    const error = new OTP_NOT_FOUND();
+    return res.status(error.code).json(error.toString());
   }
 
   //# Case where code is expired
   if (otpVerification.otpExpiresAt < Date.now()) {
-    return res.status(400).json(err(new OTP_EXPIRED()));
+    const error = new OTP_EXPIRED();
+    return res.status(error.code).json(error.toString());
   }
 
   //# Case where OTP is wrong
   if (!validateOtp(verifyEmailRequestBody.otp, otpVerification)) {
-    return res.status(400).json(new NOT_VALID_OTP());
+    const error = new NOT_VALID_OTP();
+    return res.status(error.code).json(error.toString());
   }
 
   const accessToken = issueAccessToken(user.id);
@@ -141,8 +169,9 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
         accountId: user.accountInfo!.id,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   //# Create essential entities for user
@@ -159,8 +188,9 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
         expirationDate: Date.now(),
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   //# Connect user to global chat
@@ -183,8 +213,9 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
         },
       });
     }
-  } catch (error) {
-    return res.status(400).json(new DATABASE_ERROR(error));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   const verifyEmailResponseBody: VerifyEmailResponseBody = {

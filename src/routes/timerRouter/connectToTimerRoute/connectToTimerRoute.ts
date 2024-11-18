@@ -33,8 +33,9 @@ export const connectToTimerRoute = async (req: Request, res: Response) => {
         userId: userId,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   if (!timer) {
@@ -53,8 +54,9 @@ export const connectToTimerRoute = async (req: Request, res: Response) => {
         ],
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   if (!frienship) {
@@ -71,8 +73,9 @@ export const connectToTimerRoute = async (req: Request, res: Response) => {
         endTimeMillis: timer.endTimeMillis,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   const connectToTimerResponseBody: ConnectToTimerResponseBody = {

@@ -41,9 +41,7 @@ import {
 //# --- UTILS ---
 import { transformMessageForResponse } from "../transformMessageForResponse";
 import { prisma } from "../../../model/config/prismaClient";
-import {
-  INVALID_INPUT_FORMAT,
-} from "../../utils/errors/AuthErrors";
+import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
 
 export const createMessageRoute = async (req: Request, res: Response) => {
   let user;
@@ -56,8 +54,9 @@ export const createMessageRoute = async (req: Request, res: Response) => {
         accountInfo: true,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   if (!user) {
@@ -94,8 +93,9 @@ export const createMessageRoute = async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   const chat = chats.find((chat) => chat.id === chatId);
@@ -115,8 +115,9 @@ export const createMessageRoute = async (req: Request, res: Response) => {
         senderId: user.id,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   try {
@@ -148,8 +149,9 @@ export const createMessageRoute = async (req: Request, res: Response) => {
         });
       })
     );
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   let avatarLink = null;
@@ -203,8 +205,9 @@ export const createMessageRoute = async (req: Request, res: Response) => {
         lastUpdateTimeMillis: message.creationTime,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   const createMessageResponseBody: CreateMessageResponseBody =

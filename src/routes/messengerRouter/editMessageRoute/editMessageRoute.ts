@@ -57,8 +57,9 @@ export const editMessageRoute = async (req: Request, res: Response) => {
         chat: true,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   if (!message) {
@@ -74,8 +75,9 @@ export const editMessageRoute = async (req: Request, res: Response) => {
         text: editMessageRequestBody.text,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   const webSocketChatsMapValue = webSocketChatsMap.get(message.chat.id);

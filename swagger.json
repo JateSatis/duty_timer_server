@@ -722,6 +722,522 @@
           }
         }
       }
+    },
+    "/auth/sign-up": {
+      "post": {
+        "summary": "Регистрации нового пользователя",
+        "description": "Используется при регстрации нового пользователя в приложении",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/signUpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Новый пользователь успешно создан в базе данных, но не подтвержден"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/MISSING_REQUEST_FIELD"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EMPTY_FIELD"
+                    },
+                    {
+                      "$ref": "#/components/schemas/INVALID_INPUT_FORMAT"
+                    }
+                  ]
+                },
+                "examples": {
+                  "MISSING_REQUEST_FIELD": {
+                    "$ref": "#/components/examples/MISSING_REQUEST_FIELD_EXAMPLE"
+                  },
+                  "EMPTY_FIELD": {
+                    "$ref": "#/components/examples/EMPTY_FIELD_EXAMPLE"
+                  },
+                  "INVALID_INPUT_FORMAT": {
+                    "$ref": "#/components/examples/INVALID_INPUT_FORMAT_EXAMPLE"
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/NICKNAME_IS_TAKEN"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ACCOUNT_ALREADY_EXISTS"
+                    }
+                  ]
+                },
+                "examples": {
+                  "NICKNAME_IS_TAKEN": {
+                    "$ref": "#/components/examples/NICKNAME_IS_TAKEN_EXAMPLE"
+                  },
+                  "ACCOUNT_ALREADY_EXISTS": {
+                    "$ref": "#/components/examples/ACCOUNT_ALREADY_EXISTS_EXAMPLE"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATABASE_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/sign-in": {
+      "post": {
+        "summary": "Вход пользователя в аккаунт",
+        "description": "Используется при входе существующего пользователя в свой аккаунт",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/signInRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Пользователь успешно зашел в свой аккаунт",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/signInResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/MISSING_REQUEST_FIELD"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EMPTY_FIELD"
+                    },
+                    {
+                      "$ref": "#/components/schemas/INVALID_INPUT_FORMAT"
+                    }
+                  ]
+                },
+                "examples": {
+                  "MISSING_REQUEST_FIELD": {
+                    "$ref": "#/components/examples/MISSING_REQUEST_FIELD_EXAMPLE"
+                  },
+                  "EMPTY_FIELD": {
+                    "$ref": "#/components/examples/EMPTY_FIELD_EXAMPLE"
+                  },
+                  "INVALID_INPUT_FORMAT": {
+                    "$ref": "#/components/examples/INVALID_INPUT_FORMAT_EXAMPLE"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/INCORRECT_PASSWORD"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ACCOUNT_NOT_VERIFIED"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATA_NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATABASE_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/send-otp-verification": {
+      "post": {
+        "summary": "Отправить код на почту",
+        "description": "Используется для отправки одноразового кода подтверждения на почту нового пользователя",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sendOtpVerificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Код успешно отправлен на почту"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/MISSING_REQUEST_FIELD"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EMPTY_FIELD"
+                    },
+                    {
+                      "$ref": "#/components/schemas/INVALID_INPUT_FORMAT"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ACCOUNT_ALREADY_VERIFIED"
+                    }
+                  ]
+                },
+                "examples": {
+                  "MISSING_REQUEST_FIELD": {
+                    "$ref": "#/components/examples/MISSING_REQUEST_FIELD_EXAMPLE"
+                  },
+                  "EMPTY_FIELD": {
+                    "$ref": "#/components/examples/EMPTY_FIELD_EXAMPLE"
+                  },
+                  "INVALID_INPUT_FORMAT": {
+                    "$ref": "#/components/examples/INVALID_INPUT_FORMAT_EXAMPLE"
+                  },
+                  "ACCOUNT_ALREADY_VERIFIED": {
+                    "$ref": "#/components/examples/ACCOUNT_ALREADY_VERIFIED_EXAMPLE"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATA_NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATABASE_ERROR"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OTP_SENDING_UNAVAILABLE"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/verify-email": {
+      "post": {
+        "summary": "Подтвердить почту",
+        "description": "Используется для подтверждения почты посредством отправленного кода",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/verifyEmailRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Код успешно отправлен на почту",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/verifyEmailResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/MISSING_REQUEST_FIELD"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EMPTY_FIELD"
+                    },
+                    {
+                      "$ref": "#/components/schemas/INVALID_INPUT_FORMAT"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ACCOUNT_ALREADY_VERIFIED"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OTP_EXPIRED"
+                    },
+                    {
+                      "$ref": "#/components/schemas/NOT_VALID_OTP"
+                    }
+                  ]
+                },
+                "examples": {
+                  "MISSING_REQUEST_FIELD": {
+                    "$ref": "#/components/examples/MISSING_REQUEST_FIELD_EXAMPLE"
+                  },
+                  "EMPTY_FIELD": {
+                    "$ref": "#/components/examples/EMPTY_FIELD_EXAMPLE"
+                  },
+                  "INVALID_INPUT_FORMAT": {
+                    "$ref": "#/components/examples/INVALID_INPUT_FORMAT_EXAMPLE"
+                  },
+                  "ACCOUNT_ALREADY_VERIFIED": {
+                    "$ref": "#/components/examples/ACCOUNT_ALREADY_VERIFIED_EXAMPLE"
+                  },
+                  "OTP_EXPIRED": {
+                    "$ref": "#/components/examples/OTP_EXPIRED_EXAMPLE"
+                  },
+                  "NOT_VALID_OTP": {
+                    "$ref": "#/components/examples/NOT_VALID_OTP_EXAMPLE"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/DATA_NOT_FOUND"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OTP_NOT_FOUND"
+                    }
+                  ]
+                },
+                "examples": {
+                  "DATA_NOT_FOUND": {
+                    "$ref": "#/components/examples/DATA_NOT_FOUND_EXAMPLE"
+                  },
+                  "OTP_NOT_FOUND": {
+                    "$ref": "#/components/examples/OTP_NOT_FOUND_EXAMPLE"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATABASE_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/log-out": {
+      "post": {
+        "summary": "Выйти из аккаунта",
+        "description": "Используется пользователем для того, чтобы выйти из аккаунта",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Пользователь успешно вышел из аккаунта"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATA_NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATABASE_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/": {
+      "delete": {
+        "summary": "Удалить аккаунт",
+        "description": "Используется пользователем для того, чтобы навсегда удалить данные своего аккаунта",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Аккаунт пользователя успешно удален"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATABASE_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh-token": {
+      "get": {
+        "summary": "Обновить токен",
+        "description": "Используется пользователем для того, чтобы обновить как access, так и refresh токены",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "Refresh": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Аккаунт пользователя успешно удален",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/refreshTokenResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/REFRESH_TOKEN_REVOKED"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OUTDATED_REFRESH_TOKEN"
+                    }
+                  ]
+                },
+                "examples": {
+                  "REFRESH_TOKEN_REVOKED": {
+                    "$ref": "#/components/examples/REFRESH_TOKEN_REVOKED_EXAMPLE"
+                  },
+                  "OUTDATED_REFRESH_TOKEN": {
+                    "$ref": "#/components/examples/OUTDATED_REFRESH_TOKEN_EXAMPLE"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATA_NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATABASE_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1397,6 +1913,97 @@
       },
       "uploadBackgroundImageRequest": {
         "$ref": "#/components/schemas/postAvatarRequest"
+      },
+      "refreshTokenResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "Строковое значение JWT access токена",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Строковое значение JWT refresh токена",
+            "example": "kpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ..."
+          },
+          "accessTokenExpiresAt": {
+            "type": "integer",
+            "description": "Числовое значение времени, когда access токен будет просрочен в миллисекундах",
+            "example": 1731928477008
+          },
+          "refreshTokenExpiresAt": {
+            "type": "integer",
+            "description": "Числовое значение времени, когда refresh токен будет просрочен в миллисекундах",
+            "example": 1734528479133
+          }
+        }
+      },
+      "sendOtpVerificationRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email, на который нужно отправить код подтверждения",
+            "example": "default_user@gmail.com"
+          }
+        }
+      },
+      "signInRequest": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string",
+            "descritption": "Email, который пользователь ввел при входе",
+            "example": "default_user@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "Пароль, который пользователь ввел при входе",
+            "example": 123456
+          }
+        }
+      },
+      "signInResponse": {
+        "$ref": "#/components/schemas/refreshTokenResponse"
+      },
+      "signUpRequest": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string",
+            "descritption": "Email, который пользователь ввел при регистрации",
+            "example": "default_user@gmail.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "Пароль, который пользователь ввел при регистрации",
+            "example": 123456
+          },
+          "nickname": {
+            "type": "string",
+            "description": "Никнейм, которай пользователь ввел при регистрации",
+            "example": "soldat2004"
+          }
+        }
+      },
+      "verifyEmailRequest": {
+        "type": "object",
+        "properties": {
+          "login": {
+            "type": "string",
+            "descritption": "Email, который пользователь ввел при регистрации",
+            "example": "default_user@gmail.com"
+          },
+          "otp": {
+            "type": "string",
+            "description": "Единаразовый код, который пользователь ввел при подтверждении",
+            "example": 123456
+          }
+        }
+      },
+      "verifyEmailResponse": {
+        "$ref": "#/components/schemas/refreshTokenResponse"
       }
     },
     "examples": {
@@ -1652,6 +2259,12 @@
         "name": "JWT токен",
         "in": "заголовок \"Authorization\"",
         "description": "Enter the token with the `Bearer: ` prefix, e.g. \"Bearer abcde12345\"."
+      },
+      "Refresh": {
+        "type": "apiKey",
+        "name": "JWT refresh токен",
+        "in": "заголовок \"Authorization\"",
+        "description": "Enter the token WITHOUT the `Bearer: ` prefix, e.g. \"abcde12345\"."
       }
     }
   },
@@ -1659,6 +2272,10 @@
     {
       "name": "User",
       "description": "Ручки для просмотра и управления данными аккаунта"
+    },
+    {
+      "name": "Auth",
+      "description": "Ручки для авторизации и утентификации"
     }
   ]
 }

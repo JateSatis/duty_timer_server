@@ -22,8 +22,29 @@ import { invalidInputFormat } from "./invalidInputFormat";
 import { emptyField } from "../../utils/validation/emptyField";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
 import { EMAIL_NOT_VALID } from "../../utils/errors/AuthErrors";
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     signUpRequest:
+ *       type: object
+ *       properties:
+ *         login:
+ *           type: string
+ *           descritption: Email, который пользователь ввел при регистрации
+ *           example: default_user@gmail.com
+ *         password:
+ *           type: string
+ *           description: Пароль, который пользователь ввел при регистрации
+ *           example: 123456
+ *         nickname:
+ *           type: string
+ *           description: Никнейм, которай пользователь ввел при регистрации
+ *           example: soldat2004
+ */
 
 export const signUpRoute = async (req: Request, res: Response) => {
   //# Check if all fields of json object are present in request
@@ -63,7 +84,8 @@ export const signUpRoute = async (req: Request, res: Response) => {
     });
 
     return res.sendStatus(200);
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 };

@@ -34,6 +34,31 @@ import {
   DATA_NOT_FOUND,
 } from "../../utils/errors/GlobalErrors";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     signInRequest:
+ *       type: object
+ *       properties:
+ *         login:
+ *           type: string
+ *           descritption: Email, который пользователь ввел при входе
+ *           example: default_user@gmail.com
+ *         password:
+ *           type: string
+ *           description: Пароль, который пользователь ввел при входе
+ *           example: 123456
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     signInResponse:
+ *       $ref: '#/components/schemas/refreshTokenResponse'
+ */
+
 export const signInRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, signInRequestBodyProperties)) return res;
 
@@ -55,22 +80,24 @@ export const signInRoute = async (req: Request, res: Response) => {
         refreshToken: true,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   //# Case where there is no user with such email
   if (!user) {
-    return res
-      .status(400)
-      .json(
-        err(new DATA_NOT_FOUND("user", `login = ${signInRequestBody.login}`))
-      );
+    const error = new DATA_NOT_FOUND(
+      "user",
+      `login = ${signInRequestBody.login}`
+    );
+    return res.status(error.code).json(error.toString());
   }
 
   //# Case where this account is not verified
   if (!user.accountInfo!.isVerified) {
-    return res.status(400).json(new ACCOUNT_NOT_VERIFIED());
+    const error = new ACCOUNT_NOT_VERIFIED();
+    return res.status(error.code).json(error.toString());
   }
 
   const passwordIsValid = validatePassword(
@@ -79,8 +106,10 @@ export const signInRoute = async (req: Request, res: Response) => {
     user.accountInfo!.passwordSalt
   );
 
-  if (!passwordIsValid)
-    return res.status(400).json(err(new INCORRECT_PASSWORD()));
+  if (!passwordIsValid) {
+    const error = new INCORRECT_PASSWORD();
+    return res.status(error.code).json(error.toString());
+  }
 
   const accessToken = issueAccessToken(user.id);
   const refreshToken = issueRefreshToken(user.id);
@@ -101,8 +130,9 @@ export const signInRoute = async (req: Request, res: Response) => {
         token: refreshToken.token,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   const signInResponseBody: SignInResponseBody = {

@@ -50,8 +50,9 @@ export const uploadBackgroundImage = async (req: Request, res: Response) => {
         backgroundImageName: s3ImageName,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   return res.sendStatus(200);

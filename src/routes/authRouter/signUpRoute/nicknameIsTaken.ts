@@ -16,7 +16,8 @@ export const nicknameIsTaken = async (
   });
 
   if (user) {
-    res.status(409).json(err(new NICKNAME_IS_TAKEN()));
+    const error = new NICKNAME_IS_TAKEN();
+    res.status(error.code).json(error.toString());
     return true;
   }
   return false;
