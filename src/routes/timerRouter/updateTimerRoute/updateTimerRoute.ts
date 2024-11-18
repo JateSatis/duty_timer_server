@@ -17,7 +17,7 @@ import { missingRequestField } from "../../utils/validation/missingRequestField"
 
 //# --- ERRORS ---
 import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 
 export const updateTimerRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;

@@ -3,7 +3,7 @@ import { S3DataSource } from "../../model/config/imagesConfig";
 import { formatDateForMessage } from "./formatDateForMessage";
 import { prisma } from "../../model/config/prismaClient";
 import { DATABASE_ERROR, S3_STORAGE_ERROR } from "../utils/errors/GlobalErrors";
-import { DATA_NOT_FOUND } from "../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../utils/errors/GlobalErrors";
 
 export const transformMessageForResponse = async (
   messageId: string,

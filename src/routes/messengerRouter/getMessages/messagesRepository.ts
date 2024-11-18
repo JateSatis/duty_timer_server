@@ -1,5 +1,5 @@
 import { prisma } from "../../../model/config/prismaClient";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
 
 export const getFirstMessages = async (chatId: string) => {

@@ -10,7 +10,7 @@ import { emptyParam } from "../../utils/validation/emptyParam";
 
 //# --- ERRORS ---
 import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 
 export const deleteFriendRoute = async (req: Request, res: Response) => {
   if (emptyParam(req, res, "friendId")) return res;

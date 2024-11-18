@@ -12,7 +12,7 @@ import { GetTimerResponseBody } from "../../../model/routesEntities/TimerRouterE
 import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
 import { User } from "@prisma/client";
 import { prisma } from "../../../model/config/prismaClient";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 
 export const getTimerRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;

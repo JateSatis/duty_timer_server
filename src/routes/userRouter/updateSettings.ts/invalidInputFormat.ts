@@ -1,6 +1,5 @@
 import { Response } from "express";
 import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
-import { err } from "../../utils/errors/GlobalErrors";
 import { UpdateSettingsRequestBody } from "../../../model/routesEntities/UserRouterEntities";
 
 const languages = ["RUSSIAN", "BELORUSIAN", "ENGLISH"];
@@ -13,7 +12,8 @@ export const invalidInputFormat = (
   const { language, theme } = body;
 
   if (!languages.includes(language) || !themes.includes(theme)) {
-    res.status(400).json(err(new INVALID_INPUT_FORMAT()));
+    const error = new INVALID_INPUT_FORMAT();
+    res.status(error.code).json(error.toString());
     return true;
   }
 

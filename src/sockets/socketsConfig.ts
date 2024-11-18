@@ -14,7 +14,7 @@ import {
 import { WebSocketChatsMapValue } from "../model/routesEntities/WebSocketRouterEntities";
 import { User } from "@prisma/client";
 import { prisma } from "../model/config/prismaClient";
-import { DATA_NOT_FOUND } from "../routes/utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../routes/utils/errors/GlobalErrors";
 
 // TODO: Check if maps works correctly after users connect and disconnect.
 

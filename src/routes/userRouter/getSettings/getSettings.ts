@@ -8,7 +8,34 @@ import {
 } from "../../utils/errors/GlobalErrors";
 import { User } from "@prisma/client";
 import { prisma } from "../../../model/config/prismaClient";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
+
+//# Swagger схема для возвращаемого объекта
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     getSettingsResponse:
+ *       type: object
+ *       properties:
+ *         backgroundImageLink:
+ *           type: string
+ *           nullable: true
+ *           description: Ссылка на фото заднего фона таймера, если оно есть
+ *           example: url
+ *         backgroundTint:
+ *           type: boolean
+ *           description: Булевое значение, определяющее есть ли у пользователя оттенок заднего фона таймера
+ *           example: false
+ *         language:
+ *           type: string
+ *           description: Язык приложения, который установил пользователь
+ *           example: RUSSIAN
+ *         theme:
+ *           type: string
+ *           description: Тема приложения, которую установил пользователь
+ *           example: WHITE
+ */
 
 export const getSettings = async (req: Request, res: Response) => {
   const user: User = req.body.user;
@@ -20,14 +47,14 @@ export const getSettings = async (req: Request, res: Response) => {
         userId: user.id,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   if (!settings) {
-    return res
-      .status(400)
-      .json(err(new DATA_NOT_FOUND("Settings", `userId = ${user.id}`)));
+    const error = new DATA_NOT_FOUND("Settings", `userId = ${user.id}`);
+    return res.status(error.code).json(error.toString());
   }
 
   let backgroundImageLink = null;
@@ -36,8 +63,9 @@ export const getSettings = async (req: Request, res: Response) => {
       backgroundImageLink = await S3DataSource.getImageUrlFromS3(
         settings.backgroundImageName
       );
-    } catch (error) {
-      return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
+    } catch (err) {
+      const error = new S3_STORAGE_ERROR(err);
+      return res.status(error.code).json(error.toString());
     }
   }
 

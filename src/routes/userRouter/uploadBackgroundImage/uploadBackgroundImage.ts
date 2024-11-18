@@ -9,11 +9,21 @@ import { MISSING_FILE } from "../../utils/errors/UserErrors";
 import { User } from "@prisma/client";
 import { prisma } from "../../../model/config/prismaClient";
 
+//# Swagger схема для получаемого объекта объекта
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     uploadBackgroundImageRequest:
+ *       $ref: '#/components/schemas/postAvatarRequest'
+ */
+
 export const uploadBackgroundImage = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
   if (!req.file) {
-    return res.status(400).json(err(new MISSING_FILE()));
+    const error = new MISSING_FILE();
+    return res.status(error.code).json(error.toString());
   }
 
   const imageName = req.file.originalname;

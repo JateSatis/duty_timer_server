@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { S3DataSource } from "../../../model/config/imagesConfig";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 import {
   DATABASE_ERROR,
   err,

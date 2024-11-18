@@ -40,6 +40,18 @@ const authLimiter = rateLimit({
 
 export const authRouter = Router();
 
+/**
+ * @swagger
+ * components:
+ *   securitySchemes:
+ *     Bearer:
+ *       type: apiKey
+ *       name: JWT токен
+ *       in: заголовок "Authorization"
+ *       description: >-
+ *         Enter the token with the `Bearer: ` prefix, e.g. "Bearer abcde12345".
+ */
+
 authRouter.use(authLimiter);
 
 authRouter.post("/sign-up", signUpRoute);

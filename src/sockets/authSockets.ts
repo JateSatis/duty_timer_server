@@ -6,12 +6,14 @@ import url from "url";
 import { User } from "@prisma/client";
 import { prisma } from "../model/config/prismaClient";
 import {
-  DATA_NOT_FOUND,
   INCORRECT_AUTHORIZATION_HEADER,
   INVALID_INPUT_FORMAT,
   JWT_ERROR,
 } from "../routes/utils/errors/AuthErrors";
-import { DATABASE_ERROR } from "../routes/utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  DATA_NOT_FOUND,
+} from "../routes/utils/errors/GlobalErrors";
 
 const pathToPublicAccessKey = path.join(
   __dirname,

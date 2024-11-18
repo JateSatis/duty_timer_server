@@ -17,7 +17,7 @@ import {
   err,
   FORBIDDEN_ACCESS,
 } from "../../utils/errors/GlobalErrors";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 
 export const getEventByIdRoute = async (req: Request, res: Response) => {
   if (emptyParam(req, res, "eventId")) return res;

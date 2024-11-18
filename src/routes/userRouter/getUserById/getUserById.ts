@@ -1,9 +1,8 @@
 //# --- LIBS ---
 import { Request, Response } from "express";
 
-//# --- CONFIG ---
-
 //# --- DATABASE ENTITIES ---
+import { User } from "@prisma/client";
 
 //# --- REQUEST ENTITIES ---
 import { GetUserByIdResponseBody } from "../../../model/routesEntities/UserRouterEntities";
@@ -19,9 +18,41 @@ import {
   UNKNOWN_ERROR,
 } from "../../utils/errors/GlobalErrors";
 import { transformForeignUserInfoForResponse } from "../transformForeignUserInfoForResponse";
-import { User } from "@prisma/client";
-import { DATA_NOT_FOUND } from "src/routes/utils/errors/AuthErrors";
-import { error } from "console";
+
+//# Swagger схема для возвращаемого объекта
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     getUserByIdResponse:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: UUID пользователя.
+ *           example: 16763be4-6022-406e-a950-fcd5018633ca
+ *         nickname:
+ *           type: string
+ *           description: Никнейм пользователя.
+ *           example: soldat2004
+ *         avatarLink:
+ *           type: string
+ *           nullable: true
+ *           description: Ссылка на аватар пользователя, если она у него есть
+ *           example: url
+ *         isFriend:
+ *           type: boolean
+ *           description: Булевое значение, определяющее является ли данный пользователь другом
+ *           example: false
+ *         isFriendshipRequestSent:
+ *           type: boolean
+ *           description: Булевое значение, определяющее отправлен ли данному пользователю запрос в друзья
+ *           example: false
+ *         isFriendshipRequestRecieved:
+ *           type: boolean
+ *           description: Булевое значение, определяющее получен ли от данного пользователя запрос в друзья
+ *           example: true
+ */
 
 export const getUserById = async (req: Request, res: Response) => {
   let user: User = req.body.user;
@@ -30,7 +61,8 @@ export const getUserById = async (req: Request, res: Response) => {
   const foreignUserId = req.params.foreignUserId;
 
   if (user.id === foreignUserId) {
-    return res.status(404).json(err(new FORBIDDEN_ACCESS()));
+    const error = new FORBIDDEN_ACCESS();
+    return res.status(error.code).json(error);
   }
 
   let getForeignUserInfoResponseBody: GetUserByIdResponseBody;
@@ -41,9 +73,10 @@ export const getUserById = async (req: Request, res: Response) => {
     );
   } catch (error) {
     if (error instanceof ServerError) {
-      return res.status(400).json(err(error));
+      return res.status(error.code).json(error.toString());
     } else {
-      return res.status(400).json(err(new UNKNOWN_ERROR(error)));
+      const unknownError = new UNKNOWN_ERROR(error);
+      return res.status(unknownError.code).json(unknownError.toString());
     }
   }
 

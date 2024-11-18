@@ -23,7 +23,7 @@ import { emptyParam } from "../../utils/validation/emptyParam";
 
 //# --- ERRORS ---
 import { invalidInputFormat } from "./invalidInputFormat";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 
 export const updateEventRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, updateEventRequestBodyProperties))

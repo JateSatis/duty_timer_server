@@ -10,6 +10,27 @@ import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
 import { prisma } from "../../../model/config/prismaClient";
 import { Language, Theme, User } from "@prisma/client";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     updateSettingsRequest:
+ *       type: object
+ *       properties:
+ *         language:
+ *           type: string
+ *           description: Язык приложения
+ *           example: RUSSIAN
+ *         theme:
+ *           type: string
+ *           description: Тема приложения
+ *           example: WHITE
+ *         backgroundTint:
+ *           type: boolean
+ *           description: Оттенок заднего фона
+ *           example: true
+ */
+
 export const updateSettings = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
@@ -32,8 +53,9 @@ export const updateSettings = async (req: Request, res: Response) => {
         backgroundTint: updateSettingsRequestBody.backgroundTint,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+	} catch (err) {
+		const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   return res.sendStatus(200);

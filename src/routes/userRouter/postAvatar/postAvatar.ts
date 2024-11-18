@@ -19,11 +19,36 @@ import {
 } from "../../utils/errors/GlobalErrors";
 import { MISSING_FILE } from "../../utils/errors/UserErrors";
 
+//# Swagger схема для получаемого объекта объекта
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     postAvatarRequest:
+ *       type: object
+ *       properties:
+ *         image:
+ *           type: string
+ *           format: binary
+ *           description: Фотография, которую нужно поставить на иконку аватара пользователя
+ *           example: image.jpg
+ */
+
+//# Swagger схема для возвращаемого объекта
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     postAvatarResponse:
+ *       $ref: '#/components/schemas/getAvatarLinkResponse'
+ */
+
 export const postAvatar = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
   if (!req.file) {
-    return res.status(400).json(err(new MISSING_FILE()));
+    const error = new MISSING_FILE();
+    return res.status(error.code).json(error.toString());
   }
 
   const imageName = req.file.originalname;

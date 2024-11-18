@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { err } from "../errors/GlobalErrors";
 import { MISSING_REQUEST_FIELD } from "../errors/GlobalErrors";
 
 const getMissingRequestFields = (req: Request, properties: string[]) => {
@@ -14,7 +13,8 @@ export const missingRequestField = (
 ): boolean => {
   const missingProperties = getMissingRequestFields(req, properties);
   if (missingProperties.length != 0) {
-    res.status(400).json(err(new MISSING_REQUEST_FIELD(missingProperties)));
+    const error = new MISSING_REQUEST_FIELD(missingProperties);
+    res.status(error.code).json(error.toString());
     return true;
   }
   return false;

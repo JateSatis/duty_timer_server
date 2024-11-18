@@ -9,7 +9,7 @@ import { emptyParam } from "../../utils/validation/emptyParam";
 import { S3DataSource } from "../../../model/config/imagesConfig";
 import { GetDirectChatInfoResponseBody } from "../../../model/routesEntities/MessageRoutesEntities";
 import { prisma } from "../../../model/config/prismaClient";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 import { ChatType } from "@prisma/client";
 
 export const getDirectChatInfo = async (req: Request, res: Response) => {

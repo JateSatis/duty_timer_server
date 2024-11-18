@@ -35,13 +35,13 @@ import {
   S3_STORAGE_ERROR,
   ServerError,
   UNKNOWN_ERROR,
+  DATA_NOT_FOUND,
 } from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
 import { transformMessageForResponse } from "../transformMessageForResponse";
 import { prisma } from "../../../model/config/prismaClient";
 import {
-  DATA_NOT_FOUND,
   INVALID_INPUT_FORMAT,
 } from "../../utils/errors/AuthErrors";
 

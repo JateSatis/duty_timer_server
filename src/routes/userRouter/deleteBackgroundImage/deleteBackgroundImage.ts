@@ -2,7 +2,7 @@ import { User } from "@prisma/client";
 import { Request, Response } from "express";
 import { S3DataSource } from "../../../model/config/imagesConfig";
 import { prisma } from "../../../model/config/prismaClient";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 import {
   DATABASE_ERROR,
   err,
@@ -19,14 +19,14 @@ export const deleteBackgroundImage = async (req: Request, res: Response) => {
         userId: user.id,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   if (!settings) {
-    return res
-      .status(404)
-      .json(err(new DATA_NOT_FOUND("AccountInfo", `userId = ${user.id}`)));
+    const error = new DATA_NOT_FOUND("AccountInfo", `userId = ${user.id}`);
+    return res.status(error.code).json(error.toString());
   }
 
   if (!settings.backgroundImageName) {
@@ -36,8 +36,9 @@ export const deleteBackgroundImage = async (req: Request, res: Response) => {
 
   try {
     await S3DataSource.deleteImageFromS3(settings.backgroundImageName);
-  } catch (error) {
-    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
+  } catch (err) {
+    const error = new S3_STORAGE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   try {
@@ -49,8 +50,9 @@ export const deleteBackgroundImage = async (req: Request, res: Response) => {
         backgroundImageName: null,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+	} catch (err) {
+		const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   return res.sendStatus(200);

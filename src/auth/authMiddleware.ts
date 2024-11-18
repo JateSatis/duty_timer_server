@@ -2,7 +2,11 @@ import { Request, Response, NextFunction } from "express";
 import * as jsonwebtoken from "jsonwebtoken";
 import * as path from "path";
 import * as fs from "fs";
-import { DATABASE_ERROR, err } from "../routes/utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  DATA_NOT_FOUND,
+  err,
+} from "../routes/utils/errors/GlobalErrors";
 import {
   AUTHORIZATION_HEADER_ABSENT,
   INCORRECT_AUTHORIZATION_HEADER,
@@ -11,7 +15,6 @@ import {
   NOT_BEFORE_ERROR,
   TOKEN_EXPIRED,
   UNKNOWN_AUTH_ERROR,
-  DATA_NOT_FOUND,
   ACCOUNT_NOT_VERIFIED,
   ACCOUNT_HAS_NO_TIMER,
 } from "../routes/utils/errors/AuthErrors";

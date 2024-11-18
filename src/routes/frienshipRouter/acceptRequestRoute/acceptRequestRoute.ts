@@ -12,7 +12,7 @@ import { AcceptFriendshipResponseBody } from "../../../model/routesEntities/Frie
 import { emptyParam } from "../../utils/validation/emptyParam";
 
 //# --- ERRORS ---
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 import {
   DATABASE_ERROR,
   err,

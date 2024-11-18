@@ -4,8 +4,9 @@ import { EMPTY_PARAMETER, err } from "../errors/GlobalErrors";
 export const emptyParam = (req: Request, res: Response, paramName: string) => {
   const param = req.params[paramName];
 
-  if (!param || param.length == 0) {
-    res.status(400).json(err(new EMPTY_PARAMETER()));
+	if (!param || param.length == 0) {
+		const error = new EMPTY_PARAMETER();
+    res.status(error.code).json(error.toString());
     return true;
   }
   return false;

@@ -2,7 +2,7 @@ import { S3DataSource } from "../../model/config/imagesConfig";
 import { ForeignUserInfoResponseBody } from "../../model/routesEntities/UserRouterEntities";
 import { prisma } from "../../model/config/prismaClient";
 import { DATABASE_ERROR } from "../utils/errors/GlobalErrors";
-import { DATA_NOT_FOUND } from "../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../utils/errors/GlobalErrors";
 
 export const transformForeignUserInfoForResponse = async (
   userId: string,

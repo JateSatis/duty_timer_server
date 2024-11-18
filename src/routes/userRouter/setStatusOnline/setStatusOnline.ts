@@ -4,7 +4,7 @@ import { Request, Response } from "express";
 //# --- DATABASE ENTITIES ---
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
 import { webSocketFriendsMap } from "../../../sockets/socketsConfig";
@@ -33,8 +33,9 @@ export const setStatusOnline = async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+	} catch (err) {
+		const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error);
   }
 
   const webSocketFriendsMapValue = webSocketFriendsMap.get(user.id);

@@ -2,12 +2,15 @@ import { NextFunction, Request, Response } from "express";
 import * as jsonwebtoken from "jsonwebtoken";
 import * as path from "path";
 import * as fs from "fs";
-import { DATABASE_ERROR, err } from "../routes/utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  DATA_NOT_FOUND,
+  err,
+} from "../routes/utils/errors/GlobalErrors";
 import {
   ABSENT_JWT_SUB,
   AUTHORIZATION_HEADER_ABSENT,
   INCORRECT_AUTHORIZATION_HEADER,
-  DATA_NOT_FOUND,
   JWT_ERROR,
   NOT_BEFORE_ERROR,
   TOKEN_EXPIRED,

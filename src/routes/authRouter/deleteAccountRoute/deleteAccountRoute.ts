@@ -9,6 +9,13 @@ import { User } from "@prisma/client";
 import { err } from "../../utils/errors/GlobalErrors";
 import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
 
+
+/**
+ * 
+ * @param req 
+ * @param res 
+ * @returns 
+ */
 export const deleteAccountRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 

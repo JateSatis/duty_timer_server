@@ -15,10 +15,12 @@ const options = {
         description: "Local server",
       },
     ],
-	},
-	//# Paths to my route files
+  },
+  //# Paths to my route files
   apis: [
+    "./src/routes/utils/errors/swaggerErrors.ts",
     "./src/routes/userRouter/userRouter.ts",
+    "./src/routes/userRouter/*/*.ts",
     "./src/routes/authRouter/authRouter.ts",
   ],
 };

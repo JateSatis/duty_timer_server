@@ -15,7 +15,8 @@ export const emptyField = (
   const emptyFields = getEmptyRequestFields(req, fields);
 
   if (emptyFields.length != 0) {
-    res.status(400).json(err(new EMPTY_FIELD(emptyFields)));
+    const error = new EMPTY_FIELD(emptyFields);
+    res.status(error.code).json(error.toString());
     return true;
   }
   return false;

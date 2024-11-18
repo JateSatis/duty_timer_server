@@ -6,7 +6,7 @@ import { S3DataSource } from "../../../model/config/imagesConfig";
 
 //# --- DATABASE ---
 import { prisma } from "../../../model/config/prismaClient";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 
 //# --- ERRORS ---
 import {
@@ -26,14 +26,14 @@ export const deleteAvatar = async (req: Request, res: Response) => {
         accountInfo: true,
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+	} catch (err) {
+		const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error);
   }
 
-  if (!user) {
-    return res
-      .status(400)
-      .json(err(new DATA_NOT_FOUND("User", `id = ${req.body.user.id}`)));
+	if (!user) {
+		const error = new DATA_NOT_FOUND("User", `id = ${req.body.user.id}`);
+    return res.status(error.code).json(error);
   }
 
   const avatarImageName = user?.accountInfo!.avatarImageName;
@@ -55,14 +55,16 @@ export const deleteAvatar = async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (error) {
-    return res.status(400).json(err(new DATABASE_ERROR(error)));
+	} catch (err) {
+		const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error);
   }
 
   try {
     await S3DataSource.deleteImageFromS3(avatarImageName);
-  } catch (error) {
-    return res.status(400).json(err(new S3_STORAGE_ERROR(error.message)));
+	} catch (err) {
+		const error = new S3_STORAGE_ERROR(err.message);
+    return res.status(error.code).json(error);
   }
 
   return res.sendStatus(200);

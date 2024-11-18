@@ -8,7 +8,7 @@ import { User } from "@prisma/client";
 //# --- ERRORS ---
 import { err } from "../../utils/errors/GlobalErrors";
 import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 
 export const logOutRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;

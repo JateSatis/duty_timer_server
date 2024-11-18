@@ -5,7 +5,7 @@ import {
   err,
   S3_STORAGE_ERROR,
 } from "../../utils/errors/GlobalErrors";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 import { ChatResponseBody } from "../../../model/routesEntities/MessageRoutesEntities";
 import { S3DataSource } from "../../../model/config/imagesConfig";
 import { formatDateForMessage } from "../formatDateForMessage";

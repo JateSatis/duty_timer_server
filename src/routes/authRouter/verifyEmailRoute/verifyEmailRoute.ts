@@ -25,10 +25,13 @@ import { emptyField } from "../../utils/validation/emptyField";
 import { invalidInputFormat } from "./invalidInput";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  DATA_NOT_FOUND,
+  err,
+} from "../../utils/errors/GlobalErrors";
 import {
   ACCOUNT_ALREADY_VERIFIED,
-  DATA_NOT_FOUND,
   NOT_VALID_OTP,
   OTP_EXPIRED,
   OTP_NOT_FOUND,

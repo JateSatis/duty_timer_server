@@ -5,7 +5,7 @@ import {
   err,
   FORBIDDEN_ACCESS,
 } from "../../utils/errors/GlobalErrors";
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 import { getDirectMessages } from "./getDirectMessages";
 import { getGroupMessages } from "./getGroupMessages";
 import { emptyParam } from "../../utils/validation/emptyParam";

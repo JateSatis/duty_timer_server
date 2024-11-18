@@ -11,7 +11,7 @@ import { Request, Response } from "express";
 import { emptyParam } from "../../utils/validation/emptyParam";
 
 //# --- ERRORS ---
-import { DATA_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 import { USER_ALREADY_FRIEND } from "../../utils/errors/FriendshipErrors";
 import {
   DATABASE_ERROR,

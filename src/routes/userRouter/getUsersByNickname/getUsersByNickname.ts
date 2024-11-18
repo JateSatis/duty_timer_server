@@ -15,12 +15,26 @@ import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
+	ServerError,
+	UNKNOWN_ERROR,
 } from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
 import { prisma } from "../../../model/config/prismaClient";
 import { transformForeignUserInfoForResponse } from "../transformForeignUserInfoForResponse";
 import { User } from "@prisma/client";
+
+//# Swagger схема для возвращаемого объекта
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     getUsersByNicknameResponse:
+ *       type: array
+ *       items:
+ *         $ref: '#/components/schemas/getUserByIdResponse'
+ */
+
 
 export const getUsersByNickname = async (req: Request, res: Response) => {
   const user: User = req.body.user;
@@ -44,8 +58,9 @@ export const getUsersByNickname = async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (error) {
-    return res.status(404).json(err(new DATABASE_ERROR(error)));
+	} catch (err) {
+		const error = new DATABASE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   let usersInfo;
@@ -56,7 +71,12 @@ export const getUsersByNickname = async (req: Request, res: Response) => {
       })
     );
   } catch (error) {
-    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
+    if (error instanceof ServerError) {
+      return res.status(error.code).json(error.toString());
+    } else {
+      const unknownError = new UNKNOWN_ERROR(error);
+      return res.status(unknownError.code).json(unknownError.toString());
+    }
   }
 
   //# Excluding sender of the request from the response array

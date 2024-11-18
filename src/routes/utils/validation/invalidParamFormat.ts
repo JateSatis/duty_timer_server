@@ -12,8 +12,9 @@ export const invalidParamFormat = (
   const param = req.params[paramName];
 
   if (!paramFormat.test(param)) {
-		res.status(400).json(err(new INVALID_PARAMETER_FORMAT()));
-		return true;
-	}
-	return false;
+    const error = new INVALID_PARAMETER_FORMAT();
+    res.status(error.code).json(error.toString());
+    return true;
+  }
+  return false;
 };

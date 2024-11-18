@@ -17,11 +17,13 @@ import { RefreshTokenResponseBody } from "../../../model/routesEntities/AuthRout
 //# --- ERRORS ---
 import { err } from "../../utils/errors/GlobalErrors";
 import {
-  DATA_NOT_FOUND,
   OUTDATED_REFRESH_TOKEN,
   REFRESH_TOKEN_REVOKED,
 } from "../../utils/errors/AuthErrors";
-import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  DATA_NOT_FOUND,
+} from "../../utils/errors/GlobalErrors";
 
 export const refreshTokenRoute = async (req: Request, res: Response) => {
   const refreshToken = req.body.refreshToken;

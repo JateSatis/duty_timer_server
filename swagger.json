@@ -30,34 +30,691 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "description": "UUID пользователя.",
-                      "example": "16763be4-6022-406e-a950-fcd5018633ca"
+                  "$ref": "#/components/schemas/getUserInfoResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ошибка - данные не найдены",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATA_NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/DATABASE_ERROR"
                     },
-                    "nickname": {
-                      "type": "string",
-                      "description": "Никнейм пользователя.",
-                      "example": "soldat2004"
-                    },
-                    "login": {
-                      "type": "string",
-                      "description": "Почта, по которой зарегистрирован пользователь",
-                      "example": "example@gmail.com"
-                    },
-                    "avatarLink": {
-                      "type": "string",
-                      "nullable": true,
-                      "description": "Ссылка на аватар пользователя, если она у него есть",
-                      "example": "url"
-                    },
-                    "userType": {
-                      "type": "string",
-                      "description": "Тип пользователя, который он выбрал при регистрации",
-                      "example": "SOLDIER"
+                    {
+                      "$ref": "#/components/schemas/S3_STORAGE_ERROR"
                     }
+                  ]
+                },
+                "examples": {
+                  "DATABASE_ERROR": {
+                    "$ref": "#/components/examples/DATABASE_ERROR_EXAMPLE"
+                  },
+                  "S3_STORAGE_ERROR": {
+                    "$ref": "#/components/examples/S3_STORAGE_ERROR_EXAMPLE"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/set-status-online": {
+      "put": {
+        "summary": "Установить статус пользователя в состояние \"online\"",
+        "description": "Используется для того, чтобы при входе пользователя в аккаунта, установить его статус в значение \"online\"",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статус пользователя успешно обновлен"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATABASE_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/set-status-offline": {
+      "put": {
+        "summary": "Установить статус пользователя в состояние \"online\"",
+        "description": "Используется для того, чтобы при входе пользователя в аккаунта, установить его статус в значение \"online\"",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Статус пользователя успешно обновлен"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATABASE_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/id/{foreignUserId}": {
+      "get": {
+        "summary": "Получение информации об аккаунте другого пользователя",
+        "description": "По данному запросу можно получить данные аккаунта пользователя по его UUID",
+        "tags": [
+          "User"
+        ],
+        "parameters": [
+          {
+            "name": "foreignUserId",
+            "description": "UUID другого пользователя",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Данные другого пользователя успешно получены",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getUserByIdResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Параметр не был передан",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EMPTY_PARAMETER"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Пользователь не имеет доступа к этим данным",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FORBIDDEN_ACCESS"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Необходимые данные не найдены в базе данных",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATA_NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/DATABASE_ERROR"
+                    },
+                    {
+                      "$ref": "#/components/schemas/UNKNOWN_ERROR"
+                    }
+                  ]
+                },
+                "examples": {
+                  "DATABASE_ERROR": {
+                    "$ref": "#/components/examples/DATABASE_ERROR_EXAMPLE"
+                  },
+                  "UNKNOWN_ERROR": {
+                    "$ref": "#/components/examples/UNKNOWN_ERROR_EXAMPLE"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/id/{userNickname}": {
+      "get": {
+        "summary": "Получение списка пользователей по никнейму",
+        "description": "По данному запросу можно получить список пользователей, чей никнейм соответствует переданной строке",
+        "tags": [
+          "User"
+        ],
+        "parameters": [
+          {
+            "name": "userNickname",
+            "description": "Никнейм другого пользователя",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список пользователь успешно получен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getUsersByNicknameResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Параметр не был передан",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/INVALID_PARAMETER_FORMAT"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EMPTY_PARAMETER"
+                    }
+                  ]
+                },
+                "examples": {
+                  "INVALID_PARAMETER_FORMAT": {
+                    "$ref": "#/components/examples/INVALID_PARAMETER_FORMAT_EXAMPLE"
+                  },
+                  "EMPTY_PARAMETER": {
+                    "$ref": "#/components/examples/EMPTY_PARAMETER_EXAMPLE"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Необходимые данные не найдены в базе данных",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATA_NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/DATABASE_ERROR"
+                    },
+                    {
+                      "$ref": "#/components/schemas/UNKNOWN_ERROR"
+                    }
+                  ]
+                },
+                "examples": {
+                  "DATABASE_ERROR": {
+                    "$ref": "#/components/examples/DATABASE_ERROR_EXAMPLE"
+                  },
+                  "UNKNOWN_ERROR": {
+                    "$ref": "#/components/examples/UNKNOWN_ERROR_EXAMPLE"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/avatar": {
+      "post": {
+        "summary": "Отправление фото для установки на аватарку",
+        "description": "По данному запросу можно отправить фото, которое будет установленно на аватарку пользователя",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/postAvatarRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Аватарка успешно установлена",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/postAvatarResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Файл не был отправлен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MISSING_FILE"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/DATABASE_ERROR"
+                    },
+                    {
+                      "$ref": "#/components/schemas/S3_STORAGE_ERROR"
+                    }
+                  ]
+                },
+                "examples": {
+                  "DATABASE_ERROR": {
+                    "$ref": "#/components/examples/DATABASE_ERROR_EXAMPLE"
+                  },
+                  "UNKNOWN_ERROR": {
+                    "$ref": "#/components/examples/S3_STORAGE_ERROR_EXAMPLE"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Получение ссылки на аватарку пользователя",
+        "description": "По данному запросу можно получить ссылку на свою аватарку",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ссылка на аватарку успешно получена",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getAvatarLinkResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Необходимые данные не найдены в базе данных",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATA_NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/DATABASE_ERROR"
+                    },
+                    {
+                      "$ref": "#/components/schemas/S3_STORAGE_ERROR"
+                    }
+                  ]
+                },
+                "examples": {
+                  "DATABASE_ERROR": {
+                    "$ref": "#/components/examples/DATABASE_ERROR_EXAMPLE"
+                  },
+                  "UNKNOWN_ERROR": {
+                    "$ref": "#/components/examples/S3_STORAGE_ERROR_EXAMPLE"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Удаление аватарки пользователя",
+        "description": "По данному запросу можно удалить собственную аватарку",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Аватарка успешно удалена"
+          },
+          "404": {
+            "description": "Необходимые данные не найдены в базе данных",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATA_NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/DATABASE_ERROR"
+                    },
+                    {
+                      "$ref": "#/components/schemas/S3_STORAGE_ERROR"
+                    }
+                  ]
+                },
+                "examples": {
+                  "DATABASE_ERROR": {
+                    "$ref": "#/components/examples/DATABASE_ERROR_EXAMPLE"
+                  },
+                  "UNKNOWN_ERROR": {
+                    "$ref": "#/components/examples/S3_STORAGE_ERROR_EXAMPLE"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/settings": {
+      "get": {
+        "summary": "Получение списка настроек приложения",
+        "description": "По данному запросу можно получить все настройки, устрановленные пользователем",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Настройки успешно получены",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/getSettingsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Необходимые данные не найдены в базе данных",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATA_NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/DATABASE_ERROR"
+                    },
+                    {
+                      "$ref": "#/components/schemas/S3_STORAGE_ERROR"
+                    }
+                  ]
+                },
+                "examples": {
+                  "DATABASE_ERROR": {
+                    "$ref": "#/components/examples/DATABASE_ERROR_EXAMPLE"
+                  },
+                  "UNKNOWN_ERROR": {
+                    "$ref": "#/components/examples/S3_STORAGE_ERROR_EXAMPLE"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Обновление настроек",
+        "description": "По данному запросу можно свои настройки приложения",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/updateSettingsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Настройки успешно обновлены"
+          },
+          "400": {
+            "description": "Ошибка при получении данных от клиента",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/MISSING_REQUEST_FIELD"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EMPTY_FIELD"
+                    },
+                    {
+                      "$ref": "#/components/schemas/INVALID_INPUT_FORMAT"
+                    }
+                  ]
+                },
+                "examples": {
+                  "MISSING_REQUEST_FIELD": {
+                    "$ref": "#/components/examples/MISSING_REQUEST_FIELD_EXAMPLE"
+                  },
+                  "EMPTY_FIELD": {
+                    "$ref": "#/components/examples/EMPTY_FIELD_EXAMPLE"
+                  },
+                  "INVALID_INPUT_FORMAT": {
+                    "$ref": "#/components/examples/INVALID_INPUT_FORMAT_EXAMPLE"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATABASE_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/background-image": {
+      "post": {
+        "summary": "Отправление фото для установки задний фон",
+        "description": "По данному запросу можно отправить фото, которое будет установленно на задний фон таймера",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/uploadBackgroundImageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Задний фон успешно установлен"
+          },
+          "400": {
+            "description": "Файл не был отправлен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MISSING_FILE"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/DATABASE_ERROR"
+                    },
+                    {
+                      "$ref": "#/components/schemas/S3_STORAGE_ERROR"
+                    }
+                  ]
+                },
+                "examples": {
+                  "DATABASE_ERROR": {
+                    "$ref": "#/components/examples/DATABASE_ERROR_EXAMPLE"
+                  },
+                  "UNKNOWN_ERROR": {
+                    "$ref": "#/components/examples/S3_STORAGE_ERROR_EXAMPLE"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Удаление заднего фона",
+        "description": "По данному запросу можно удалить задний фон таймера",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Задний фон успешно удален"
+          },
+          "404": {
+            "description": "Необходимые данные не найдены в базе данных",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATA_NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/DATABASE_ERROR"
+                    },
+                    {
+                      "$ref": "#/components/schemas/S3_STORAGE_ERROR"
+                    }
+                  ]
+                },
+                "examples": {
+                  "DATABASE_ERROR": {
+                    "$ref": "#/components/examples/DATABASE_ERROR_EXAMPLE"
+                  },
+                  "UNKNOWN_ERROR": {
+                    "$ref": "#/components/examples/S3_STORAGE_ERROR_EXAMPLE"
                   }
                 }
               }
@@ -68,6 +725,927 @@
     }
   },
   "components": {
+    "schemas": {
+      "RATE_LIMIT_EXCEEDED": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "RATE_LIMIT_EXCEEDED"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "Too many requests, please try again later"
+          }
+        }
+      },
+      "UNKNOWN_ERROR": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "UNKNOWN_ERROR"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "Unknown error occured. Error - <текст ошибки>"
+          }
+        }
+      },
+      "MISSING_REQUEST_FIELD": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "MISSING_REQUEST_FIELD"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "The following required fields are missing - <список недостающих полей>. Please provide all required fields and try again."
+          }
+        }
+      },
+      "EMPTY_FIELD": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "EMPTY_FIELD"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "The following required fields are empty - <список пустых полей>. Please ensure that none of the fields are empty before submitting."
+          }
+        }
+      },
+      "INVALID_PARAMETER_TYPE": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "INVALID_PARAMETER_TYPE"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "The parameter must be an integer. Please ensure that you provide a valid integer value in the request URL."
+          }
+        }
+      },
+      "INVALID_PARAMETER_FORMAT": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "INVALID_PARAMETER_FORMAT"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "The parameter must follow a specified format. Please ensure that you provide a valid paramener value in the request URL."
+          }
+        }
+      },
+      "EMPTY_PARAMETER": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "EMPTY_PARAMETER"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "The parameter is empty. Please fill it and retry"
+          }
+        }
+      },
+      "INVALID_FILE_FORMAT": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "INVALID_FILE_FORMAT"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "Files that you've provided do not follow a specified format. Please ensure that you've provided files of correct type and amount."
+          }
+        }
+      },
+      "DATABASE_ERROR": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "DATABASE_ERROR"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "There was an error while working with the database"
+          }
+        }
+      },
+      "S3_STORAGE_ERROR": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "S3_STORAGE_ERROR"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "There was an error while working with the S3 storage"
+          }
+        }
+      },
+      "FORBIDDEN_ACCESS": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "FORBIDDEN_ACCESS"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "You do not have permission to modify this data. Please ensure you have the appropriate access rights or contact support for assistance."
+          }
+        }
+      },
+      "DATA_NOT_FOUND": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "DATA_NOT_FOUND"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "The data (<название таблицы>) with these parameters <критерий> doesn't exist. Please check that values you're providing are correct."
+          }
+        }
+      },
+      "INVALID_INPUT_FORMAT": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "INVALID_INPUT_FORMAT"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "The input provided contains forbidden symbols or is too long. Please ensure your input follows the required format and does not exceed the character limit."
+          }
+        }
+      },
+      "NICKNAME_IS_TAKEN": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "NICKNAME_IS_TAKEN"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "The provided nickname is already in use. Please choose a different nickname."
+          }
+        }
+      },
+      "ACCOUNT_ALREADY_EXISTS": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "ACCOUNT_ALREADY_EXISTS"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "The provided login is already associated with an existing account. Please choose a different login or use the existing account to sign in."
+          }
+        }
+      },
+      "AUTHORIZATION_HEADER_ABSENT": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "AUTHORIZATION_HEADER_ABSENT"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "Заголовок Authorization, необходимый для данного запроса, отсутствует"
+          }
+        }
+      },
+      "INCORRECT_AUTHORIZATION_HEADER": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "INCORRECT_AUTHORIZATION_HEADER"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "Значение заголовка Authorization неверно. Возможно проблема заключается в слове “Bearer” или его отсутствии"
+          }
+        }
+      },
+      "TOKEN_EXPIRED": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "TOKEN_EXPIRED"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "Срок действия токена истек"
+          }
+        }
+      },
+      "JWT_ERROR": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "JWT_ERROR"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "Произошла ошибка при проверке токена - <текст ошибки>"
+          }
+        }
+      },
+      "NOT_BEFORE_ERROR": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "NOT_BEFORE_ERROR"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "Токен использован до разрешенной даты его использования"
+          }
+        }
+      },
+      "UNKNOWN_AUTH_ERROR": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "UNKNOWN_AUTH_ERROR"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "Неизвестная ошибка авторизации <название ошибки> - <текст ошибки>`"
+          }
+        }
+      },
+      "ABSENT_JWT_SUB": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "ABSENT_JWT_SUB"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "The access token is missing a valid 'sub' field in its payload. Ensure the token is properly generated and includes the required 'sub' claim."
+          }
+        }
+      },
+      "REFRESH_TOKEN_REVOKED": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "REFRESH_TOKEN_REVOKED"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "Provided refresh token is revoked. This may mean that owner of the token is logged out or asked to revoke the token."
+          }
+        }
+      },
+      "OUTDATED_REFRESH_TOKEN": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "OUTDATED_REFRESH_TOKEN"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "Provided refresh token is outdated. This may indicate that the user changed the refresh token to a new one"
+          }
+        }
+      },
+      "INCORRECT_PASSWORD": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "INCORRECT_PASSWORD"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "The password is incorrect"
+          }
+        }
+      },
+      "EMAIL_NOT_VALID": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "EMAIL_NOT_VALID"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "This email is not valid, meaning we cannot send a verification code to it"
+          }
+        }
+      },
+      "ACCOUNT_NOT_VERIFIED": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "ACCOUNT_NOT_VERIFIED"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "This account is not verified"
+          }
+        }
+      },
+      "ACCOUNT_ALREADY_VERIFIED": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "ACCOUNT_ALREADY_VERIFIED"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "This account is already verified, it doesn't need to be verified again for some time"
+          }
+        }
+      },
+      "OTP_NOT_FOUND": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "OTP_NOT_FOUND"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "No OTP was sent to this account"
+          }
+        }
+      },
+      "OTP_SENDING_UNAVAILABLE": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "OTP_SENDING_UNAVAILABLE"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "Cannot send OTP right now, try later"
+          }
+        }
+      },
+      "OTP_EXPIRED": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "OTP_EXPIRED"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "This OTP is expired, try to send a new one"
+          }
+        }
+      },
+      "NOT_VALID_OTP": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "NOT_VALID_OTP"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "This OTP isn't valid for provided account"
+          }
+        }
+      },
+      "ACCOUNT_HAS_NO_TIMER": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "ACCOUNT_HAS_NO_TIMER"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "This account doesn't have a timer assoisiated with it"
+          }
+        }
+      },
+      "USER_ALREADY_FRIEND": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "USER_ALREADY_FRIEND"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "You are already friends with this user."
+          }
+        }
+      },
+      "MISSING_FILE": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "MISSING_FILE"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "The required image file part is not provided. Please attach the file to the request and try again"
+          }
+        }
+      },
+      "getAvatarLinkResponse": {
+        "type": "object",
+        "properties": {
+          "avatarLink": {
+            "type": "string",
+            "nullable": true,
+            "description": "Ссылка на аватар пользователя, если она у него есть",
+            "example": "url"
+          }
+        }
+      },
+      "getSettingsResponse": {
+        "type": "object",
+        "properties": {
+          "backgroundImageLink": {
+            "type": "string",
+            "nullable": true,
+            "description": "Ссылка на фото заднего фона таймера, если оно есть",
+            "example": "url"
+          },
+          "backgroundTint": {
+            "type": "boolean",
+            "description": "Булевое значение, определяющее есть ли у пользователя оттенок заднего фона таймера",
+            "example": false
+          },
+          "language": {
+            "type": "string",
+            "description": "Язык приложения, который установил пользователь",
+            "example": "RUSSIAN"
+          },
+          "theme": {
+            "type": "string",
+            "description": "Тема приложения, которую установил пользователь",
+            "example": "WHITE"
+          }
+        }
+      },
+      "getUserByIdResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "UUID пользователя.",
+            "example": "16763be4-6022-406e-a950-fcd5018633ca"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "Никнейм пользователя.",
+            "example": "soldat2004"
+          },
+          "avatarLink": {
+            "type": "string",
+            "nullable": true,
+            "description": "Ссылка на аватар пользователя, если она у него есть",
+            "example": "url"
+          },
+          "isFriend": {
+            "type": "boolean",
+            "description": "Булевое значение, определяющее является ли данный пользователь другом",
+            "example": false
+          },
+          "isFriendshipRequestSent": {
+            "type": "boolean",
+            "description": "Булевое значение, определяющее отправлен ли данному пользователю запрос в друзья",
+            "example": false
+          },
+          "isFriendshipRequestRecieved": {
+            "type": "boolean",
+            "description": "Булевое значение, определяющее получен ли от данного пользователя запрос в друзья",
+            "example": true
+          }
+        }
+      },
+      "getUserInfoResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "UUID пользователя.",
+            "example": "16763be4-6022-406e-a950-fcd5018633ca"
+          },
+          "nickname": {
+            "type": "string",
+            "description": "Никнейм пользователя.",
+            "example": "soldat2004"
+          },
+          "login": {
+            "type": "string",
+            "description": "Почта, по которой зарегистрирован пользователь",
+            "example": "example@gmail.com"
+          },
+          "avatarLink": {
+            "type": "string",
+            "nullable": true,
+            "description": "Ссылка на аватар пользователя, если она у него есть",
+            "example": "url"
+          },
+          "userType": {
+            "type": "string",
+            "description": "Тип пользователя, который он выбрал при регистрации",
+            "example": "SOLDIER"
+          }
+        }
+      },
+      "getUsersByNicknameResponse": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/getUserByIdResponse"
+        }
+      },
+      "postAvatarRequest": {
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "string",
+            "format": "binary",
+            "description": "Фотография, которую нужно поставить на иконку аватара пользователя",
+            "example": "image.jpg"
+          }
+        }
+      },
+      "postAvatarResponse": {
+        "$ref": "#/components/schemas/getAvatarLinkResponse"
+      },
+      "updateSettingsRequest": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "description": "Язык приложения",
+            "example": "RUSSIAN"
+          },
+          "theme": {
+            "type": "string",
+            "description": "Тема приложения",
+            "example": "WHITE"
+          },
+          "backgroundTint": {
+            "type": "boolean",
+            "description": "Оттенок заднего фона",
+            "example": true
+          }
+        }
+      },
+      "uploadBackgroundImageRequest": {
+        "$ref": "#/components/schemas/postAvatarRequest"
+      }
+    },
+    "examples": {
+      "RATE_LIMIT_EXCEEDED_EXAMPLE": {
+        "summary": "Ошибка - лимит отправления запросов исчерпан",
+        "value": {
+          "name": "RATE_LIMIT_EXCEEDED",
+          "message": "Too many requests, please try again later"
+        }
+      },
+      "UNKNOWN_ERROR_EXAMPLE": {
+        "summary": "Ошибка - неизвестная ошибка",
+        "value": {
+          "name": "UNKNOWN_ERROR",
+          "message": "Unknown error occured. Error - <текст ошибки>"
+        }
+      },
+      "MISSING_REQUEST_FIELD_EXAMPLE": {
+        "summary": "Ошибка - одно из полей запроса отсутствует",
+        "value": {
+          "name": "MISSING_REQUEST_FIELD",
+          "message": "The following required fields are missing - <список недостающих полей>. Please provide all required fields and try again."
+        }
+      },
+      "EMPTY_FIELD_EXAMPLE": {
+        "summary": "Ошибка - одно из полей запроса пустое",
+        "value": {
+          "name": "EMPTY_FIELD",
+          "message": "The following required fields are empty - <список пустых полей>. Please ensure that none of the fields are empty before submitting."
+        }
+      },
+      "INVALID_PARAMETER_TYPE_EXAMPLE": {
+        "summary": "Ошибка - неверный тип параметра",
+        "value": {
+          "name": "INVALID_PARAMETER_TYPE",
+          "message": "The parameter must be an integer. Please ensure that you provide a valid integer value in the request URL."
+        }
+      },
+      "INVALID_PARAMETER_FORMAT_EXAMPLE": {
+        "summary": "Ошибка - неверный формат параметра",
+        "value": {
+          "name": "INVALID_PARAMETER_FORMAT",
+          "message": "The parameter must follow a specified format. Please ensure that you provide a valid paramener value in the request URL."
+        }
+      },
+      "EMPTY_PARAMETER_EXAMPLE": {
+        "summary": "Ошибка - пустой параметр",
+        "value": {
+          "name": "EMPTY_PARAMETER",
+          "message": "The parameter is empty. Please fill it and retry"
+        }
+      },
+      "INVALID_FILE_FORMAT_EXAMPLE": {
+        "summary": "Ошибка - неверный формат отправленного файла",
+        "value": {
+          "name": "INVALID_FILE_FORMAT",
+          "message": "Files that you've provided do not follow a specified format. Please ensure that you've provided files of correct type and amount."
+        }
+      },
+      "DATABASE_ERROR_EXAMPLE": {
+        "summary": "Ошибка - ошибка при работе с базой данных",
+        "value": {
+          "name": "DATABASE_ERROR",
+          "message": "There was an error while working with the database"
+        }
+      },
+      "S3_STORAGE_ERROR_EXAMPLE": {
+        "summary": "Ошибка - ошибка при работе с хранилищем файлов S3",
+        "value": {
+          "name": "S3_STORAGE_ERROR",
+          "message": "There was an error while working with the S3 storage"
+        }
+      },
+      "FORBIDDEN_ACCESS_EXAMPLE": {
+        "summary": "Ошибка - у пользователя нет доступа к данным",
+        "value": {
+          "name": "FORBIDDEN_ACCESS",
+          "message": "You do not have permission to modify this data. Please ensure you have the appropriate access rights or contact support for assistance."
+        }
+      },
+      "DATA_NOT_FOUND_EXAMPLE": {
+        "summary": "Ошибка - данные не найдены",
+        "value": {
+          "name": "DATA_NOT_FOUND",
+          "message": "The data (<название таблицы>) with these parameters <критерий> doesn't exist. Please check that values you're providing are correct."
+        }
+      },
+      "INVALID_INPUT_FORMAT_EXAMPLE": {
+        "summary": "Ошибка - неверный формат одного из полей объекта запроса",
+        "value": {
+          "name": "INVALID_INPUT_FORMAT",
+          "message": "The input provided contains forbidden symbols or is too long. Please ensure your input follows the required format and does not exceed the character limit."
+        }
+      },
+      "NICKNAME_IS_TAKEN_EXAMPLE": {
+        "summary": "Ошибка - данный никнейм уже занят другим пользователем",
+        "value": {
+          "name": "NICKNAME_IS_TAKEN",
+          "message": "The provided nickname is already in use. Please choose a different nickname."
+        }
+      },
+      "ACCOUNT_ALREADY_EXISTS_EXAMPLE": {
+        "summary": "Ошибка - аккаунт с предоставленной почтой уже существует",
+        "value": {
+          "name": "ACCOUNT_ALREADY_EXISTS",
+          "message": "The provided login is already associated with an existing account. Please choose a different login or use the existing account to sign in."
+        }
+      },
+      "AUTHORIZATION_HEADER_ABSENT_EXAMPLE": {
+        "summary": "Ошибка - отсутствует заголовок Authorization",
+        "value": {
+          "name": "AUTHORIZATION_HEADER_ABSENT",
+          "message": "Заголовок Authorization, необходимый для данного запроса, отсутствует"
+        }
+      },
+      "INCORRECT_AUTHORIZATION_HEADER_EXAMPLE": {
+        "summary": "Ошибка - формат заголовка Authorization неверен",
+        "value": {
+          "name": "INCORRECT_AUTHORIZATION_HEADER",
+          "message": "Значение заголовка Authorization неверно. Возможно проблема заключается в слове “Bearer” или его отсутствии"
+        }
+      },
+      "TOKEN_EXPIRED_EXAMPLE": {
+        "summary": "Ошибка - токен просрочен",
+        "value": {
+          "name": "TOKEN_EXPIRED",
+          "message": "Срок действия токена истек"
+        }
+      },
+      "JWT_ERROR_EXAMPLE": {
+        "summary": "Ошибка - неизвестная ошибка авторизации",
+        "value": {
+          "name": "JWT_ERROR",
+          "message": "Неизвестная ошибка авторизации <название ошибки> - <текст ошибки>`"
+        }
+      },
+      "NOT_BEFORE_ERROR_EXAMPLE": {
+        "summary": "Ошибка - токен использован до разрешенной даты его использования",
+        "value": {
+          "name": "NOT_BEFORE_ERROR",
+          "message": "Токен использован до разрешенной даты его использования"
+        }
+      },
+      "UNKNOWN_AUTH_ERROR_EXAMPLE": {
+        "summary": "Ошибка - неизвестная ошибка авторизации",
+        "value": {
+          "name": "UNKNOWN_AUTH_ERROR",
+          "message": "Неизвестная ошибка авторизации <название ошибки> - <текст ошибки>`"
+        }
+      },
+      "ABSENT_JWT_SUB_EXAMPLE": {
+        "summary": "Ошибка - в payload токена отсуствует поле sub",
+        "value": {
+          "name": "ABSENT_JWT_SUB",
+          "message": "The access token is missing a valid 'sub' field in its payload. Ensure the token is properly generated and includes the required 'sub' claim."
+        }
+      },
+      "REFRESH_TOKEN_REVOKED_EXAMPLE": {
+        "summary": "Ошибка - рефреш токен отозван",
+        "value": {
+          "name": "REFRESH_TOKEN_REVOKED",
+          "message": "Provided refresh token is revoked. This may mean that owner of the token is logged out or asked to revoke the token."
+        }
+      },
+      "OUTDATED_REFRESH_TOKEN_EXAMPLE": {
+        "summary": "Ошибка - рефреш токен устарел",
+        "value": {
+          "name": "OUTDATED_REFRESH_TOKEN",
+          "message": "Provided refresh token is outdated. This may indicate that the user changed the refresh token to a new one"
+        }
+      },
+      "INCORRECT_PASSWORD_EXAMPLE": {
+        "summary": "Ошибка - неверный пароль",
+        "value": {
+          "name": "INCORRECT_PASSWORD",
+          "message": "The password is incorrect"
+        }
+      },
+      "EMAIL_NOT_VALID_EXAMPLE": {
+        "summary": "Ошибка - письмо не может быть отправленно на предоставленный email",
+        "value": {
+          "name": "EMAIL_NOT_VALID",
+          "message": "This email is not valid, meaning we cannot send a verification code to it"
+        }
+      },
+      "ACCOUNT_NOT_VERIFIED_EXAMPLE": {
+        "summary": "Ошибка - аккаунт не подтвержден",
+        "value": {
+          "name": "ACCOUNT_NOT_VERIFIED",
+          "message": "This account is not verified"
+        }
+      },
+      "ACCOUNT_ALREADY_VERIFIED_EXAMPLE": {
+        "summary": "Ошибка - аккаунт уже подтвержден",
+        "value": {
+          "name": "ACCOUNT_ALREADY_VERIFIED",
+          "message": "This account is already verified, it doesn't need to be verified again for some time"
+        }
+      },
+      "OTP_NOT_FOUND_EXAMPLE": {
+        "summary": "Ошибка - OTP не был отправлен на эту почту",
+        "value": {
+          "name": "OTP_NOT_FOUND",
+          "message": "No OTP was sent to this account"
+        }
+      },
+      "OTP_SENDING_UNAVAILABLE_EXAMPLE": {
+        "summary": "Ошибка - лимит отправления OTP исчерпан",
+        "value": {
+          "name": "OTP_SENDING_UNAVAILABLE",
+          "message": "Cannot send OTP right now, try later"
+        }
+      },
+      "OTP_EXPIRED_EXAMPLE": {
+        "summary": "Ошибка - OTP просрочен",
+        "value": {
+          "name": "OTP_EXPIRED",
+          "message": "This OTP is expired, try to send a new one"
+        }
+      },
+      "NOT_VALID_OTP_EXAMPLE": {
+        "summary": "Ошибка - неверный OTP",
+        "value": {
+          "name": "NOT_VALID_OTP",
+          "message": "This OTP isn't valid for provided account"
+        }
+      },
+      "ACCOUNT_HAS_NO_TIMER_EXAMPLE": {
+        "summary": "Ошибка - у аккаунта нет таймера",
+        "value": {
+          "name": "ACCOUNT_HAS_NO_TIMER",
+          "message": "This account doesn't have a timer assoisiated with it"
+        }
+      },
+      "USER_ALREADY_FRIEND_EXAMPLE": {
+        "summary": "Ошибка - данный пользователь уже в друзьях",
+        "value": {
+          "name": "USER_ALREADY_FRIEND",
+          "message": "You are already friends with this user."
+        }
+      },
+      "MISSING_FILE_EXAMPLE": {
+        "summary": "Ошибка - файл не был отправлен",
+        "value": {
+          "name": "MISSING_FILE",
+          "message": "The required image file part is not provided. Please attach the file to the request and try again"
+        }
+      }
+    },
     "securitySchemes": {
       "Bearer": {
         "type": "apiKey",

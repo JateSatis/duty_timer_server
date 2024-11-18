@@ -27,10 +27,12 @@ import { emptyField } from "../../utils/validation/emptyField";
 import { err } from "../../utils/errors/GlobalErrors";
 import {
   INCORRECT_PASSWORD,
-  DATA_NOT_FOUND,
   ACCOUNT_NOT_VERIFIED,
 } from "../../utils/errors/AuthErrors";
-import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
+import {
+  DATABASE_ERROR,
+  DATA_NOT_FOUND,
+} from "../../utils/errors/GlobalErrors";
 
 export const signInRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, signInRequestBodyProperties)) return res;
