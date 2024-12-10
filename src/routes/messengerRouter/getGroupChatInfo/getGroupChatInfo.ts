@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { S3DataSource } from "../../../model/config/imagesConfig";
 import { GetGroupChatInfoResponseBody } from "../../../model/routesEntities/MessageRoutesEntities";
 import {
+	DATA_NOT_FOUND,
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
@@ -13,6 +14,24 @@ import { transformMessageForResponse } from "../transformMessageForResponse";
 import { AccountInfo, Chat, ChatType, Prisma, User } from "@prisma/client";
 import { prisma } from "../../../model/config/prismaClient";
 import { send } from "process";
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     getGroupChatInfoResponse:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Название чата
+ *           example: Личный чат
+ *         chatImageLink:
+ *           type: string
+ *           description: Ссылка на фото чата
+ *           nullable: true
+ *           example: url
+ */
 
 export const getGroupChatInfo = async (req: Request, res: Response) => {
   const user: User = req.body.user;
@@ -33,9 +52,14 @@ export const getGroupChatInfo = async (req: Request, res: Response) => {
   } catch (err) {
     const error = new DATABASE_ERROR(err);
     return res.status(error.code).json(error.toString());
-  }
+	}
+	
+	if (!chat) {
+		const error = new DATA_NOT_FOUND("Chat", `id = ${chatId}`)
+		return res.status(error.code).json(error.toString())
+	}
 
-  if (!chat || chat.chatType === ChatType.DIRECT) {
+  if (chat.chatType === ChatType.DIRECT) {
     return res.status(400).json(err(new FORBIDDEN_ACCESS()));
   }
 

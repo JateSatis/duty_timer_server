@@ -2,8 +2,10 @@
 import { Request, Response } from "express";
 
 //# --- DATABASE ENTITIES ---
+import { prisma } from "../../../model/config/prismaClient";
+import { User } from "@prisma/client";
 
-//# --- REQUEST ENTITIES ---
+//# --- REQUEST ---
 import {
   UpdateAllUnreadMessagesResponseBodyWS,
   WebSocketChatMessage,
@@ -21,8 +23,6 @@ import {
 
 //# --- UTILS ---
 import { webSocketChatsMap } from "../../../sockets/socketsConfig";
-import { User } from "@prisma/client";
-import { prisma } from "../../../model/config/prismaClient";
 
 export const updateAllUnreadMessagesRoute = async (
   req: Request,

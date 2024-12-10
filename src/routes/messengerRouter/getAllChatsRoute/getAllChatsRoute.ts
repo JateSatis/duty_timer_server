@@ -18,6 +18,16 @@ import {
 //# --- UTILS ---
 import { transformChatForResponse } from "../transformChatForResponse";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     getAllChatsResponse:
+ *       type: array
+ *       items:
+ *         $ref: '#/components/schemas/createGroupChatResponse'
+ */
+
 export const getAllChatsRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
@@ -50,8 +60,9 @@ export const getAllChatsRoute = async (req: Request, res: Response) => {
     getAllChatsResponseBody = transformedChats.filter(
       (chat) => chat.chatType !== ChatType.GLOBAL
     );
-  } catch (error) {
-    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
+  } catch (err) {
+    const error = new S3_STORAGE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
   return res.status(200).json(getAllChatsResponseBody);
 };

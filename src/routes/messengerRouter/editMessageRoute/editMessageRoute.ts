@@ -32,6 +32,19 @@ import {
 import { User } from "@prisma/client";
 import { prisma } from "../../../model/config/prismaClient";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     editMessageRequest:
+ *       type: object
+ *       properties:
+ *         text:
+ *           type: string
+ *           description: Отредактированный текст сообщения
+ *           example: Привет всем!
+ */
+
 export const editMessageRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 

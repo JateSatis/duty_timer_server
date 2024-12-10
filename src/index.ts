@@ -17,7 +17,7 @@ import { messengerRouter } from "./routes/messengerRouter/messengerRouter";
 import { documentsRouter } from "./routes/documentsRouter/privacyPolicyRouter";
 import { webSocketOnConnection } from "./sockets/socketsConfig";
 import { WebSocketServer } from "ws";
-import { prisma } from "./model/config/prismaClient";
+import { connectWithRetry, prisma } from "./model/config/prismaClient";
 import { ChatType } from "@prisma/client";
 import { logsController } from "./routes/controllers/logsController";
 
@@ -32,11 +32,11 @@ export const wss: WebSocketServer = new WebSocketServer({
 });
 
 // Путь к директории логов
-const logDir = path.resolve("requests.log");
+const logDir = path.join(__dirname, "/../logs/requests.log");
 
 // Создание папки logs, если она не существует
 if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(path.join(__dirname + "../requests.log"));
+  fs.mkdirSync(path.join(__dirname + "/../logs"));
 }
 
 app.use(
@@ -91,22 +91,24 @@ const seed = async () => {
 };
 
 const main = async () => {
-  try {
-    wss.on("connection", (socket, req) => {
-      webSocketOnConnection(socket, req);
-    });
-  } catch (error) {
-    console.error(error.message);
-  }
-
-  try {
-    await seed();
-  } catch (error) {
-    console.error(error.message);
-  }
-
   const serverPort = parseInt(process.env.SERVER_PORT!) || 3000;
-  app.listen(serverPort, () => {
+  app.listen(serverPort, async () => {
+    await connectWithRetry();
+
+    try {
+      wss.on("connection", (socket, req) => {
+        webSocketOnConnection(socket, req);
+      });
+    } catch (error) {
+      console.error(error.message);
+    }
+
+    try {
+      await seed();
+    } catch (error) {
+      console.error(error.message);
+    }
+
     console.log(`Server up and running on port ${serverPort}`);
   });
 };

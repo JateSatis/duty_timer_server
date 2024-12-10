@@ -43,6 +43,78 @@ import { transformMessageForResponse } from "../transformMessageForResponse";
 import { prisma } from "../../../model/config/prismaClient";
 import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     createMessageRequest:
+ *       type: object
+ *       properties:
+ *         data:
+ *           type: string
+ *           description: Текст сообщения
+ *           example: Привет всем!
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     createMessageResponse:
+ *       type: object
+ *       properties:
+ *         messageId:
+ *           type: string
+ *           description: UUID созданного сообщения
+ *           example: 16763be4-6022-406e-a950-fcd5018633ca
+ *         chatId:
+ *           type: string
+ *           description: UUID чата, в который было отправлено сообщение
+ *           example: fcd5018633ca-a950-6022-406e-16763be4
+ *         senderId:
+ *           type: string
+ *           description: UUID пользователя, который отправил сообщение
+ *           example: dea186eg137a-a950-6022-406e-3be4117
+ *         senderNickname:
+ *           type: string
+ *           description: Никнейм пользователя, который отправил сообщение
+ *           example: soldat2004
+ *         text:
+ *           type: string
+ *           description: Текст сообщения
+ *           example: Привет всем!
+ *         attachmentLinks:
+ *           type: array
+ *           description: Список ссылок на фотографии сообщения
+ *           items:
+ *             type: string
+ *         creationDate:
+ *           type: string
+ *           description: Дата создания (строковая) сообщения
+ *           example: 17 октября
+ *         creationTime:
+ *           type: string
+ *           description: Время создания (строковое) сообщения
+ *           example: 17:45
+ *         isRead:
+ *           type: boolean
+ *           description: Прочитано ли сообщение
+ *           example: false
+ *         isEdited:
+ *           type: string
+ *           description: Отредактировано ли сообщение
+ *           example: true
+ *         isSender:
+ *           type: string
+ *           description: Является ли данный пользователь отправителем сообщения
+ *           example: true
+ *         senderAvatarLink:
+ *           type: string
+ *           description: Ссылка на аватарку отправителя сообщения
+ *           nullable: true
+ *           example: url
+ */
+
 export const createMessageRoute = async (req: Request, res: Response) => {
   let user;
   try {
@@ -60,9 +132,8 @@ export const createMessageRoute = async (req: Request, res: Response) => {
   }
 
   if (!user) {
-    return res
-      .status(400)
-      .json(err(new DATA_NOT_FOUND("User", `id = ${req.body.user.id}`)));
+    const error = new DATA_NOT_FOUND("User", `id = ${req.body.user.id}`);
+    return res.status(error.code).json(error.toString());
   }
 
   if (emptyParam(req, res, "chatId")) return res;
@@ -79,7 +150,8 @@ export const createMessageRoute = async (req: Request, res: Response) => {
   const imageNames: string[] = [];
 
   if (files.length === 0 && createMessageRequestBody.data === "") {
-    return res.status(400).json(err(new EMPTY_FIELD(["image", "data"])));
+    const error = new EMPTY_FIELD(["image", "data"]);
+    return res.status(error.code).json(error.toString());
   }
 
   let chats;
@@ -100,7 +172,8 @@ export const createMessageRoute = async (req: Request, res: Response) => {
 
   const chat = chats.find((chat) => chat.id === chatId);
   if (!chat) {
-    return res.status(403).json(err(new FORBIDDEN_ACCESS()));
+    const error = new FORBIDDEN_ACCESS();
+    return res.status(error.code).json(error.toString());
   }
 
   let message;
@@ -134,8 +207,9 @@ export const createMessageRoute = async (req: Request, res: Response) => {
         imageNames.push(s3ImageName);
       })
     );
-  } catch (error) {
-    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
+  } catch (err) {
+    const error = new S3_STORAGE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
 
   try {
@@ -171,9 +245,10 @@ export const createMessageRoute = async (req: Request, res: Response) => {
     );
   } catch (error) {
     if (error instanceof ServerError) {
-      return res.status(400).json(err(error));
+      return res.status(error.code).json(error.toString());
     } else {
-      return res.status(400).json(err(new UNKNOWN_ERROR(error)));
+      const err = new UNKNOWN_ERROR(error);
+      return res.status(err.code).json(err.toString());
     }
   }
 

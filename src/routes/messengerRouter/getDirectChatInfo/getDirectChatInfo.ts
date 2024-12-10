@@ -4,6 +4,8 @@ import {
   err,
   FORBIDDEN_ACCESS,
   S3_STORAGE_ERROR,
+  ServerError,
+	UNKNOWN_ERROR,
 } from "../../utils/errors/GlobalErrors";
 import { emptyParam } from "../../utils/validation/emptyParam";
 import { S3DataSource } from "../../../model/config/imagesConfig";
@@ -11,6 +13,28 @@ import { GetDirectChatInfoResponseBody } from "../../../model/routesEntities/Mes
 import { prisma } from "../../../model/config/prismaClient";
 import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 import { ChatType } from "@prisma/client";
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     getDirectChatInfoResponse:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: UUID собеседника
+ *           example: 16763be4-6022-406e-a950-fcd5018633ca
+ *         name:
+ *           type: string
+ *           description: Название чата
+ *           example: Личный чат
+ *         chatImageLink:
+ *           type: string
+ *           description: Ссылка на фото чата
+ *           nullable: true
+ *           example: url
+ */
 
 export const getDirectChatInfo = async (req: Request, res: Response) => {
   const user = await prisma.user.findFirst({
@@ -23,9 +47,8 @@ export const getDirectChatInfo = async (req: Request, res: Response) => {
   });
 
   if (!user) {
-    return res
-      .status(400)
-      .json(new DATA_NOT_FOUND("User", `id = ${req.body.user.id}`));
+    const error = new DATA_NOT_FOUND("User", `id = ${req.body.user.id}`);
+    return res.status(error.code).json(error.toString());
   }
 
   if (emptyParam(req, res, "chatId")) return res;
@@ -49,14 +72,20 @@ export const getDirectChatInfo = async (req: Request, res: Response) => {
   }
 
   if (!chat || chat.chatType !== ChatType.DIRECT) {
-    return res.status(403).json(err(new FORBIDDEN_ACCESS()));
+    const error = new FORBIDDEN_ACCESS();
+    return res.status(error.code).json(error.toString());
   }
 
   let companionInfo;
   try {
     companionInfo = await getCompanionInfo(chatId, user.id);
-  } catch (error) {
-    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
+  } catch (err) {
+    if (err instanceof ServerError) {
+      return res.status(err.code).json(err.toString());
+		} else {
+			const error = new UNKNOWN_ERROR(err);
+      return res.status(error.code).json(error.toString());
+		}
   }
 
   const getDirectChatInfoResponseBody: GetDirectChatInfoResponseBody = {
@@ -96,9 +125,13 @@ const getCompanionInfo = async (chatId: string, userId: string) => {
 
   let avatarLink = null;
   if (companion.accountInfo!.avatarImageName) {
-    avatarLink = await S3DataSource.getImageUrlFromS3(
-      companion.accountInfo!.avatarImageName
-    );
+    try {
+			avatarLink = await S3DataSource.getImageUrlFromS3(
+        companion.accountInfo!.avatarImageName
+      );
+		} catch (error) {
+			throw new S3_STORAGE_ERROR(error)
+		}
   }
   return {
     id: companion.id,

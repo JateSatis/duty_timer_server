@@ -10,6 +10,14 @@ import { getDirectMessages } from "./getDirectMessages";
 import { getGroupMessages } from "./getGroupMessages";
 import { emptyParam } from "../../utils/validation/emptyParam";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     createMessageResponse:
+ *       $ref: '#/components/schemas/createMessageResponse'
+ */
+
 export const getMessages = async (req: Request, res: Response) => {
   const chatId = req.params.chatId;
 

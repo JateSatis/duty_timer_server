@@ -10,6 +10,14 @@ import { ChatResponseBody } from "../../../model/routesEntities/MessageRoutesEnt
 import { S3DataSource } from "../../../model/config/imagesConfig";
 import { formatDateForMessage } from "../formatDateForMessage";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     getGlobalChatResponse:
+ *       $ref: '#/components/schemas/createGroupChatResponse'
+ */
+
 export const getGlobalChat = async (req: Request, res: Response) => {
   let chat;
   try {

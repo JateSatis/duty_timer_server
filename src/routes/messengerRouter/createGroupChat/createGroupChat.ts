@@ -18,6 +18,73 @@ import { S3DataSource } from "../../../model/config/imagesConfig";
 import { transformChatForResponse } from "../transformChatForResponse";
 import { prisma } from "../../../model/config/prismaClient";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     createGroupChatRequest:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Название группы, которую нужно создать
+ *           example: Чат семьи
+ *         participantIds:
+ *           type: array
+ *           items:
+ *             type: string
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     createGroupChatResponse:
+ *       type: object
+ *       properties:
+ *         chatId:
+ *           type: string
+ *           description: UUID созданного чата
+ *           example: 16763be4-6022-406e-a950-fcd5018633ca
+ *         name:
+ *           type: string
+ *           description: Название созданного чата
+ *           example: Семейный чат
+ *         imageLink:
+ *           type: string
+ *           description: Ссылка на фото созданного чата
+ *           nullable: true
+ *           example: url
+ *         lastMessageText:
+ *           type: string
+ *           description: Текст последнего отправленного сообщения в чате
+ *           nullable: true
+ *           example: Привет всем!
+ *         lastMessageCreationTime:
+ *           type: string
+ *           description: Время (строковое) отправки последнего сообщения
+ *           nullable: true
+ *           example: 17:45
+ *         lastMessageSenderName:
+ *           type: string
+ *           description: Имя пользователя, отправившего последнее сообщение
+ *           nullable: true
+ *           example: soldat2004
+ *         unreadMessagesAmount:
+ *           type: integer
+ *           description: Кол-во непрочитанных сообщений
+ *           nullable: true
+ *           example: 4
+ *         chatType:
+ *           type: string
+ *           description: Тип чата (групповой или нет)
+ *           example: GROUP
+ *         isOnline:
+ *           type: boolean
+ *           description: В данном контексте не имеет смысла
+ *           example: false
+ */
+
 export const createGroupChat = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
@@ -60,7 +127,8 @@ export const createGroupChat = async (req: Request, res: Response) => {
   );
 
   if (invalidParticipants.length !== 0) {
-    return res.status(400).json(err(new FORBIDDEN_ACCESS()));
+    const error = new FORBIDDEN_ACCESS();
+    return res.status(error.code).json(error.toString());
   }
 
   let s3ChatImageName = null;
@@ -74,8 +142,9 @@ export const createGroupChat = async (req: Request, res: Response) => {
         body,
         contentType
       );
-    } catch (error) {
-      return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
+    } catch (err) {
+      const error = new S3_STORAGE_ERROR(err);
+      return res.status(error.code).json(error.toString());
     }
   }
 
@@ -110,8 +179,9 @@ export const createGroupChat = async (req: Request, res: Response) => {
       groupChat.id,
       user.id
     );
-  } catch (error) {
-    return res.status(400).json(err(new S3_STORAGE_ERROR(error)));
+  } catch (err) {
+    const error = new S3_STORAGE_ERROR(err);
+    return res.status(error.code).json(error.toString());
   }
   return res.status(200).json(createGroupChatResponseBody);
 };

@@ -50,13 +50,156 @@ messengerRouter.use(messengerLimiter);
 //? Idea: make it so that attachments can also be edited when editing the message, so they can be
 //? deleted or added new.
 
-//? Idea: add the "edited at" field to the message, so that when the message is edited,
-//? it would be possible to display when it was done under the info about when it was created
+//# Swagger описание тега Messenger
+/**
+ * @swagger
+ * tags:
+ *   name: Messenger
+ *   description: Ручки для мессенджера
+ */
 
+//# Swagger описание запроса getAllChatsRoute
+/**
+ * @swagger
+ * /messenger/chats:
+ *   get:
+ *     summary: Получение списка всех чатов (кроме глобального)
+ *     description: Используется для отображения экрана мессенджера
+ *     tags: [Messenger]
+ *     security:
+ *       - Bearer: []
+ *     responses:
+ *       200:
+ *         description: Список чатов успешно получен
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/getAllChatsResponse'
+ *       500:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               oneOf:
+ *                 - $ref: '#/components/schemas/DATABASE_ERROR'
+ *                 - $ref: '#/components/schemas/S3_STORAGE_ERROR'
+ *             examples:
+ *               DATABASE_ERROR:
+ *                 $ref: '#/components/examples/DATABASE_ERROR_EXAMPLE'
+ *               S3_STORAGE_ERROR:
+ *                 $ref: '#/components/examples/S3_STORAGE_ERROR_EXAMPLE'
+ *           
+ */
 messengerRouter.get("/chats", auth, getAllChatsRoute);
 
+//# Swagger описание запроса getDirectChatInfo
+/**
+ * @swagger
+ * /messenger/direct-chat:
+ *   get:
+ *     summary: Получение информации о личном чате
+ *     description: Используется для отображения названия и фото личного чата
+ *     tags: [Messenger]
+ *     security:
+ *       - Bearer: []
+ *     parameters:
+ *       - name: chatId
+ *         description: UUID личного чата, чьи данные необходимо получить
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Данные чата успешно получены
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/getDirectChatInfoResponse'
+ *       400:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/EMPTY_PARAMETER'
+ *       403:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/FORBIDDEN_ACCESS'
+ *       404:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DATA_NOT_FOUND'
+ *       500:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               oneOf:
+ *                 - $ref: '#/components/schemas/DATABASE_ERROR'
+ *                 - $ref: '#/components/schemas/S3_STORAGE_ERROR'
+ *                 - $ref: '#/components/schemas/UNKNOWN_ERROR'
+ *             examples:
+ *               DATABASE_ERROR:
+ *                 $ref: '#/components/examples/DATABASE_ERROR_EXAMPLE'
+ *               S3_STORAGE_ERROR:
+ *                 $ref: '#/components/examples/S3_STORAGE_ERROR_EXAMPLE'
+ *               UNKNOWN_ERROR:
+ *                 $ref: '#/components/examples/UNKNOWN_ERROR_EXAMPLE'
+ *           
+ */
 messengerRouter.get("/direct-chat/:chatId", auth, getDirectChatInfo);
 
+//# Swagger описание запроса getGroupChatInfo
+/**
+ * @swagger
+ * /messenger/group-chat:
+ *   get:
+ *     summary: Получение списка всех чатов (кроме глобального)
+ *     description: Используется для отображения экрана мессенджера
+ *     tags: [Messenger]
+ *     security:
+ *       - Bearer: []
+ *     parameters:
+ *       - name: chatId
+ *         description: UUID группового чата, чьи данные необходимо получить
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Данные группового чата успешно получены
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/getDirectChatInfoResponse'
+ *       400:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/EMPTY_PARAMETER'
+ *       403:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/FORBIDDEN_ACCESS'
+ *       404:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DATA_NOT_FOUND'
+ *       500:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               oneOf:
+ *                 - $ref: '#/components/schemas/DATABASE_ERROR'
+ *                 - $ref: '#/components/schemas/S3_STORAGE_ERROR'
+ *             examples:
+ *               DATABASE_ERROR:
+ *                 $ref: '#/components/examples/DATABASE_ERROR_EXAMPLE'
+ *               S3_STORAGE_ERROR:
+ *                 $ref: '#/components/examples/S3_STORAGE_ERROR_EXAMPLE'
+ *           
+ */
 messengerRouter.get("/group-chat/:chatId", auth, getGroupChatInfo);
 
 messengerRouter.post(
