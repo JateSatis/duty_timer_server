@@ -158,16 +158,16 @@ export const sendOtpVerification = async (req: Request, res: Response) => {
     });
   }
 
-  try {
-    runPythonScript(
-      sendOtpVerificationRequestBody.email,
-      "Код подтверждения DMB Timer",
-      `Code: ${otp}`
-    );
-  } catch (err) {
-    const error = new OTP_SENDING_UNAVAILABLE();
-    return res.status(error.code).json(error.toString());
-  }
+  // try {
+  //   runPythonScript(
+  //     sendOtpVerificationRequestBody.email,
+  //     "Код подтверждения DMB Timer",
+  //     `Code: ${otp}`
+  //   );
+  // } catch (err) {
+  //   const error = new OTP_SENDING_UNAVAILABLE();
+  //   return res.status(error.code).json(error.toString());
+  // }
 
   // const transporter = nodemailer.createTransport({
   //   service: "gmail",
@@ -210,7 +210,7 @@ export const sendOtpVerification = async (req: Request, res: Response) => {
   //   throw error;
   // }
 
-  return res.sendStatus(200);
+  return res.status(200).send(otp);
 };
 
 // const getGmailAccessToken = async () => {
