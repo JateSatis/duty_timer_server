@@ -71,6 +71,7 @@ export const signUpRoute = async (req: Request, res: Response) => {
   if (await nicknameIsTaken(res, signUpRequestBody.nickname)) return res;
 
   const otp = generateOtp();
+  console.log(otp.value);
 
   let existingPendingUser = null;
   try {
