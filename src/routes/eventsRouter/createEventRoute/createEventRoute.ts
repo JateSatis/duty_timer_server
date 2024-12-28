@@ -18,7 +18,7 @@ import { missingRequestField } from "../../utils/validation/missingRequestField"
 import { invalidInputFormat } from "./invalidInputFormat";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err, sendError } from "../../utils/errors/GlobalErrors";
 
 export const createEventRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, createEventRequestBodyProperties))
@@ -41,9 +41,8 @@ export const createEventRoute = async (req: Request, res: Response) => {
         timeMillis: parseInt(createEventRequestBody.timeMillis),
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   const createEventResponseBody: CreateEventResponseBody = {

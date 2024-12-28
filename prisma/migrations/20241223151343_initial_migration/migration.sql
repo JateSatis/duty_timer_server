@@ -14,16 +14,25 @@ CREATE TYPE "Theme" AS ENUM ('WHITE', 'BLACK');
 CREATE TYPE "UserType" AS ENUM ('SOLDIER', 'OFFICER', 'CADET', 'RELATIVE', 'DEFAULT');
 
 -- CreateTable
-CREATE TABLE "User" (
+CREATE TABLE "PendingUser" (
     "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "nickname" TEXT NOT NULL,
+    "passwordHash" TEXT NOT NULL,
+    "passwordSalt" TEXT NOT NULL,
+    "otpHash" TEXT NOT NULL,
+    "otpSalt" TEXT NOT NULL,
+    "otpExpiresAt" BIGINT NOT NULL,
+    "createdAt" BIGINT NOT NULL,
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "PendingUser_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "AccountInfo" (
+CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "isVerified" BOOLEAN NOT NULL,
+    "createdAt" BIGINT NOT NULL,
     "email" TEXT NOT NULL,
     "nickname" TEXT NOT NULL,
     "avatarImageName" TEXT,
@@ -32,23 +41,8 @@ CREATE TABLE "AccountInfo" (
     "passwordSalt" TEXT NOT NULL,
     "isOnline" BOOLEAN NOT NULL DEFAULT false,
     "lastSeenOnline" BIGINT NOT NULL,
-    "userId" TEXT NOT NULL,
 
-    CONSTRAINT "AccountInfo_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "OtpVerification" (
-    "id" TEXT NOT NULL,
-    "otpHash" TEXT NOT NULL,
-    "otpSalt" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "createdAt" BIGINT NOT NULL,
-    "otpExpiresAt" BIGINT NOT NULL,
-    "accountExpiresAt" BIGINT NOT NULL,
-    "accountId" TEXT NOT NULL,
-
-    CONSTRAINT "OtpVerification_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -161,17 +155,19 @@ CREATE TABLE "Message" (
 -- CreateTable
 CREATE TABLE "_ChatToUser" (
     "A" TEXT NOT NULL,
-    "B" TEXT NOT NULL
+    "B" TEXT NOT NULL,
+
+    CONSTRAINT "_ChatToUser_AB_pkey" PRIMARY KEY ("A","B")
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "AccountInfo_nickname_key" ON "AccountInfo"("nickname");
+CREATE UNIQUE INDEX "PendingUser_email_key" ON "PendingUser"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "AccountInfo_userId_key" ON "AccountInfo"("userId");
+CREATE UNIQUE INDEX "PendingUser_nickname_key" ON "PendingUser"("nickname");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "OtpVerification_accountId_key" ON "OtpVerification"("accountId");
+CREATE UNIQUE INDEX "User_nickname_key" ON "User"("nickname");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "RefreshToken_userId_key" ON "RefreshToken"("userId");
@@ -192,16 +188,7 @@ CREATE UNIQUE INDEX "FriendshipRequest_senderId_recieverId_key" ON "FriendshipRe
 CREATE UNIQUE INDEX "Frienship_user1Id_user2Id_key" ON "Frienship"("user1Id", "user2Id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "_ChatToUser_AB_unique" ON "_ChatToUser"("A", "B");
-
--- CreateIndex
 CREATE INDEX "_ChatToUser_B_index" ON "_ChatToUser"("B");
-
--- AddForeignKey
-ALTER TABLE "AccountInfo" ADD CONSTRAINT "AccountInfo_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "OtpVerification" ADD CONSTRAINT "OtpVerification_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "AccountInfo"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "RefreshToken" ADD CONSTRAINT "RefreshToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

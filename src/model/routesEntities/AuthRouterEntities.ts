@@ -1,21 +1,25 @@
+import { UserType } from "@prisma/client";
+
 //# --- SIGN UP REQUEST ---
 export type SignUpRequestBody = {
   login: string;
   password: string;
   nickname: string;
+  userType: UserType;
 };
 export const signUpRequestBodyProperties = [
   "login",
   "password",
   "nickname",
+  "userType",
 ];
 
-//# --- SEND OTP VERIFICATION ---
-export type SendOtpVerificationRequestBody = {
+//# --- SEND VERIFICATION OTP ---
+export type ResendVerificationOtpRequestBody = {
   email: string;
 };
 
-export const sendOtpVerificationRequestBodyProperties = ["email"];
+export const resendVerificationOtpRequestBodyProperties = ["email"];
 
 //# --- VERIFIY EMAIL REQUEST ---
 export type VerifyEmailRequestBody = {

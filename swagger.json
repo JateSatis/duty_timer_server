@@ -1939,16 +1939,6 @@
           }
         }
       },
-      "sendOtpVerificationRequest": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "description": "Email, на который нужно отправить код подтверждения",
-            "example": "default_user@gmail.com"
-          }
-        }
-      },
       "signInRequest": {
         "type": "object",
         "properties": {

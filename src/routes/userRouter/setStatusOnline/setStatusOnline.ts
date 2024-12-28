@@ -25,16 +25,12 @@ export const setStatusOnline = async (req: Request, res: Response) => {
         id: user.id,
       },
       data: {
-        accountInfo: {
-          update: {
-            isOnline: false,
-            lastSeenOnline: lastSeenOnlineTime,
-          },
-        },
+        isOnline: false,
+        lastSeenOnline: lastSeenOnlineTime,
       },
     });
-	} catch (err) {
-		const error = new DATABASE_ERROR(err);
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
     return res.status(error.code).json(error);
   }
 

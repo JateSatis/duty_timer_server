@@ -2,7 +2,7 @@ import { User } from "@prisma/client";
 import { Request, Response } from "express";
 import { S3DataSource } from "../../../model/config/imagesConfig";
 import { prisma } from "../../../model/config/prismaClient";
-import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
+import { DATA_NOT_FOUND, sendError } from "../../utils/errors/GlobalErrors";
 import {
   DATABASE_ERROR,
   err,
@@ -19,9 +19,8 @@ export const deleteBackgroundImage = async (req: Request, res: Response) => {
         userId: user.id,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!settings) {
@@ -50,9 +49,8 @@ export const deleteBackgroundImage = async (req: Request, res: Response) => {
         backgroundImageName: null,
       },
     });
-	} catch (err) {
-		const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   return res.sendStatus(200);

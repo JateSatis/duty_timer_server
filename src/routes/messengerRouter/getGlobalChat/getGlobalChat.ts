@@ -73,9 +73,9 @@ export const getGlobalChat = async (req: Request, res: Response) => {
 
     let sender;
     try {
-      sender = await prisma.accountInfo.findFirst({
+      sender = await prisma.user.findFirst({
         where: {
-          userId: lastMessage.senderId,
+          id: lastMessage.senderId,
         },
       });
     } catch (error) {

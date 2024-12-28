@@ -88,9 +88,6 @@ const authMiddleware = async (
               where: {
                 id: userId,
               },
-              include: {
-                accountInfo: true,
-              },
             });
           } catch (error) {
             return res.status(404).json(err(new DATABASE_ERROR(error)));
@@ -101,7 +98,7 @@ const authMiddleware = async (
               .status(404)
               .json(err(new DATA_NOT_FOUND("user", `id = ${userId}`)));
 
-          if (!user.accountInfo!.isVerified) {
+          if (!user) {
             return res.status(404).json(err(new ACCOUNT_NOT_VERIFIED()));
           }
 

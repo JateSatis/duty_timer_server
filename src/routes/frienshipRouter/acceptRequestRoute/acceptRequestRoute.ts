@@ -12,7 +12,7 @@ import { AcceptFriendshipResponseBody } from "../../../model/routesEntities/Frie
 import { emptyParam } from "../../utils/validation/emptyParam";
 
 //# --- ERRORS ---
-import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
+import { DATA_NOT_FOUND, sendError } from "../../utils/errors/GlobalErrors";
 import {
   DATABASE_ERROR,
   err,
@@ -29,18 +29,15 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
 
   let userAccountInfo, sender, friendshipRequest;
   try {
-    userAccountInfo = await prisma.accountInfo.findFirst({
+    userAccountInfo = await prisma.user.findFirst({
       where: {
-        userId: user.id,
+        id: user.id,
       },
     });
 
     sender = await prisma.user.findFirst({
       where: {
         id: senderId,
-      },
-      include: {
-        accountInfo: true,
       },
     });
 
@@ -50,9 +47,8 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
         recieverId: user.id,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!userAccountInfo) {
@@ -93,9 +89,8 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
         user2Id: senderId,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   //# Check if chat between these two users already exist and if so do nothing
@@ -111,9 +106,8 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (existingChat) {
@@ -131,15 +125,14 @@ export const acceptRequestRoute = async (req: Request, res: Response) => {
         users: {
           connect: [{ id: senderId }, { id: user.id }],
         },
-        name: `${sender.accountInfo!.nickname}, ${userAccountInfo.nickname}`,
+        name: `${sender.nickname}, ${userAccountInfo.nickname}`,
         chatType: ChatType.DIRECT,
         creationTime: Date.now(),
         lastUpdateTimeMillis: Date.now(),
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   let acceptFriendshipResponseBody: AcceptFriendshipResponseBody;

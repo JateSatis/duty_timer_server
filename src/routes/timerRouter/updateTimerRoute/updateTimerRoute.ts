@@ -16,7 +16,7 @@ import { emptyField } from "../../utils/validation/emptyField";
 import { missingRequestField } from "../../utils/validation/missingRequestField";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err, sendError } from "../../utils/errors/GlobalErrors";
 import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 
 export const updateTimerRoute = async (req: Request, res: Response) => {
@@ -39,9 +39,8 @@ export const updateTimerRoute = async (req: Request, res: Response) => {
         endTimeMillis: BigInt(updateTimerRequestBody.endTimeMillis),
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!timer) {

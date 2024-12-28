@@ -8,16 +8,16 @@ export const transformRequestsForResponse = async (requestIds: string[]) => {
   const usersInfo = await Promise.all(
     requests.map(async (request) => {
       let avatarLink = null;
-      if (request.sender.accountInfo!.avatarImageName) {
+      if (request.sender.avatarImageName) {
         avatarLink = await S3DataSource.getImageUrlFromS3(
-          request.sender.accountInfo!.avatarImageName
+          request.sender.avatarImageName
         );
       }
 
       const recievedFriendshipRequestInfo: RecievedFriendshipRequestInfo = {
         id: request.id,
         senderId: request.senderId,
-        senderNickname: request.sender.accountInfo!.nickname,
+        senderNickname: request.sender.nickname,
         senderAvatarLink: avatarLink,
       };
 
@@ -34,16 +34,8 @@ const getJoinedRequests = async (requestIds: string[]) => {
       id: { in: requestIds },
     },
     include: {
-      reciever: {
-        include: {
-          accountInfo: true,
-        },
-      },
-      sender: {
-        include: {
-          accountInfo: true,
-        },
-      },
+      reciever: true,
+      sender: true,
     },
   });
 

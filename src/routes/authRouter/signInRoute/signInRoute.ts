@@ -24,7 +24,7 @@ import { invalidInputFormat } from "./invalidInputFormat";
 import { emptyField } from "../../utils/validation/emptyField";
 
 //# --- ERRORS ---
-import { err } from "../../utils/errors/GlobalErrors";
+import { err, sendError } from "../../utils/errors/GlobalErrors";
 import {
   INCORRECT_PASSWORD,
   ACCOUNT_NOT_VERIFIED,
@@ -71,18 +71,14 @@ export const signInRoute = async (req: Request, res: Response) => {
   try {
     user = await prisma.user.findFirst({
       where: {
-        accountInfo: {
-          email: signInRequestBody.login,
-        },
+        email: signInRequestBody.login,
       },
       include: {
-        accountInfo: true,
         refreshToken: true,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   //# Case where there is no user with such email
@@ -95,15 +91,15 @@ export const signInRoute = async (req: Request, res: Response) => {
   }
 
   //# Case where this account is not verified
-  if (!user.accountInfo!.isVerified) {
+  if (!user) {
     const error = new ACCOUNT_NOT_VERIFIED();
     return res.status(error.code).json(error.toString());
   }
 
   const passwordIsValid = validatePassword(
     signInRequestBody.password,
-    user.accountInfo!.passwordHash,
-    user.accountInfo!.passwordSalt
+    user.passwordHash,
+    user.passwordSalt
   );
 
   if (!passwordIsValid) {
@@ -130,9 +126,8 @@ export const signInRoute = async (req: Request, res: Response) => {
         token: refreshToken.token,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   const signInResponseBody: SignInResponseBody = {

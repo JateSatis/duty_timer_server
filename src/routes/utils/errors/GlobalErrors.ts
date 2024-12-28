@@ -1,3 +1,5 @@
+import { Response } from "express";
+
 export class ServerError extends Error {
   public name: string;
   public message: string;
@@ -10,6 +12,13 @@ export class ServerError extends Error {
     this.code = code;
   }
 
+  public toJson() {
+    return {
+      name: this.name,
+      message: this.message,
+    };
+  }
+
   public toString() {
     return `
 			{
@@ -19,6 +28,10 @@ export class ServerError extends Error {
 			`;
   }
 }
+
+export const sendError = (res: Response, error: ServerError) => {
+  return res.status(error.code).json(error.toJson());
+};
 
 export const err = (serverError: ServerError) => {
   return {

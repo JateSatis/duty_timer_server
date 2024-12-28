@@ -14,7 +14,7 @@ import { logOutRoute } from "./logOutRoute/logOutRoute";
 import { refreshTokenRoute } from "./refreshTokenRoute/refreshTokenRoute";
 import { deleteAccountRoute } from "./deleteAccountRoute/deleteAccountRoute";
 import { verifyEmailRoute } from "./verifyEmailRoute/verifyEmailRoute";
-import { sendOtpVerification } from "./sendOtpVerification/sendOtpVerification";
+import { resendVerificationOtp } from "./resendVerificationOtp.ts/resendVerificationOtp";
 
 // # --- ERRORS ---
 import { err, RATE_LIMIT_EXCEEDED } from "../utils/errors/GlobalErrors";
@@ -124,7 +124,7 @@ authRouter.use(authLimiter);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/DATABASE_ERROR'
- *           
+ *
  */
 authRouter.post("/sign-up", signUpRoute);
 
@@ -184,7 +184,7 @@ authRouter.post("/sign-up", signUpRoute);
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/DATABASE_ERROR'
- *           
+ *
  */
 authRouter.post("/sign-in", signInRoute);
 
@@ -239,7 +239,7 @@ authRouter.post("/sign-in", signInRoute);
  *             schema:
  *               $ref: '#/components/schemas/OTP_SENDING_UNAVAILABLE'
  */
-authRouter.post("/send-otp-verification", sendOtpVerification);
+authRouter.post("/resend-verification-otp", resendVerificationOtp);
 
 //# Swagger описание запроса verifyEmailRoute
 /**

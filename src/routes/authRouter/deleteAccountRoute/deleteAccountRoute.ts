@@ -6,7 +6,7 @@ import { prisma } from "../../../model/config/prismaClient";
 import { User } from "@prisma/client";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
+import { DATABASE_ERROR, sendError } from "../../utils/errors/GlobalErrors";
 
 export const deleteAccountRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
@@ -17,9 +17,8 @@ export const deleteAccountRoute = async (req: Request, res: Response) => {
         id: user.id,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   return res.sendStatus(200);

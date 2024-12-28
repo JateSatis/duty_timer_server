@@ -36,6 +36,7 @@ import {
   ServerError,
   UNKNOWN_ERROR,
   DATA_NOT_FOUND,
+  sendError,
 } from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
@@ -122,13 +123,9 @@ export const createMessageRoute = async (req: Request, res: Response) => {
       where: {
         id: req.body.user.id,
       },
-      include: {
-        accountInfo: true,
-      },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!user) {
@@ -165,15 +162,19 @@ export const createMessageRoute = async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   const chat = chats.find((chat) => chat.id === chatId);
   if (!chat) {
     const error = new FORBIDDEN_ACCESS();
     return res.status(error.code).json(error.toString());
+  }
+
+  let replyToMessageId = null;
+  if (createMessageRequestBody.replyToId?.length) {
+    replyToMessageId = createMessageRequestBody.replyToId;
   }
 
   let message;
@@ -186,11 +187,11 @@ export const createMessageRoute = async (req: Request, res: Response) => {
         isRead: false,
         chatId: chatId,
         senderId: user.id,
+        replyToId: replyToMessageId,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   try {
@@ -223,16 +224,13 @@ export const createMessageRoute = async (req: Request, res: Response) => {
         });
       })
     );
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   let avatarLink = null;
-  if (user.accountInfo!.avatarImageName) {
-    avatarLink = await S3DataSource.getImageUrlFromS3(
-      user.accountInfo!.avatarImageName
-    );
+  if (user.avatarImageName) {
+    avatarLink = await S3DataSource.getImageUrlFromS3(user.avatarImageName);
   }
 
   let messageResponseBody: GroupMessageResponseBody;
@@ -280,9 +278,8 @@ export const createMessageRoute = async (req: Request, res: Response) => {
         lastUpdateTimeMillis: message.creationTime,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   const createMessageResponseBody: CreateMessageResponseBody =

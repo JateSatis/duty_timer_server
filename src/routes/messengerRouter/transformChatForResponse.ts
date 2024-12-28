@@ -39,13 +39,13 @@ export const transformChatForResponse = async (
   } else if (companions.length != 0) {
     //# If direct chat -> try to get avatar of a companion
     const companion = companions[0];
-    const imageName = companion.accountInfo!.avatarImageName;
+    const imageName = companion.avatarImageName;
     if (imageName)
       chatResponseBody.imageLink = await S3DataSource.getImageUrlFromS3(
         imageName
       );
-    chatResponseBody.isOnline = companion.accountInfo!.isOnline;
-    chatResponseBody.name = companion.accountInfo!.nickname;
+    chatResponseBody.isOnline = companion.isOnline;
+    chatResponseBody.name = companion.nickname;
   }
 
   if (messages.length !== 0) {
@@ -62,8 +62,7 @@ export const transformChatForResponse = async (
     chatResponseBody.unreadMessagesAmount = unreadMessages.length;
     chatResponseBody.lastMessageText = lastMessage.text;
     chatResponseBody.lastMessageCreationTime = timeFormat;
-    chatResponseBody.lastMessageSenderName =
-      lastMessage.sender.accountInfo!.nickname;
+    chatResponseBody.lastMessageSenderName = lastMessage.sender.nickname;
   }
 
   return chatResponseBody;
@@ -75,18 +74,10 @@ const getChatById = async (chatId: string) => {
       id: chatId,
     },
     include: {
-      users: {
-        include: {
-          accountInfo: true,
-        },
-      },
+      users: true,
       messages: {
         include: {
-          sender: {
-            include: {
-              accountInfo: true,
-            },
-          },
+          sender: true,
         },
       },
     },

@@ -10,7 +10,7 @@ import { ConnectToTimerResponseBody } from "../../../model/routesEntities/TimerR
 import { emptyParam } from "../../utils/validation/emptyParam";
 
 //# --- ERRORS ---
-import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
+import { DATA_NOT_FOUND, sendError } from "../../utils/errors/GlobalErrors";
 import {
   DATABASE_ERROR,
   err,
@@ -33,9 +33,8 @@ export const connectToTimerRoute = async (req: Request, res: Response) => {
         userId: userId,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!timer) {
@@ -54,9 +53,8 @@ export const connectToTimerRoute = async (req: Request, res: Response) => {
         ],
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!frienship) {
@@ -73,9 +71,8 @@ export const connectToTimerRoute = async (req: Request, res: Response) => {
         endTimeMillis: timer.endTimeMillis,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   const connectToTimerResponseBody: ConnectToTimerResponseBody = {

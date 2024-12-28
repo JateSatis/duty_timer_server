@@ -18,6 +18,7 @@ import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
+	sendError,
 } from "../../utils/errors/GlobalErrors";
 import { emptyParam } from "../../utils/validation/emptyParam";
 
@@ -47,9 +48,8 @@ export const updateEventRoute = async (req: Request, res: Response) => {
         id: eventId,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!event) {
@@ -70,9 +70,8 @@ export const updateEventRoute = async (req: Request, res: Response) => {
         timeMillis: BigInt(updateEventRequestBody.timeMillis),
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   return res.sendStatus(200);

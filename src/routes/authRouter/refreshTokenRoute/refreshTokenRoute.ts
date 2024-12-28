@@ -22,6 +22,7 @@ import {
 import {
   DATABASE_ERROR,
   DATA_NOT_FOUND,
+	sendError,
 } from "../../utils/errors/GlobalErrors";
 
 /**
@@ -60,25 +61,22 @@ export const refreshTokenRoute = async (req: Request, res: Response) => {
         userId: user.id,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
+  }
+
+  if (!refreshTokenDB) {
+    const error = new DATA_NOT_FOUND("RefreshToken", `userId = ${user.id}`);
     return res.status(error.code).json(error.toString());
   }
 
-	if (!refreshTokenDB) {
-		const error = new DATA_NOT_FOUND("RefreshToken", `userId = ${user.id}`);
-    return res
-      .status(error.code)
-      .json(error.toString());
-  }
-
-	if (refreshTokenDB.isRevoked) {
-		const error = new REFRESH_TOKEN_REVOKED();
+  if (refreshTokenDB.isRevoked) {
+    const error = new REFRESH_TOKEN_REVOKED();
     return res.status(error.code).json(error.toString());
   }
 
-	if (refreshToken != refreshTokenDB.token) {
-		const error = new OUTDATED_REFRESH_TOKEN();
+  if (refreshToken != refreshTokenDB.token) {
+    const error = new OUTDATED_REFRESH_TOKEN();
     return res.status(error.code).json(error.toString());
   }
 
@@ -95,9 +93,8 @@ export const refreshTokenRoute = async (req: Request, res: Response) => {
         isRevoked: false,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   const refreshTokenResponseBody: RefreshTokenResponseBody = {

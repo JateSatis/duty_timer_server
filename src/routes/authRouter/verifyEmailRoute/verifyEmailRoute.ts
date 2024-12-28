@@ -10,7 +10,7 @@ import {
 
 //# --- DATABASE ---
 import { prisma } from "../../../model/config/prismaClient";
-import { ChatType, OtpVerification } from "@prisma/client";
+import { ChatType } from "@prisma/client";
 
 //# --- REQUEST ENTITIES ---
 import {
@@ -29,12 +29,14 @@ import {
   DATABASE_ERROR,
   DATA_NOT_FOUND,
   err,
+  sendError,
 } from "../../utils/errors/GlobalErrors";
 import {
   ACCOUNT_ALREADY_VERIFIED,
   NOT_VALID_OTP,
   OTP_EXPIRED,
   OTP_NOT_FOUND,
+  TOO_MANY_VERIFICATION_ATTEMPTS,
 } from "../../utils/errors/AuthErrors";
 
 /**
@@ -71,60 +73,111 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
 
   if (invalidInputFormat(res, verifyEmailRequestBody)) return res;
 
-  let user;
+  let existingUser;
   try {
-    user = await prisma.user.findFirst({
+    existingUser = await prisma.user.findFirst({
       where: {
-        accountInfo: {
-          email: verifyEmailRequestBody.email,
-        },
-      },
-      include: {
-        accountInfo: {
-          include: {
-            otpVerification: true,
-          },
-        },
+        email: verifyEmailRequestBody.email,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
-  }
-
-  //# if there is no account with this email, return an error
-  if (!user) {
-    const error = new DATA_NOT_FOUND(
-      "User",
-      `email = ${verifyEmailRequestBody.email}`
-    );
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   //# If provided account is verified, it shouldn't be verified again
-  if (user.accountInfo!.isVerified) {
+  if (existingUser) {
     const error = new ACCOUNT_ALREADY_VERIFIED();
     return res.status(error.code).json(error.toString());
   }
 
-  const otpVerification = user.accountInfo!.otpVerification;
+  let pendingUser;
+  try {
+    pendingUser = await prisma.pendingUser.findFirst({
+      where: {
+        email: verifyEmailRequestBody.email,
+      },
+      include: {
+        otpCode: {
+          where: {
+            purpose: "REGISTRATION",
+          },
+        },
+      },
+    });
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
+  }
 
-  //# Case where no code was sent to this account
-  if (!otpVerification) {
-    const error = new OTP_NOT_FOUND();
-    return res.status(error.code).json(error.toString());
+  //# if there is no pending user with this email, return an error
+  if (!pendingUser) {
+    return sendError(
+      res,
+      new DATA_NOT_FOUND(
+        "PendingUser",
+        `email = ${verifyEmailRequestBody.email}`
+      )
+    );
+  }
+
+  //# If there is no otpCode, return an error
+  if (!pendingUser.otpCode) {
+    return sendError(
+      res,
+      new DATA_NOT_FOUND("otpCode", `pendingUserId = ${pendingUser.id}`)
+    );
+  }
+
+  //# If user tried to verify email too many times and failed
+  if (pendingUser.verificationAttemptsCount >= 10) {
+    return sendError(res, new TOO_MANY_VERIFICATION_ATTEMPTS());
   }
 
   //# Case where code is expired
-  if (otpVerification.otpExpiresAt < Date.now()) {
-    const error = new OTP_EXPIRED();
-    return res.status(error.code).json(error.toString());
+  if (pendingUser.otpCode.otpExpiresAt < Date.now()) {
+    return sendError(res, new OTP_EXPIRED());
   }
 
   //# Case where OTP is wrong
-  if (!validateOtp(verifyEmailRequestBody.otp, otpVerification)) {
-    const error = new NOT_VALID_OTP();
-    return res.status(error.code).json(error.toString());
+  if (
+    !validateOtp(
+      verifyEmailRequestBody.otp,
+      pendingUser.otpCode.otpHash,
+      pendingUser.otpCode.otpSalt
+    )
+  ) {
+    try {
+      await prisma.pendingUser.update({
+        where: {
+          id: pendingUser.id,
+        },
+        data: {
+          verificationAttemptsCount: pendingUser.verificationAttemptsCount + 1,
+        },
+      });
+    } catch (error) {
+      return sendError(res, new DATABASE_ERROR(error));
+    }
+
+    return sendError(res, new NOT_VALID_OTP());
+  }
+
+  //# After verifying the email, create the user
+  let user;
+  try {
+    user = await prisma.user.create({
+      data: {
+        email: pendingUser.email,
+        passwordHash: pendingUser.passwordHash,
+        passwordSalt: pendingUser.passwordSalt,
+        nickname: pendingUser.nickname,
+        userType: pendingUser.userType,
+        createdAt: pendingUser.userCreatedAt,
+        lastSeenOnline: Date.now(),
+        isOnline: true,
+      },
+    });
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   const accessToken = issueAccessToken(user.id);
@@ -149,48 +202,32 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
       },
     });
 
-    //# Update account info -> make it verified
-    await prisma.user.update({
+    //# Delete pending user
+    await prisma.pendingUser.delete({
       where: {
-        id: user.id,
-      },
-      data: {
-        accountInfo: {
-          update: {
-            isVerified: true,
-          },
-        },
+        id: pendingUser.id,
       },
     });
-
-    //# Delete otp verification code
-    await prisma.otpVerification.delete({
-      where: {
-        accountId: user.accountInfo!.id,
-      },
-    });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   //# Create essential entities for user
   try {
-    let settings = await prisma.settings.create({
+    await prisma.settings.create({
       data: {
         userId: user.id,
       },
     });
 
-    let subscription = await prisma.subscription.create({
+    await prisma.subscription.create({
       data: {
         userId: user.id,
         expirationDate: Date.now(),
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   //# Connect user to global chat
@@ -213,9 +250,8 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
         },
       });
     }
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   const verifyEmailResponseBody: VerifyEmailResponseBody = {
@@ -228,10 +264,10 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
   return res.status(200).json(verifyEmailResponseBody);
 };
 
-const validateOtp = (verifyOtp: number, otp: OtpVerification) => {
+const validateOtp = (verifyOtp: number, otpHash: string, otpSalt: string) => {
   const verifyOtpHash = crypto
-    .pbkdf2Sync(verifyOtp.toString(), otp.otpSalt, 10000, 64, "sha512")
+    .pbkdf2Sync(verifyOtp.toString(), otpSalt, 10000, 64, "sha512")
     .toString("hex");
 
-  return verifyOtpHash === otp.otpHash;
+  return verifyOtpHash === otpHash;
 };

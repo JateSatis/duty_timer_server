@@ -8,9 +8,42 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
+model OtpCode {
+  id            String       @id @default(uuid())
+  otpHash       String
+  otpSalt       String
+  otpCreatedAt  BigInt
+  otpExpiresAt  BigInt
+  purpose       OtpPurpose
+  userId        String?      @unique
+  user          User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pendingUserId String?      @unique
+  pendingUser   PendingUser? @relation(fields: [pendingUserId], references: [id], onDelete: Cascade)
+}
+
+model PendingUser {
+  id                        String   @id @default(uuid())
+  email                     String   @unique
+  nickname                  String   @unique
+  userType                  UserType @default(SOLDIER)
+  passwordHash              String
+  passwordSalt              String
+  userCreatedAt             BigInt
+  verificationAttemptsCount Int      @default(0)
+  otpCode                   OtpCode?
+}
+
 model User {
   id               String              @id @default(uuid())
-  accountInfo      AccountInfo?
+  createdAt        BigInt
+  email            String
+  nickname         String              @unique
+  avatarImageName  String?
+  userType         UserType            @default(SOLDIER)
+  passwordHash     String
+  passwordSalt     String
+  isOnline         Boolean             @default(false)
+  lastSeenOnline   BigInt
   events           Event[]
   sentRequests     FriendshipRequest[] @relation("sender")
   recievedRequests FriendshipRequest[] @relation("reciever")
@@ -22,34 +55,7 @@ model User {
   subscription     Subscription?
   timer            Timer?
   chats            Chat[]
-}
-
-model AccountInfo {
-  id              String           @id @default(uuid())
-  isVerified      Boolean
-  email           String
-  nickname        String           @unique
-  avatarImageName String?
-  userType        UserType         @default(DEFAULT)
-  passwordHash    String
-  passwordSalt    String
-  isOnline        Boolean          @default(false)
-  lastSeenOnline  BigInt
-  userId          String           @unique
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  otpVerification OtpVerification?
-}
-
-model OtpVerification {
-  id               String      @id @default(uuid())
-  otpHash          String
-  otpSalt          String
-  email            String
-  createdAt        BigInt
-  otpExpiresAt     BigInt
-  accountExpiresAt BigInt
-  accountId        String      @unique
-  accountInfo      AccountInfo @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  otpCode          OtpCode?
 }
 
 model RefreshToken {
@@ -143,9 +149,17 @@ model Message {
   isRead       Boolean
   chatId       String
   senderId     String
+  replyToId    String?
   attachments  Attachment[]
   chat         Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
   sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  replyTo      Message?     @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  isRepliedBy  Message[]    @relation("MessageReplies")
+}
+
+enum OtpPurpose {
+  REGISTRATION
+  PASSWORD_RESET
 }
 
 enum ChatType {
@@ -173,8 +187,6 @@ enum Theme {
 
 enum UserType {
   SOLDIER
-  OFFICER
-  CADET
-  RELATIVE
-  DEFAULT
+  WAITING_FOR_SOLDIER
+  OTHER
 }

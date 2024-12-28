@@ -32,7 +32,7 @@ export const wss: WebSocketServer = new WebSocketServer({
 });
 
 // Путь к директории логов
-const logDir = path.join(__dirname, "/../logs/requests.log");
+const logDir = path.join(__dirname, "/../logs");
 
 // Создание папки logs, если она не существует
 if (!fs.existsSync(logDir)) {

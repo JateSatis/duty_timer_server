@@ -28,6 +28,7 @@ import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
+	sendError,
 } from "../../utils/errors/GlobalErrors";
 import { User } from "@prisma/client";
 import { prisma } from "../../../model/config/prismaClient";
@@ -70,9 +71,8 @@ export const editMessageRoute = async (req: Request, res: Response) => {
         chat: true,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!message) {
@@ -88,9 +88,8 @@ export const editMessageRoute = async (req: Request, res: Response) => {
         text: editMessageRequestBody.text,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   const webSocketChatsMapValue = webSocketChatsMap.get(message.chat.id);

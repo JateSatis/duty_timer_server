@@ -9,15 +9,13 @@ export const nicknameIsTaken = async (
 ): Promise<boolean> => {
   const user = await prisma.user.findFirst({
     where: {
-      accountInfo: {
-        nickname,
-      },
+      nickname,
     },
   });
 
   if (user) {
     const error = new NICKNAME_IS_TAKEN();
-    res.status(error.code).json(error.toString());
+    res.status(error.code).json(error.toJson());
     return true;
   }
   return false;

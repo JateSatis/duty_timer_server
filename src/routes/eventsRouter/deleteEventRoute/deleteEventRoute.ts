@@ -13,6 +13,7 @@ import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
+	sendError,
 } from "../../utils/errors/GlobalErrors";
 
 export const deleteEventRoute = async (req: Request, res: Response) => {
@@ -28,9 +29,8 @@ export const deleteEventRoute = async (req: Request, res: Response) => {
         userId: user.id,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   const eventIds = events.map((event) => event.id);
@@ -45,9 +45,8 @@ export const deleteEventRoute = async (req: Request, res: Response) => {
         id: eventId,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   return res.sendStatus(200);

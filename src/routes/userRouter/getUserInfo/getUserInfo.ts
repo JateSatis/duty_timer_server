@@ -56,9 +56,6 @@ export const getUserInfo = async (req: Request, res: Response) => {
       where: {
         id: userId,
       },
-      include: {
-        accountInfo: true,
-      },
     });
   } catch (err) {
     const error = new DATABASE_ERROR(err);
@@ -72,10 +69,8 @@ export const getUserInfo = async (req: Request, res: Response) => {
 
   let avatarLink = null;
   try {
-    if (user.accountInfo!.avatarImageName) {
-      avatarLink = await S3DataSource.getImageUrlFromS3(
-        user.accountInfo!.avatarImageName
-      );
+    if (user.avatarImageName) {
+      avatarLink = await S3DataSource.getImageUrlFromS3(user.avatarImageName);
     }
   } catch (err) {
     const error = new S3_STORAGE_ERROR(err);
@@ -84,10 +79,10 @@ export const getUserInfo = async (req: Request, res: Response) => {
 
   const getUserInfoResponseBody: GetUserInfoResponseBody = {
     id: user.id,
-    nickname: user.accountInfo!.nickname,
-    login: user.accountInfo!.email,
+    nickname: user.nickname,
+    login: user.email,
     avatarLink,
-    userType: user.accountInfo!.userType,
+    userType: user.userType,
   };
   return res.status(200).json(getUserInfoResponseBody);
 };

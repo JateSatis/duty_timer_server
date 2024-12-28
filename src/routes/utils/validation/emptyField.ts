@@ -16,7 +16,7 @@ export const emptyField = (
 
   if (emptyFields.length != 0) {
     const error = new EMPTY_FIELD(emptyFields);
-    res.status(error.code).json(error.toString());
+    res.status(error.code).json(error.toJson());
     return true;
   }
   return false;

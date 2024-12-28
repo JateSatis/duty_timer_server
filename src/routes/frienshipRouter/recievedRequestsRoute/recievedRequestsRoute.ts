@@ -13,6 +13,7 @@ import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
+	sendError,
 } from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
@@ -30,9 +31,8 @@ export const recievedRequestRoute = async (req: Request, res: Response) => {
         recieverId: user.id,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (recievedFriendshipRequests.length == 0) {

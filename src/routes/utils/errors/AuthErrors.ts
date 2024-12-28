@@ -142,6 +142,25 @@ export class ACCOUNT_ALREADY_VERIFIED extends ServerError {
   }
 }
 
+export class TOO_MANY_VERIFICATION_ATTEMPTS extends ServerError {
+  constructor() {
+    super(
+      "TOO_MANY_VERIFICATION_ATTEMPTS",
+      "User tried to input too many incorrect OTP values",
+      429
+    );
+  }
+}
+
+export class REQUEST_TOO_SOON extends ServerError {
+  constructor() {
+    super(
+      "REQUEST_TOO_SOON",
+      "User tried to request a new email before the cooldown period of one minute had passed",
+      429
+    );
+  }
+}
 export class OTP_NOT_FOUND extends ServerError {
   constructor() {
     super("OTP_NOT_FOUND", "No OTP was sent to this account", 404);

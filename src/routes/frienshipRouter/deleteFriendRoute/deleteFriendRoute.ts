@@ -9,7 +9,7 @@ import { User } from "@prisma/client";
 import { emptyParam } from "../../utils/validation/emptyParam";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err, sendError } from "../../utils/errors/GlobalErrors";
 import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 
 export const deleteFriendRoute = async (req: Request, res: Response) => {
@@ -29,9 +29,8 @@ export const deleteFriendRoute = async (req: Request, res: Response) => {
         ],
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!friendship) {
@@ -48,9 +47,8 @@ export const deleteFriendRoute = async (req: Request, res: Response) => {
         id: friendship.id,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   return res.sendStatus(200);

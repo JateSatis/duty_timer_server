@@ -11,6 +11,7 @@ import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
+	sendError,
 } from "../../utils/errors/GlobalErrors";
 import { User } from "@prisma/client";
 import { prisma } from "../../../model/config/prismaClient";
@@ -31,9 +32,8 @@ export const getFriendsRoute = async (req: Request, res: Response) => {
     friendIds = friendships.map((friendship) =>
       friendship.user1Id === user.id ? friendship.user2Id : friendship.user1Id
     );
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (friendIds.length == 0) {
@@ -47,9 +47,8 @@ export const getFriendsRoute = async (req: Request, res: Response) => {
         id: { in: friendIds },
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   let getAllFriendsResponseBody: GetAllFriendsResponseBody;

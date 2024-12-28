@@ -14,7 +14,7 @@ export const missingRequestField = (
   const missingProperties = getMissingRequestFields(req, properties);
   if (missingProperties.length != 0) {
     const error = new MISSING_REQUEST_FIELD(missingProperties);
-    res.status(error.code).json(error.toString());
+    res.status(error.code).json(error.toJson());
     return true;
   }
   return false;

@@ -22,8 +22,15 @@ import { invalidInputFormat } from "./invalidInputFormat";
 import { emptyField } from "../../utils/validation/emptyField";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
-import { EMAIL_NOT_VALID } from "../../utils/errors/AuthErrors";
+import {
+  DATA_NOT_FOUND,
+  DATABASE_ERROR,
+  sendError,
+  ServerError,
+  UNKNOWN_ERROR,
+} from "../../utils/errors/GlobalErrors";
+import { generateOtp } from "../generateOtp";
+import { sendEmail } from "../sendEmail";
 
 /**
  * @swagger
@@ -57,35 +64,112 @@ export const signUpRoute = async (req: Request, res: Response) => {
   //# Check if all sign up fields satisfy the format requirements
   if (invalidInputFormat(res, signUpRequestBody)) return res;
 
-  //# Check if nickname provided is already in use
-  if (await nicknameIsTaken(res, signUpRequestBody.nickname)) return res;
-
   //# Check if login provided already belongs to an existing account
   if (await accountAlreadyExists(res, signUpRequestBody.login)) return res;
 
-  const password = generatePasswordHash(signUpRequestBody.password);
+  //# Check if nickname provided is already in use
+  if (await nicknameIsTaken(res, signUpRequestBody.nickname)) return res;
 
+  const otp = generateOtp();
+
+  let existingPendingUser = null;
   try {
-    let user = await prisma.user.create({
-      data: {},
-    });
-
-    let accountInfo = await prisma.accountInfo.create({
-      data: {
-        userId: user.id,
-        isVerified: false,
+    existingPendingUser = await prisma.pendingUser.findFirst({
+      where: {
         email: signUpRequestBody.login,
-        nickname: signUpRequestBody.nickname,
-        passwordHash: password.hash,
-        passwordSalt: password.salt,
-        userType: "DEFAULT",
-        lastSeenOnline: Date.now(),
+      },
+      include: {
+        otpCode: true,
       },
     });
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
+  }
+
+  //# If this is a totally new user, we send email and create a pending user object for him
+  if (!existingPendingUser || !existingPendingUser.otpCode) {
+    const password = generatePasswordHash(signUpRequestBody.password);
+
+    try {
+      await sendEmail(signUpRequestBody.login, otp.value);
+    } catch (error) {
+      if (error instanceof ServerError) {
+        return sendError(res, error);
+      } else {
+        return sendError(res, new UNKNOWN_ERROR(error));
+      }
+    }
+
+    try {
+      const pendingUser = await prisma.pendingUser.create({
+        data: {
+          email: signUpRequestBody.login,
+          passwordHash: password.hash,
+          passwordSalt: password.salt,
+          nickname: signUpRequestBody.nickname,
+          userType: signUpRequestBody.userType,
+          userCreatedAt: otp.createdAt,
+        },
+      });
+
+      const otpCode = await prisma.otpCode.create({
+        data: {
+          otpHash: otp.hash,
+          otpSalt: otp.salt,
+          otpCreatedAt: otp.createdAt,
+          otpExpiresAt: otp.expiresAt,
+          purpose: "REGISTRATION",
+          pendingUserId: pendingUser.id,
+        },
+      });
+    } catch (err) {
+      const error = new DATABASE_ERROR(err);
+      return res.status(error.code).json(error.toString());
+    }
 
     return res.sendStatus(200);
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
   }
+
+  //# If pendingUser already exists
+  const currentTime = BigInt(Date.now());
+  const oneMinute = BigInt(60 * 1000);
+  //# If one minute has passed from sending the otp, we can send a new one
+  if (existingPendingUser.otpCode.otpCreatedAt + oneMinute > currentTime) {
+    try {
+      await sendEmail(signUpRequestBody.login, otp.value);
+    } catch (err) {
+      if (err instanceof ServerError) {
+        return res.status(err.code).json(err.toString());
+      } else {
+        const error = new UNKNOWN_ERROR(err);
+        return res.status(error.code).json(error.toString());
+      }
+    }
+
+    try {
+      await prisma.pendingUser.update({
+        where: {
+          email: signUpRequestBody.login,
+        },
+        data: {
+          otpCode: {
+            update: {
+              otpHash: otp.hash,
+              otpSalt: otp.salt,
+              otpCreatedAt: otp.createdAt,
+              otpExpiresAt: otp.expiresAt,
+            },
+          },
+        },
+      });
+    } catch (err) {
+      const error = new DATABASE_ERROR(err);
+      return res.status(error.code).json(error.toString());
+    }
+
+    return res.sendStatus(200);
+  }
+
+  //# If one minute hasn't passed yet, we just return success
+  return res.sendStatus(200);
 };

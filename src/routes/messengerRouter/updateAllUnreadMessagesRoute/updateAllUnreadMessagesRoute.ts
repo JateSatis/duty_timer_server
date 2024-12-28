@@ -19,6 +19,7 @@ import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
+	sendError,
 } from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
@@ -44,11 +45,7 @@ export const updateAllUnreadMessagesRoute = async (
         },
       },
       include: {
-        users: {
-          include: {
-            accountInfo: true,
-          },
-        },
+        users: true,
         messages: {
           include: {
             sender: true,
@@ -56,9 +53,8 @@ export const updateAllUnreadMessagesRoute = async (
         },
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!chat) {
@@ -78,9 +74,8 @@ export const updateAllUnreadMessagesRoute = async (
         isRead: true,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   const connectedUsers = webSocketChatsMap.get(chatId);

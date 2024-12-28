@@ -9,7 +9,7 @@ import { prisma } from "../../../model/config/prismaClient";
 import { GetAllEventsResponseBody } from "../../../model/routesEntities/EventsRouterEntities";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR, err } from "../../utils/errors/GlobalErrors";
+import { DATABASE_ERROR, err, sendError } from "../../utils/errors/GlobalErrors";
 
 export const getEventsRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
@@ -21,9 +21,8 @@ export const getEventsRoute = async (req: Request, res: Response) => {
         userId: user.id,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   const getAllEventsResponseBody: GetAllEventsResponseBody = events.map(

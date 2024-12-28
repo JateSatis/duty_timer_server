@@ -4,8 +4,9 @@ import {
   err,
   FORBIDDEN_ACCESS,
   S3_STORAGE_ERROR,
+  sendError,
   ServerError,
-	UNKNOWN_ERROR,
+  UNKNOWN_ERROR,
 } from "../../utils/errors/GlobalErrors";
 import { emptyParam } from "../../utils/validation/emptyParam";
 import { S3DataSource } from "../../../model/config/imagesConfig";
@@ -41,9 +42,6 @@ export const getDirectChatInfo = async (req: Request, res: Response) => {
     where: {
       id: req.body.user.id,
     },
-    include: {
-      accountInfo: true,
-    },
   });
 
   if (!user) {
@@ -66,9 +64,8 @@ export const getDirectChatInfo = async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!chat || chat.chatType !== ChatType.DIRECT) {
@@ -82,10 +79,10 @@ export const getDirectChatInfo = async (req: Request, res: Response) => {
   } catch (err) {
     if (err instanceof ServerError) {
       return res.status(err.code).json(err.toString());
-		} else {
-			const error = new UNKNOWN_ERROR(err);
+    } else {
+      const error = new UNKNOWN_ERROR(err);
       return res.status(error.code).json(error.toString());
-		}
+    }
   }
 
   const getDirectChatInfoResponseBody: GetDirectChatInfoResponseBody = {
@@ -104,11 +101,7 @@ const getCompanionInfo = async (chatId: string, userId: string) => {
         id: chatId,
       },
       include: {
-        users: {
-          include: {
-            accountInfo: true,
-          },
-        },
+        users: true,
       },
     });
   } catch (error) {
@@ -124,18 +117,18 @@ const getCompanionInfo = async (chatId: string, userId: string) => {
   )[0];
 
   let avatarLink = null;
-  if (companion.accountInfo!.avatarImageName) {
+  if (companion.avatarImageName) {
     try {
-			avatarLink = await S3DataSource.getImageUrlFromS3(
-        companion.accountInfo!.avatarImageName
+      avatarLink = await S3DataSource.getImageUrlFromS3(
+        companion.avatarImageName
       );
-		} catch (error) {
-			throw new S3_STORAGE_ERROR(error)
-		}
+    } catch (error) {
+      throw new S3_STORAGE_ERROR(error);
+    }
   }
   return {
     id: companion.id,
-    nickname: companion.accountInfo!.nickname,
+    nickname: companion.nickname,
     avatarLink,
   };
 };

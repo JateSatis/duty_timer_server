@@ -19,11 +19,7 @@ export const transformMessageForResponse = async (
       },
       include: {
         attachments: true,
-        sender: {
-          include: {
-            accountInfo: true,
-          },
-        },
+        sender: true,
       },
     });
   } catch (error) {
@@ -55,9 +51,6 @@ export const transformMessageForResponse = async (
       where: {
         id: userId,
       },
-      include: {
-        accountInfo: true,
-      },
     });
   } catch (error) {
     throw new DATABASE_ERROR(error);
@@ -65,6 +58,26 @@ export const transformMessageForResponse = async (
 
   if (!user) {
     throw new DATA_NOT_FOUND("user", `id = ${messageId}`);
+  }
+
+  let repliedMessage;
+  if (message.replyToId) {
+    try {
+      repliedMessage = await prisma.message.findFirst({
+        where: {
+          id: message.replyToId,
+        },
+        include: {
+          sender: {
+            select: {
+              nickname: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw new DATABASE_ERROR(error);
+    }
   }
 
   const attachmentNames = message.attachments.map(
@@ -94,7 +107,7 @@ export const transformMessageForResponse = async (
     messageId: message.id,
     chatId: chat.id,
     senderId: message.sender.id,
-    senderNickname: message.sender.accountInfo!.nickname,
+    senderNickname: message.sender.nickname,
     senderAvatarLink,
     text: message.text,
     attachmentLinks,
@@ -103,6 +116,9 @@ export const transformMessageForResponse = async (
     isRead: message.isRead,
     isEdited: message.isEdited,
     isSender,
+    repliedMessageId: repliedMessage?.id || null,
+    repliedMessageText: repliedMessage?.text || null,
+    repliedMessageSender: repliedMessage?.sender.nickname || null,
   };
   return messageResponseBody;
 };

@@ -38,9 +38,6 @@ export const getAvatarLink = async (req: Request, res: Response) => {
       where: {
         id: req.body.user.id,
       },
-      include: {
-        accountInfo: true,
-      },
     });
   } catch (err) {
     const error = new DATABASE_ERROR(err);
@@ -53,7 +50,7 @@ export const getAvatarLink = async (req: Request, res: Response) => {
       .json(err(new DATA_NOT_FOUND("User", `id = ${req.body.user.id}`)));
   }
 
-  const avatarImageName = user.accountInfo!.avatarImageName;
+  const avatarImageName = user.avatarImageName;
 
   if (!avatarImageName) {
     const getAvatarLinkResponseBody: GetAvatarLinkResponseBody = {

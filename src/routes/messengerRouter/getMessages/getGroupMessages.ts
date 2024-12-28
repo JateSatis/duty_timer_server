@@ -1,7 +1,7 @@
 import { ChatType, User } from "@prisma/client";
 import { Request, Response } from "express";
 import { prisma } from "../../../model/config/prismaClient";
-import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
+import { DATA_NOT_FOUND, sendError } from "../../utils/errors/GlobalErrors";
 import {
   DATABASE_ERROR,
   err,
@@ -38,16 +38,11 @@ export const getGroupMessages = async (req: Request, res: Response) => {
         },
       },
       include: {
-        users: {
-          include: {
-            accountInfo: true,
-          },
-        },
+        users: true,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!chat) {
@@ -78,7 +73,7 @@ export const getGroupMessages = async (req: Request, res: Response) => {
     await Promise.all(
       chat.users.map(async (user) => {
         if (!usersAvatarsMap.get(user.id)) {
-          const avatarImageName = user.accountInfo!.avatarImageName;
+          const avatarImageName = user.avatarImageName;
           if (avatarImageName) {
             const avatarLink = await S3DataSource.getImageUrlFromS3(
               avatarImageName

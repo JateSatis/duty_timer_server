@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { S3DataSource } from "../../../model/config/imagesConfig";
-import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
+import { DATA_NOT_FOUND, sendError } from "../../utils/errors/GlobalErrors";
 import {
   DATABASE_ERROR,
   err,
@@ -34,9 +34,8 @@ export const sendBackgroundImage = async (req: Request, res: Response) => {
         id: recieverId,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!reciever) {
@@ -52,9 +51,8 @@ export const sendBackgroundImage = async (req: Request, res: Response) => {
         OR: [{ user1Id: user.id }, { user2Id: user.id }],
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   const friendIds = friendships.map((friendship) => {
@@ -87,9 +85,8 @@ export const sendBackgroundImage = async (req: Request, res: Response) => {
         backgroundImageName: s3ImageName,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   return res.sendStatus(200);

@@ -30,9 +30,8 @@ export const getMessages = async (req: Request, res: Response) => {
         id: chatId,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!chat) {

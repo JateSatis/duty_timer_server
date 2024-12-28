@@ -22,21 +22,18 @@ export const deleteAvatar = async (req: Request, res: Response) => {
       where: {
         id: req.body.user.id,
       },
-      include: {
-        accountInfo: true,
-      },
     });
-	} catch (err) {
-		const error = new DATABASE_ERROR(err);
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
     return res.status(error.code).json(error);
   }
 
-	if (!user) {
-		const error = new DATA_NOT_FOUND("User", `id = ${req.body.user.id}`);
+  if (!user) {
+    const error = new DATA_NOT_FOUND("User", `id = ${req.body.user.id}`);
     return res.status(error.code).json(error);
   }
 
-  const avatarImageName = user?.accountInfo!.avatarImageName;
+  const avatarImageName = user.avatarImageName;
 
   if (!avatarImageName) {
     return res.sendStatus(200);
@@ -48,22 +45,18 @@ export const deleteAvatar = async (req: Request, res: Response) => {
         id: user.id,
       },
       data: {
-        accountInfo: {
-          update: {
-            avatarImageName: null,
-          },
-        },
+        avatarImageName: null,
       },
     });
-	} catch (err) {
-		const error = new DATABASE_ERROR(err);
+  } catch (err) {
+    const error = new DATABASE_ERROR(err);
     return res.status(error.code).json(error);
   }
 
   try {
     await S3DataSource.deleteImageFromS3(avatarImageName);
-	} catch (err) {
-		const error = new S3_STORAGE_ERROR(err.message);
+  } catch (err) {
+    const error = new S3_STORAGE_ERROR(err.message);
     return res.status(error.code).json(error);
   }
 

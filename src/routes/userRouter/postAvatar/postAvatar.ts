@@ -16,6 +16,7 @@ import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
+	sendError,
 } from "../../utils/errors/GlobalErrors";
 import { MISSING_FILE } from "../../utils/errors/UserErrors";
 
@@ -72,16 +73,11 @@ export const postAvatar = async (req: Request, res: Response) => {
         id: user.id,
       },
       data: {
-        accountInfo: {
-          update: {
-            avatarImageName: s3ImageName,
-          },
-        },
+        avatarImageName: s3ImageName,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   let avatarLink;

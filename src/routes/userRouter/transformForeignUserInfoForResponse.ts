@@ -13,9 +13,9 @@ export const transformForeignUserInfoForResponse = async (
 ) => {
   let accountInfo;
   try {
-    accountInfo = await prisma.accountInfo.findFirst({
+    accountInfo = await prisma.user.findFirst({
       where: {
-        userId: foreignUserId,
+        id: foreignUserId,
       },
     });
   } catch (error) {
@@ -35,14 +35,14 @@ export const transformForeignUserInfoForResponse = async (
 
   const frienshipStatus = await getFriendshipStatus(
     userId,
-    accountInfo.userId,
+    accountInfo.id,
     isFriend,
     isFriendshipRequestSent,
     isFriendshipRequestRecieved
   );
 
   const getUserInfoResponseBody: ForeignUserInfoResponseBody = {
-    id: accountInfo.userId,
+    id: accountInfo.id,
     nickname: accountInfo.nickname,
     avatarLink,
     isFriend: frienshipStatus.isFriend,

@@ -6,7 +6,7 @@ import { prisma } from "../../../model/config/prismaClient";
 import { User } from "@prisma/client";
 
 //# --- ERRORS ---
-import { DATABASE_ERROR } from "../../utils/errors/GlobalErrors";
+import { DATABASE_ERROR, sendError } from "../../utils/errors/GlobalErrors";
 import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 
 export const logOutRoute = async (req: Request, res: Response) => {
@@ -19,9 +19,8 @@ export const logOutRoute = async (req: Request, res: Response) => {
         userId: user.id,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!refreshToken) {
@@ -41,17 +40,16 @@ export const logOutRoute = async (req: Request, res: Response) => {
     });
 
     //# Update account info -> make user offline
-    await prisma.accountInfo.update({
+    await prisma.user.update({
       where: {
-        userId: user.id,
+        id: user.id,
       },
       data: {
         isOnline: false,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   return res.sendStatus(200);

@@ -20,6 +20,7 @@ import {
   err,
   FORBIDDEN_ACCESS,
   S3_STORAGE_ERROR,
+	sendError,
 } from "../../utils/errors/GlobalErrors";
 import { webSocketChatsMap } from "../../../sockets/socketsConfig";
 import { S3DataSource } from "../../../model/config/imagesConfig";
@@ -46,9 +47,8 @@ export const deleteMessageRoute = async (req: Request, res: Response) => {
         attachments: true,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!message) {
@@ -63,9 +63,8 @@ export const deleteMessageRoute = async (req: Request, res: Response) => {
     await prisma.message.delete({
       where: { id: messageId },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   const webSocketChatsMapValue = webSocketChatsMap.get(message.chat.id);
@@ -115,9 +114,8 @@ export const deleteMessageRoute = async (req: Request, res: Response) => {
         },
       });
     }
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   res.sendStatus(200);

@@ -15,8 +15,9 @@ import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
-	ServerError,
-	UNKNOWN_ERROR,
+  sendError,
+  ServerError,
+  UNKNOWN_ERROR,
 } from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
@@ -35,7 +36,6 @@ import { User } from "@prisma/client";
  *         $ref: '#/components/schemas/getUserByIdResponse'
  */
 
-
 export const getUsersByNickname = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
@@ -51,16 +51,13 @@ export const getUsersByNickname = async (req: Request, res: Response) => {
   try {
     foreignUsers = await prisma.user.findMany({
       where: {
-        accountInfo: {
-          nickname: {
-            startsWith: userNickname,
-          },
+        nickname: {
+          startsWith: userNickname,
         },
       },
     });
-	} catch (err) {
-		const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   let usersInfo;

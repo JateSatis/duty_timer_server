@@ -12,6 +12,7 @@ import {
   err,
   FORBIDDEN_ACCESS,
   S3_STORAGE_ERROR,
+	sendError,
 } from "../../utils/errors/GlobalErrors";
 import { Chat, ChatType, User } from "@prisma/client";
 import { S3DataSource } from "../../../model/config/imagesConfig";
@@ -109,9 +110,8 @@ export const createGroupChat = async (req: Request, res: Response) => {
         OR: [{ user1Id: user.id }, { user2Id: user.id }],
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   const friendIds = friendships.map((friendship) => {
@@ -168,9 +168,8 @@ export const createGroupChat = async (req: Request, res: Response) => {
         },
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   let createGroupChatResponseBody: CreateGroupChatResponseBody;

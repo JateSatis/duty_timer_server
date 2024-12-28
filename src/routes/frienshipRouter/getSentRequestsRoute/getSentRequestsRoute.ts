@@ -11,6 +11,7 @@ import {
   DATABASE_ERROR,
   err,
   S3_STORAGE_ERROR,
+	sendError,
 } from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
@@ -28,9 +29,8 @@ export const getSentRequestsRoute = async (req: Request, res: Response) => {
         senderId: user.id,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (sentFriendshipRequests.length == 0) {

@@ -11,7 +11,7 @@ import { Request, Response } from "express";
 import { emptyParam } from "../../utils/validation/emptyParam";
 
 //# --- ERRORS ---
-import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
+import { DATA_NOT_FOUND, sendError } from "../../utils/errors/GlobalErrors";
 import { USER_ALREADY_FRIEND } from "../../utils/errors/FriendshipErrors";
 import {
   DATABASE_ERROR,
@@ -44,9 +44,8 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
         ],
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   //# If friendship request is already sent to this user, or recieved from a user, return error
@@ -69,9 +68,8 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
         ],
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   //# Check if there is already a friendship between user and friend
@@ -86,9 +84,8 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
         id: recieverId,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!reciever) {
@@ -104,9 +101,8 @@ export const sendRequestRoute = async (req: Request, res: Response) => {
         recieverId: recieverId,
       },
     });
-  } catch (err) {
-    const error = new DATABASE_ERROR(err);
-    return res.status(error.code).json(error.toString());
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   return res.sendStatus(200);
