@@ -94,11 +94,11 @@ export const signUpRoute = async (req: Request, res: Response) => {
     try {
       await sendEmail(signUpRequestBody.login, otp.value);
     } catch (error) {
-      if (error instanceof ServerError) {
-        return sendError(res, error);
-      } else {
-        return sendError(res, new UNKNOWN_ERROR(error));
-      }
+      // if (error instanceof ServerError) {
+      //   return sendError(res, error);
+      // } else {
+      //   return sendError(res, new UNKNOWN_ERROR(error));
+      // }
     }
 
     try {
@@ -139,12 +139,12 @@ export const signUpRoute = async (req: Request, res: Response) => {
     try {
       await sendEmail(signUpRequestBody.login, otp.value);
     } catch (err) {
-      if (err instanceof ServerError) {
-        return res.status(err.code).json(err.toString());
-      } else {
-        const error = new UNKNOWN_ERROR(err);
-        return res.status(error.code).json(error.toString());
-      }
+      // if (err instanceof ServerError) {
+      //   return res.status(err.code).json(err.toString());
+      // } else {
+      //   const error = new UNKNOWN_ERROR(err);
+      //   return res.status(error.code).json(error.toString());
+      // }
     }
 
     try {
