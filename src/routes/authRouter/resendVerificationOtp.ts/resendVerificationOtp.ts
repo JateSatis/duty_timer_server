@@ -56,15 +56,15 @@ export const resendVerificationOtp = async (req: Request, res: Response) => {
   const otp = generateOtp();
 
   if (!pendingUser.otpCode) {
-    try {
-      await sendEmail(resendVerificationOtpRequestBody.email, otp.value);
-    } catch (error) {
-      if (error instanceof ServerError) {
-        return sendError(res, error);
-      } else {
-        return sendError(res, new UNKNOWN_ERROR(error));
-      }
-    }
+    // try {
+    //   await sendEmail(resendVerificationOtpRequestBody.email, otp.value);
+    // } catch (error) {
+    //   if (error instanceof ServerError) {
+    //     return sendError(res, error);
+    //   } else {
+    //     return sendError(res, new UNKNOWN_ERROR(error));
+    //   }
+    // }
 
     try {
       const otpCode = await prisma.otpCode.create({
@@ -86,15 +86,15 @@ export const resendVerificationOtp = async (req: Request, res: Response) => {
 
   const oneMinute = BigInt(60 * 1000);
   if (pendingUser.otpCode.otpCreatedAt + oneMinute < Date.now()) {
-    try {
-      await sendEmail(resendVerificationOtpRequestBody.email, otp.value);
-    } catch (error) {
-      if (error instanceof ServerError) {
-        return sendError(res, error);
-      } else {
-        return sendError(res, new UNKNOWN_ERROR(error));
-      }
-    }
+    // try {
+    //   await sendEmail(resendVerificationOtpRequestBody.email, otp.value);
+    // } catch (error) {
+    //   if (error instanceof ServerError) {
+    //     return sendError(res, error);
+    //   } else {
+    //     return sendError(res, new UNKNOWN_ERROR(error));
+    //   }
+    // }
 
     try {
       await prisma.pendingUser.update({
