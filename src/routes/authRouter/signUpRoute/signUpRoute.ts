@@ -91,15 +91,15 @@ export const signUpRoute = async (req: Request, res: Response) => {
   if (!existingPendingUser || !existingPendingUser.otpCode) {
     const password = generatePasswordHash(signUpRequestBody.password);
 
-    try {
-      await sendEmail(signUpRequestBody.login, otp.value);
-    } catch (error) {
-      // if (error instanceof ServerError) {
-      //   return sendError(res, error);
-      // } else {
-      //   return sendError(res, new UNKNOWN_ERROR(error));
-      // }
-    }
+    // try {
+    //   await sendEmail(signUpRequestBody.login, otp.value);
+    // } catch (error) {
+    // if (error instanceof ServerError) {
+    //   return sendError(res, error);
+    // } else {
+    //   return sendError(res, new UNKNOWN_ERROR(error));
+    // }
+    // }
 
     try {
       const pendingUser = await prisma.pendingUser.create({
@@ -136,16 +136,16 @@ export const signUpRoute = async (req: Request, res: Response) => {
   const oneMinute = BigInt(60 * 1000);
   //# If one minute has passed from sending the otp, we can send a new one
   if (existingPendingUser.otpCode.otpCreatedAt + oneMinute > currentTime) {
-    try {
-      await sendEmail(signUpRequestBody.login, otp.value);
-    } catch (err) {
-      // if (err instanceof ServerError) {
-      //   return res.status(err.code).json(err.toString());
-      // } else {
-      //   const error = new UNKNOWN_ERROR(err);
-      //   return res.status(error.code).json(error.toString());
-      // }
-    }
+    // try {
+    //   await sendEmail(signUpRequestBody.login, otp.value);
+    // } catch (err) {
+    // if (err instanceof ServerError) {
+    //   return res.status(err.code).json(err.toString());
+    // } else {
+    //   const error = new UNKNOWN_ERROR(err);
+    //   return res.status(error.code).json(error.toString());
+    // }
+    // }
 
     try {
       await prisma.pendingUser.update({
