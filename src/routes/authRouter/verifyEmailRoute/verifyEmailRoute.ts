@@ -128,7 +128,7 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
   }
 
   //# If user tried to verify email too many times and failed
-  if (pendingUser.verificationAttemptsCount >= 10) {
+  if (pendingUser.otpCode.verificationAttemptsCount >= 10) {
     return sendError(res, new TOO_MANY_VERIFICATION_ATTEMPTS());
   }
 
@@ -146,12 +146,13 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
     )
   ) {
     try {
-      await prisma.pendingUser.update({
+      await prisma.otpCode.update({
         where: {
-          id: pendingUser.id,
+          pendingUserId: pendingUser.id,
         },
         data: {
-          verificationAttemptsCount: pendingUser.verificationAttemptsCount + 1,
+          verificationAttemptsCount:
+            pendingUser.otpCode.verificationAttemptsCount + 1,
         },
       });
     } catch (error) {
@@ -206,6 +207,14 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
     await prisma.pendingUser.delete({
       where: {
         id: pendingUser.id,
+      },
+    });
+
+    //# Delete otp code
+    await prisma.otpCode.delete({
+      where: {
+        pendingUserId: pendingUser.id,
+        purpose: "REGISTRATION",
       },
     });
   } catch (error) {

@@ -6,8 +6,6 @@ import * as nodemailer from "nodemailer";
 // --- ERRORS ---
 import { OTP_SENDING_UNAVAILABLE } from "../utils/errors/AuthErrors";
 
-console.log("Hello");
-
 dotenv.config();
 
 const OAuth2 = google.auth.OAuth2;

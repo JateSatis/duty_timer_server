@@ -9,28 +9,29 @@ datasource db {
 }
 
 model OtpCode {
-  id            String       @id @default(uuid())
-  otpHash       String
-  otpSalt       String
-  otpCreatedAt  BigInt
-  otpExpiresAt  BigInt
-  purpose       OtpPurpose
-  userId        String?      @unique
-  user          User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  pendingUserId String?      @unique
-  pendingUser   PendingUser? @relation(fields: [pendingUserId], references: [id], onDelete: Cascade)
+  id                        String       @id @default(uuid())
+  otpHash                   String
+  otpSalt                   String
+  otpCreatedAt              BigInt
+  otpExpiresAt              BigInt
+  isVerified                Boolean      @default(false)
+  verificationAttemptsCount Int          @default(0)
+  purpose                   OtpPurpose
+  userId                    String?      @unique
+  user                      User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pendingUserId             String?      @unique
+  pendingUser               PendingUser? @relation(fields: [pendingUserId], references: [id], onDelete: Cascade)
 }
 
 model PendingUser {
-  id                        String   @id @default(uuid())
-  email                     String   @unique
-  nickname                  String   @unique
-  userType                  UserType @default(SOLDIER)
-  passwordHash              String
-  passwordSalt              String
-  userCreatedAt             BigInt
-  verificationAttemptsCount Int      @default(0)
-  otpCode                   OtpCode?
+  id            String   @id @default(uuid())
+  email         String   @unique
+  nickname      String   @unique
+  userType      UserType @default(SOLDIER)
+  passwordHash  String
+  passwordSalt  String
+  userCreatedAt BigInt
+  otpCode       OtpCode?
 }
 
 model User {

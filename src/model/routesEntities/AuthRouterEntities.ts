@@ -60,3 +60,17 @@ export type RefreshTokenResponseBody = {
   accessTokenExpiresAt: number;
   refreshTokenExpiresAt: number;
 };
+
+//# --- VERIFY PASSWORD RESET ---
+export type VerifyPasswordResetRequestBody = {
+  otp: number;
+};
+
+export const verifyPasswordResetRequestBodyProperties = ["otp"];
+
+//# --- CHANGE PASSWORD ---
+export type ChangePasswordRequestBody = {
+  password: string;
+};
+
+export const changePasswordRequestBodyProperties = ["password"];

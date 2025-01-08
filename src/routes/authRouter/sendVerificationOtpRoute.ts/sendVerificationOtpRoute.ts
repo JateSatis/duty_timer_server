@@ -3,8 +3,8 @@ import {
   ResendVerificationOtpRequestBody,
   resendVerificationOtpRequestBodyProperties,
 } from "../../../model/routesEntities/AuthRouterEntities";
-import { missingRequestField } from "../../../routes/utils/validation/missingRequestField";
-import { emptyField } from "../../../routes/utils/validation/emptyField";
+import { missingRequestField } from "../../utils/validation/missingRequestField";
+import { emptyField } from "../../utils/validation/emptyField";
 import { invalidInputFormat } from "./invalidInputFormat";
 import { prisma } from "../../../model/config/prismaClient";
 import {
@@ -13,9 +13,9 @@ import {
   sendError,
   ServerError,
   UNKNOWN_ERROR,
-} from "../../../routes/utils/errors/GlobalErrors";
+} from "../../utils/errors/GlobalErrors";
 import { generateOtp } from "../generateOtp";
-import { REQUEST_TOO_SOON } from "../../../routes/utils/errors/AuthErrors";
+import { REQUEST_TOO_SOON } from "../../utils/errors/AuthErrors";
 import { sendEmail } from "../sendEmail";
 
 export const resendVerificationOtp = async (req: Request, res: Response) => {
@@ -56,15 +56,15 @@ export const resendVerificationOtp = async (req: Request, res: Response) => {
   const otp = generateOtp();
 
   if (!pendingUser.otpCode) {
-    // try {
-    //   await sendEmail(resendVerificationOtpRequestBody.email, otp.value);
-    // } catch (error) {
-    //   if (error instanceof ServerError) {
-    //     return sendError(res, error);
-    //   } else {
-    //     return sendError(res, new UNKNOWN_ERROR(error));
-    //   }
-    // }
+    try {
+      await sendEmail(resendVerificationOtpRequestBody.email, otp.value);
+    } catch (error) {
+      if (error instanceof ServerError) {
+        return sendError(res, error);
+      } else {
+        return sendError(res, new UNKNOWN_ERROR(error));
+      }
+    }
 
     try {
       const otpCode = await prisma.otpCode.create({
@@ -86,15 +86,15 @@ export const resendVerificationOtp = async (req: Request, res: Response) => {
 
   const oneMinute = BigInt(60 * 1000);
   if (pendingUser.otpCode.otpCreatedAt + oneMinute < Date.now()) {
-    // try {
-    //   await sendEmail(resendVerificationOtpRequestBody.email, otp.value);
-    // } catch (error) {
-    //   if (error instanceof ServerError) {
-    //     return sendError(res, error);
-    //   } else {
-    //     return sendError(res, new UNKNOWN_ERROR(error));
-    //   }
-    // }
+    try {
+      await sendEmail(resendVerificationOtpRequestBody.email, otp.value);
+    } catch (error) {
+      if (error instanceof ServerError) {
+        return sendError(res, error);
+      } else {
+        return sendError(res, new UNKNOWN_ERROR(error));
+      }
+    }
 
     try {
       await prisma.pendingUser.update({

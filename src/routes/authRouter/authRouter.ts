@@ -14,7 +14,7 @@ import { logOutRoute } from "./logOutRoute/logOutRoute";
 import { refreshTokenRoute } from "./refreshTokenRoute/refreshTokenRoute";
 import { deleteAccountRoute } from "./deleteAccountRoute/deleteAccountRoute";
 import { verifyEmailRoute } from "./verifyEmailRoute/verifyEmailRoute";
-import { resendVerificationOtp } from "./resendVerificationOtp.ts/resendVerificationOtp";
+import { resendVerificationOtp } from "./sendVerificationOtpRoute.ts/sendVerificationOtpRoute";
 
 // # --- ERRORS ---
 import { err, RATE_LIMIT_EXCEEDED } from "../utils/errors/GlobalErrors";
