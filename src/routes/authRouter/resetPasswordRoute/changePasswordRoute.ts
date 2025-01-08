@@ -3,8 +3,8 @@ import {
   ChangePasswordRequestBody,
   changePasswordRequestBodyProperties,
 } from "../../../model/routesEntities/AuthRouterEntities";
-import { emptyField } from "../../../routes/utils/validation/emptyField";
-import { missingRequestField } from "../../../routes/utils/validation/missingRequestField";
+import { emptyField } from "../../utils/validation/emptyField";
+import { missingRequestField } from "../../utils/validation/missingRequestField";
 import { invalidInputFormat } from "./invalidInputFormat";
 import { prisma } from "../../../model/config/prismaClient";
 import { User } from "@prisma/client";
@@ -12,11 +12,11 @@ import {
   DATA_NOT_FOUND,
   DATABASE_ERROR,
   sendError,
-} from "../../../routes/utils/errors/GlobalErrors";
-import { OTP_NOT_FOUND } from "../../../routes/utils/errors/AuthErrors";
+} from "../../utils/errors/GlobalErrors";
+import { OTP_NOT_FOUND } from "../../utils/errors/AuthErrors";
 import { generatePasswordHash } from "../../../auth/jwt/passwordHandler";
 
-export const changePasswordRoute = async (req: Request, res: Response) => {
+export const resetPasswordRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
   if (missingRequestField(req, res, changePasswordRequestBodyProperties))

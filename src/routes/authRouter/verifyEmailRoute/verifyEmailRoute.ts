@@ -81,6 +81,7 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
+    console.log("QUERY ERROR: Serching for existing user");
     return sendError(res, new DATABASE_ERROR(error));
   }
 
@@ -105,6 +106,7 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
+    console.log("QUERY ERROR: Serching for pending user");
     return sendError(res, new DATABASE_ERROR(error));
   }
 
@@ -156,6 +158,7 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
         },
       });
     } catch (error) {
+      console.log("QUERY ERROR: Update otp verification attempts count");
       return sendError(res, new DATABASE_ERROR(error));
     }
 
@@ -178,6 +181,7 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
+    console.log("QUERY ERROR: Creating User entity");
     return sendError(res, new DATABASE_ERROR(error));
   }
 
@@ -193,7 +197,13 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
         isRevoked: false,
       },
     });
+  } catch (error) {
+    console.log("QUERY ERROR: Creating Refresh Token for user");
+    return sendError(res, new DATABASE_ERROR(error));
+  }
 
+  //# Create timer for user
+  try {
     const oneYearMillis = 365 * 24 * 60 * 60 * 1000;
     await prisma.timer.create({
       data: {
@@ -202,22 +212,20 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
         endTimeMillis: Date.now() + oneYearMillis,
       },
     });
+  } catch (error) {
+    console.log("QUERY ERROR: Creating timer for user");
+    return sendError(res, new DATABASE_ERROR(error));
+  }
 
+  try {
     //# Delete pending user
     await prisma.pendingUser.delete({
       where: {
         id: pendingUser.id,
       },
     });
-
-    //# Delete otp code
-    await prisma.otpCode.delete({
-      where: {
-        pendingUserId: pendingUser.id,
-        purpose: "REGISTRATION",
-      },
-    });
   } catch (error) {
+    console.log("QUERY ERROR: Deleting pending user");
     return sendError(res, new DATABASE_ERROR(error));
   }
 
@@ -228,7 +236,12 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
         userId: user.id,
       },
     });
+  } catch (error) {
+    console.log("QUERY ERROR: Creating settings");
+    return sendError(res, new DATABASE_ERROR(error));
+  }
 
+  try {
     await prisma.subscription.create({
       data: {
         userId: user.id,
@@ -236,6 +249,7 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
+    console.log("QUERY ERROR: Creating subscription");
     return sendError(res, new DATABASE_ERROR(error));
   }
 
@@ -260,6 +274,9 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
       });
     }
   } catch (error) {
+    console.log(
+      "QUERY ERROR: Searching for global chat or updating chat to include new user"
+    );
     return sendError(res, new DATABASE_ERROR(error));
   }
 

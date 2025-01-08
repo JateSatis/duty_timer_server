@@ -9,6 +9,9 @@ sender_password = 'losw gtho ooqs fuwk'
 
 
 def send_email(recipient_email: str, subject: str, message: str) -> None:
+    print("Email:" + recipient_email)
+    print("Subject:" + subject)
+    print("Message:" + message)
     # Настройки SMTP сервера
     smtp_server = 'smtp.' + sender_email.split('@')[1]
     smtp_port = 587

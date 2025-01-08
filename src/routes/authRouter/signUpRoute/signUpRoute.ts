@@ -30,7 +30,7 @@ import {
   UNKNOWN_ERROR,
 } from "../../utils/errors/GlobalErrors";
 import { generateOtp } from "../generateOtp";
-import { sendEmail } from "../sendEmail";
+import { sendEmail, sendEmailPython } from "../sendEmail";
 
 /**
  * @swagger
@@ -92,7 +92,7 @@ export const signUpRoute = async (req: Request, res: Response) => {
     const password = generatePasswordHash(signUpRequestBody.password);
 
     try {
-      await sendEmail(signUpRequestBody.login, otp.value);
+      await sendEmailPython(signUpRequestBody.login, otp.value);
     } catch (error) {
       if (error instanceof ServerError) {
         return sendError(res, error);
@@ -137,7 +137,7 @@ export const signUpRoute = async (req: Request, res: Response) => {
   //# If one minute has passed from sending the otp, we can send a new one
   if (existingPendingUser.otpCode.otpCreatedAt + oneMinute > currentTime) {
     try {
-      await sendEmail(signUpRequestBody.login, otp.value);
+      await sendEmailPython(signUpRequestBody.login, otp.value);
     } catch (err) {
       if (err instanceof ServerError) {
         return res.status(err.code).json(err.toString());

@@ -9,7 +9,7 @@ import {
 } from "../../utils/errors/GlobalErrors";
 import { generateOtp } from "../generateOtp";
 import { REQUEST_TOO_SOON } from "../../utils/errors/AuthErrors";
-import { sendEmail } from "../sendEmail";
+import { sendEmail, sendEmailPython } from "../sendEmail";
 
 export const sendPasswordResetOtp = async (req: Request, res: Response) => {
   const user: User = req.body.user;
@@ -30,7 +30,7 @@ export const sendPasswordResetOtp = async (req: Request, res: Response) => {
 
   if (!existingPasswordResetOtp) {
     try {
-      await sendEmail(user.email, otp.value);
+      await sendEmailPython(user.email, otp.value);
     } catch (error) {
       if (error instanceof ServerError) {
         return sendError(res, error);
@@ -56,7 +56,7 @@ export const sendPasswordResetOtp = async (req: Request, res: Response) => {
   const oneMinute = BigInt(60 * 1000);
   if (existingPasswordResetOtp.otpCreatedAt + oneMinute < Date.now()) {
     try {
-      await sendEmail(user.email, otp.value);
+      await sendEmailPython(user.email, otp.value);
     } catch (error) {
       if (error instanceof ServerError) {
         return sendError(res, error);
@@ -65,19 +65,24 @@ export const sendPasswordResetOtp = async (req: Request, res: Response) => {
       }
     }
 
-    await prisma.otpCode.update({
-      where: {
-        userId: user.id,
-        purpose: "PASSWORD_RESET",
-      },
-      data: {
-        otpHash: otp.hash,
-        otpSalt: otp.salt,
-        otpCreatedAt: otp.createdAt,
-        otpExpiresAt: otp.expiresAt,
-        isVerified: false,
-      },
-    });
+    try {
+      await prisma.otpCode.update({
+        where: {
+          userId: user.id,
+          purpose: "PASSWORD_RESET",
+        },
+        data: {
+          otpHash: otp.hash,
+          otpSalt: otp.salt,
+          otpCreatedAt: otp.createdAt,
+          otpExpiresAt: otp.expiresAt,
+          verificationAttemptsCount: 0,
+          isVerified: false,
+        },
+      });
+    } catch (error) {
+      sendError(res, new DATABASE_ERROR(error));
+    }
 
     return res.sendStatus(200);
   } else {

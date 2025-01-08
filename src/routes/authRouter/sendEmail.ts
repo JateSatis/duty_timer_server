@@ -5,6 +5,8 @@ import * as nodemailer from "nodemailer";
 
 // --- ERRORS ---
 import { OTP_SENDING_UNAVAILABLE } from "../utils/errors/AuthErrors";
+import { ServerError, UNKNOWN_ERROR } from "../utils/errors/GlobalErrors";
+import { runPythonScript } from "./sendVerificationOtpRoute.ts/runPythonScript";
 
 dotenv.config();
 
@@ -87,3 +89,20 @@ export const sendEmail = async (email: string, otp: string) => {
     throw error;
   }
 };
+
+export const sendEmailPython = async (email: string, otp: string) => {
+	try {
+    runPythonScript(
+      email,
+      "Код подтверждения DMB Timer",
+      `Для подтверждения почты, : ${otp}`
+    );
+	} catch (error) {
+		if (error instanceof ServerError) {
+			throw error
+		} else {
+			throw new UNKNOWN_ERROR(error)
+		}
+  }
+
+}

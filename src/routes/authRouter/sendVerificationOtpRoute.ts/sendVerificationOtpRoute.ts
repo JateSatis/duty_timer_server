@@ -16,7 +16,7 @@ import {
 } from "../../utils/errors/GlobalErrors";
 import { generateOtp } from "../generateOtp";
 import { REQUEST_TOO_SOON } from "../../utils/errors/AuthErrors";
-import { sendEmail } from "../sendEmail";
+import { sendEmailPython } from "../sendEmail";
 
 export const resendVerificationOtp = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, resendVerificationOtpRequestBodyProperties))
@@ -57,7 +57,7 @@ export const resendVerificationOtp = async (req: Request, res: Response) => {
 
   if (!pendingUser.otpCode) {
     try {
-      await sendEmail(resendVerificationOtpRequestBody.email, otp.value);
+      await sendEmailPython(resendVerificationOtpRequestBody.email, otp.value);
     } catch (error) {
       if (error instanceof ServerError) {
         return sendError(res, error);
@@ -87,7 +87,7 @@ export const resendVerificationOtp = async (req: Request, res: Response) => {
   const oneMinute = BigInt(60 * 1000);
   if (pendingUser.otpCode.otpCreatedAt + oneMinute < Date.now()) {
     try {
-      await sendEmail(resendVerificationOtpRequestBody.email, otp.value);
+      await sendEmailPython(resendVerificationOtpRequestBody.email, otp.value);
     } catch (error) {
       if (error instanceof ServerError) {
         return sendError(res, error);
@@ -107,7 +107,8 @@ export const resendVerificationOtp = async (req: Request, res: Response) => {
               otpHash: otp.hash,
               otpSalt: otp.salt,
               otpCreatedAt: otp.createdAt,
-              otpExpiresAt: otp.expiresAt,
+							otpExpiresAt: otp.expiresAt,
+							verificationAttemptsCount: 0
             },
           },
         },

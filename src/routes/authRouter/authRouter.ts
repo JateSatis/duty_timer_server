@@ -18,6 +18,9 @@ import { resendVerificationOtp } from "./sendVerificationOtpRoute.ts/sendVerific
 
 // # --- ERRORS ---
 import { err, RATE_LIMIT_EXCEEDED } from "../utils/errors/GlobalErrors";
+import { sendPasswordResetOtp } from "./sendOtpPasswordResetRoute/sendPasswordResetOtpRoute";
+import { verifyPasswordResetRoute } from "./verifyPasswordResetRoute/verifyPasswordResetRoute";
+import { resetPasswordRoute } from "./resetPasswordRoute/changePasswordRoute";
 
 dotenv.config();
 
@@ -239,7 +242,7 @@ authRouter.post("/sign-in", signInRoute);
  *             schema:
  *               $ref: '#/components/schemas/OTP_SENDING_UNAVAILABLE'
  */
-authRouter.post("/resend-verification-otp", resendVerificationOtp);
+authRouter.post("/send-email-verification-otp", resendVerificationOtp);
 
 //# Swagger описание запроса verifyEmailRoute
 /**
@@ -394,3 +397,9 @@ authRouter.delete("/", auth, deleteAccountRoute);
  *               $ref: '#/components/schemas/DATABASE_ERROR'
  */
 authRouter.get("/refresh-token", refreshAuth, refreshTokenRoute);
+
+authRouter.post("/send-password-reset-otp", auth, sendPasswordResetOtp);
+
+authRouter.post("/verify-password-reset", auth, verifyPasswordResetRoute);
+
+authRouter.post("/reset-password", auth, resetPasswordRoute)
