@@ -27,12 +27,16 @@ export const authenticateSocket = async (
   const authorization = url.parse(req.url!!, true).query.token as string;
 
   //# Проверяем есть ли в запросе header под названием authorization
-  if (!authorization) {
+  if (!authorization || authorization.length === 0) {
     throw new INCORRECT_AUTHORIZATION_HEADER();
   }
 
   const tokenBearer = authorization.split(" ")[0];
   const token = authorization.split(" ")[1];
+
+  if (!token || token.length === 0) {
+    throw new INCORRECT_AUTHORIZATION_HEADER();
+  }
 
   //# Проверяем является ли наполнение authorization токеном
   if (tokenBearer != "Bearer" || !token.match(/\S+.\S+.\S+/)) {
