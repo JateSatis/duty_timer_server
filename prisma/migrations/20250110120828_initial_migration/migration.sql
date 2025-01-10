@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "OtpPurpose" AS ENUM ('REGISTRATION', 'PASSWORD_RESET');
+
+-- CreateEnum
 CREATE TYPE "ChatType" AS ENUM ('GLOBAL', 'GROUP', 'DIRECT');
 
 -- CreateEnum
@@ -11,19 +14,33 @@ CREATE TYPE "NicknameColor" AS ENUM ('BLACK', 'RED');
 CREATE TYPE "Theme" AS ENUM ('WHITE', 'BLACK');
 
 -- CreateEnum
-CREATE TYPE "UserType" AS ENUM ('SOLDIER', 'OFFICER', 'CADET', 'RELATIVE', 'DEFAULT');
+CREATE TYPE "UserType" AS ENUM ('DEFUALT', 'SOLDIER', 'WAITING_FOR_SOLDIER', 'OTHER');
+
+-- CreateTable
+CREATE TABLE "OtpCode" (
+    "id" TEXT NOT NULL,
+    "otpHash" TEXT NOT NULL,
+    "otpSalt" TEXT NOT NULL,
+    "otpCreatedAt" BIGINT NOT NULL,
+    "otpExpiresAt" BIGINT NOT NULL,
+    "isVerified" BOOLEAN NOT NULL DEFAULT false,
+    "verificationAttemptsCount" INTEGER NOT NULL DEFAULT 0,
+    "purpose" "OtpPurpose" NOT NULL,
+    "userId" TEXT,
+    "pendingUserId" TEXT,
+
+    CONSTRAINT "OtpCode_pkey" PRIMARY KEY ("id")
+);
 
 -- CreateTable
 CREATE TABLE "PendingUser" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "nickname" TEXT NOT NULL,
+    "userType" "UserType" NOT NULL DEFAULT 'DEFUALT',
     "passwordHash" TEXT NOT NULL,
     "passwordSalt" TEXT NOT NULL,
-    "otpHash" TEXT NOT NULL,
-    "otpSalt" TEXT NOT NULL,
-    "otpExpiresAt" BIGINT NOT NULL,
-    "createdAt" BIGINT NOT NULL,
+    "userCreatedAt" BIGINT NOT NULL,
 
     CONSTRAINT "PendingUser_pkey" PRIMARY KEY ("id")
 );
@@ -31,12 +48,11 @@ CREATE TABLE "PendingUser" (
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
-    "isVerified" BOOLEAN NOT NULL,
     "createdAt" BIGINT NOT NULL,
     "email" TEXT NOT NULL,
     "nickname" TEXT NOT NULL,
     "avatarImageName" TEXT,
-    "userType" "UserType" NOT NULL DEFAULT 'DEFAULT',
+    "userType" "UserType" NOT NULL DEFAULT 'DEFUALT',
     "passwordHash" TEXT NOT NULL,
     "passwordSalt" TEXT NOT NULL,
     "isOnline" BOOLEAN NOT NULL DEFAULT false,
@@ -148,6 +164,7 @@ CREATE TABLE "Message" (
     "isRead" BOOLEAN NOT NULL,
     "chatId" TEXT NOT NULL,
     "senderId" TEXT NOT NULL,
+    "replyToId" TEXT,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
 );
@@ -159,6 +176,12 @@ CREATE TABLE "_ChatToUser" (
 
     CONSTRAINT "_ChatToUser_AB_pkey" PRIMARY KEY ("A","B")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "OtpCode_userId_key" ON "OtpCode"("userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "OtpCode_pendingUserId_key" ON "OtpCode"("pendingUserId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "PendingUser_email_key" ON "PendingUser"("email");
@@ -189,6 +212,12 @@ CREATE UNIQUE INDEX "Frienship_user1Id_user2Id_key" ON "Frienship"("user1Id", "u
 
 -- CreateIndex
 CREATE INDEX "_ChatToUser_B_index" ON "_ChatToUser"("B");
+
+-- AddForeignKey
+ALTER TABLE "OtpCode" ADD CONSTRAINT "OtpCode_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "OtpCode" ADD CONSTRAINT "OtpCode_pendingUserId_fkey" FOREIGN KEY ("pendingUserId") REFERENCES "PendingUser"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "RefreshToken" ADD CONSTRAINT "RefreshToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -225,6 +254,9 @@ ALTER TABLE "Message" ADD CONSTRAINT "Message_chatId_fkey" FOREIGN KEY ("chatId"
 
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Message" ADD CONSTRAINT "Message_replyToId_fkey" FOREIGN KEY ("replyToId") REFERENCES "Message"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_ChatToUser" ADD CONSTRAINT "_ChatToUser_A_fkey" FOREIGN KEY ("A") REFERENCES "Chat"("id") ON DELETE CASCADE ON UPDATE CASCADE;

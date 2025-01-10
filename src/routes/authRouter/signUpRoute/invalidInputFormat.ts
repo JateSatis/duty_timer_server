@@ -15,7 +15,7 @@ export const invalidInputFormat = (
   res: Response,
   signUpRequestBody: SignUpRequestBody
 ): boolean => {
-  const { login, password, nickname, userType } = signUpRequestBody;
+  const { login, password, nickname } = signUpRequestBody;
 
   if (
     emailFormat.test(login) &&
@@ -25,8 +25,7 @@ export const invalidInputFormat = (
     password.length >= 6 &&
     password.length <= 128 &&
     nickname.length >= 4 &&
-    nickname.length <= 30 &&
-    isEnumValue(userType, UserType)
+    nickname.length <= 30
   ) {
     return false;
   }
@@ -36,7 +35,3 @@ export const invalidInputFormat = (
 
   return true;
 };
-
-function isEnumValue(value: string, enumObj: object): boolean {
-  return Object.values(enumObj).includes(value);
-}

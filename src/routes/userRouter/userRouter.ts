@@ -22,6 +22,7 @@ import { uploadBackgroundImage } from "./uploadBackgroundImage/uploadBackgroundI
 //# --- ERRORS ---
 import { err, RATE_LIMIT_EXCEEDED } from "../utils/errors/GlobalErrors";
 import { deleteBackgroundImage } from "./deleteBackgroundImage/deleteBackgroundImage";
+import { setUserType } from "./setUserType/setUserType";
 
 const rateLimitExceededHandler: RateLimitExceededEventHandler = (
   req: Request,
@@ -516,3 +517,5 @@ userRouter.post(
  *                 $ref: "#/components/examples/S3_STORAGE_ERROR_EXAMPLE"
  */
 userRouter.delete("/background-image", auth, deleteBackgroundImage);
+
+userRouter.put("/user-type", auth, setUserType);

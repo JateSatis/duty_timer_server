@@ -52,10 +52,6 @@ import { sendEmail, sendEmailPython } from "../sendEmail";
  *           type: string
  *           description: Никнейм, которай пользователь ввел при регистрации
  *           example: soldat2004
- *         userType:
- *           type: string
- *           description: Тип пользователя, может принимать значения 'SOLDIER', 'WAITING_FOR_SOLDIER', 'OTHER'
- *           example: SOLDIER
  */
 export const signUpRoute = async (req: Request, res: Response) => {
   //# Check if all fields of json object are present in request
@@ -112,7 +108,6 @@ export const signUpRoute = async (req: Request, res: Response) => {
           passwordHash: password.hash,
           passwordSalt: password.salt,
           nickname: signUpRequestBody.nickname,
-          userType: signUpRequestBody.userType,
           userCreatedAt: otp.createdAt,
         },
       });

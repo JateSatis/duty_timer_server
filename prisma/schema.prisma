@@ -27,7 +27,7 @@ model PendingUser {
   id            String   @id @default(uuid())
   email         String   @unique
   nickname      String   @unique
-  userType      UserType @default(SOLDIER)
+  userType      UserType @default(DEFUALT)
   passwordHash  String
   passwordSalt  String
   userCreatedAt BigInt
@@ -40,7 +40,7 @@ model User {
   email            String
   nickname         String              @unique
   avatarImageName  String?
-  userType         UserType            @default(SOLDIER)
+  userType         UserType            @default(DEFUALT)
   passwordHash     String
   passwordSalt     String
   isOnline         Boolean             @default(false)
@@ -187,6 +187,7 @@ enum Theme {
 }
 
 enum UserType {
+  DEFUALT
   SOLDIER
   WAITING_FOR_SOLDIER
   OTHER

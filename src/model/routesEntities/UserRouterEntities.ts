@@ -1,10 +1,12 @@
+import { UserType } from "@prisma/client";
+
 export type ForeignUserInfoResponseBody = {
   id: string;
   nickname: string;
-	avatarLink: string | null;
-	isFriend: boolean;
-	isFriendshipRequestSent: boolean,
-	isFriendshipRequestRecieved: boolean
+  avatarLink: string | null;
+  isFriend: boolean;
+  isFriendshipRequestSent: boolean;
+  isFriendshipRequestRecieved: boolean;
 };
 
 export type GetUserInfoResponseBody = {
@@ -45,3 +47,9 @@ export type GetSettingsResponseBody = {
   theme: string;
   language: string;
 };
+
+export type SetUserTypeRequestBody = {
+  userType: UserType;
+};
+
+export const setUserTypeRequestBodyProperties = ["userType"];
