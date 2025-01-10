@@ -20,7 +20,7 @@ import { resendVerificationOtp } from "./sendVerificationOtpRoute.ts/sendVerific
 import { err, RATE_LIMIT_EXCEEDED } from "../utils/errors/GlobalErrors";
 import { sendPasswordResetOtp } from "./sendOtpPasswordResetRoute/sendPasswordResetOtpRoute";
 import { verifyPasswordResetRoute } from "./verifyPasswordResetRoute/verifyPasswordResetRoute";
-import { resetPasswordRoute } from "./resetPasswordRoute/changePasswordRoute";
+import { resetPasswordRoute } from "./resetPasswordRoute/resetPasswordRoute";
 
 dotenv.config();
 
@@ -204,7 +204,7 @@ authRouter.post("/sign-in", signInRoute);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/sendOtpVerificationRequest'
+ *             $ref: '#/components/schemas/sendVerificationOtpRequest'
  *     responses:
  *       200:
  *         description: Код успешно отправлен на почту
@@ -398,8 +398,148 @@ authRouter.delete("/", auth, deleteAccountRoute);
  */
 authRouter.get("/refresh-token", refreshAuth, refreshTokenRoute);
 
+//# Swagger описание запроса sendPasswordResetOtp
+/**
+ * @swagger
+ * /auth/send-password-reset-otp:
+ *   post:
+ *     summary: Отправка кода для измены пароля на почту пользователя
+ *     description: Используется при изменении пароля для того, чтобы отправить код подтверждения на почту пользователя
+ *     tags: [Auth]
+ *     security:
+ *       - Bearer: []
+ *     responses:
+ *       200:
+ *         description: Код подтверждения успешно отправлен на почту пользователя
+ *       429:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/REQUEST_TOO_SOON'
+ *       500:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               oneOf:
+ *                 - $ref: '#/components/schemas/DATABASE_ERROR'
+ *                 - $ref: '#/components/schemas/UNKNOWN_ERROR'
+ *               examples:
+ *                 DATABASE_ERROR:
+ *                   $ref: '#/components/examples/DATABASE_ERROR_EXAMPLE'
+ *                 UNKNOWN_ERROR:
+ *                   $ref: '#/components/examples/UNKNOWN_ERROR_EXAMPLE'
+ *
+ */
 authRouter.post("/send-password-reset-otp", auth, sendPasswordResetOtp);
 
+//# Swagger описание запроса verifyPasswordReset
+/**
+ * @swagger
+ * /auth/verify-password-reset:
+ *   post:
+ *     summary: Подтверждение почты при изменении пароля
+ *     description: Используется при изменении пароля; сюда пользователь вводит код, пришедший ему на почту
+ *     tags: [Auth]
+ *     security:
+ *       - Bearer: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/verifyPasswordResetRequest'
+ *     responses:
+ *       200:
+ *         description: Код подтверждения верен, можно переносить пользователя на экран замены пароля
+ *       400:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               oneOf:
+ *                 - $ref: '#/components/schemas/MISSING_REQUEST_FIELD'
+ *                 - $ref: '#/components/schemas/EMPTY_FIELD'
+ *                 - $ref: '#/components/schemas/INVALID_INPUT_FORMAT'
+ *                 - $ref: '#/components/schemas/OTP_EXPIRED'
+ *                 - $ref: '#/components/schemas/NOT_VALID_OTP'
+ *             examples:
+ *               MISSING_REQUEST_FIELD:
+ *                 $ref: '#/components/examples/MISSING_REQUEST_FIELD_EXAMPLE'
+ *               EMPTY_FIELD:
+ *                 $ref: '#/components/examples/EMPTY_FIELD_EXAMPLE'
+ *               INVALID_INPUT_FORMAT:
+ *                 $ref: '#/components/examples/INVALID_INPUT_FORMAT_EXAMPLE'
+ *               OTP_EXPIRED:
+ *                 $ref: '#/components/examples/OTP_EXPIRED_EXAMPLE'
+ *               NOT_VALID_OTP:
+ *                 $ref: '#/components/examples/NOT_VALID_OTP_EXAMPLE'
+ *       404:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DATA_NOT_FOUND'
+ *       429:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TOO_MANY_VERIFICATION_ATTEMPTS'
+ *       500:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DATABASE_ERROR'
+ *
+ */
 authRouter.post("/verify-password-reset", auth, verifyPasswordResetRoute);
 
-authRouter.post("/reset-password", auth, resetPasswordRoute)
+//# Swagger описание запроса resetPassword
+/**
+ * @swagger
+ * /auth/reset-password:
+ *   post:
+ *     summary: Изменение пароля на новый
+ *     description: Используется при изменении пароля; сюда пользователь вводит новый пароль после того, как подтвердил почту
+ *     tags: [Auth]
+ *     security:
+ *       - Bearer: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/resetPasswordRequest'
+ *     responses:
+ *       200:
+ *         description: Пароль успешно изменен
+ *       400:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               oneOf:
+ *                 - $ref: '#/components/schemas/MISSING_REQUEST_FIELD'
+ *                 - $ref: '#/components/schemas/EMPTY_FIELD'
+ *                 - $ref: '#/components/schemas/INVALID_INPUT_FORMAT'
+ *             examples:
+ *               MISSING_REQUEST_FIELD:
+ *                 $ref: '#/components/examples/MISSING_REQUEST_FIELD_EXAMPLE'
+ *               EMPTY_FIELD:
+ *                 $ref: '#/components/examples/EMPTY_FIELD_EXAMPLE'
+ *               INVALID_INPUT_FORMAT:
+ *                 $ref: '#/components/examples/INVALID_INPUT_FORMAT_EXAMPLE'
+ *       403:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/OTP_NOT_VERIFIED'
+ *       404:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/OTP_NOT_FOUND'
+ *       500:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DATABASE_ERROR'
+ *
+ */
+authRouter.post("/reset-password", auth, resetPasswordRoute);

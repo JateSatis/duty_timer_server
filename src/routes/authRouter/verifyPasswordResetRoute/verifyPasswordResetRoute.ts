@@ -21,6 +21,20 @@ import {
   TOO_MANY_VERIFICATION_ATTEMPTS,
 } from "../../../routes/utils/errors/AuthErrors";
 
+//# Swagger описание VerifyPasswordResetRequestBody
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     verifyPasswordResetRequest:
+ *       type: object
+ *       properties:
+ *         otp:
+ *           type: number
+ *           descritption: Код подтверждения, который ввел пользователь
+ *           example: 745113
+ */
+
 export const verifyPasswordResetRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
@@ -54,11 +68,6 @@ export const verifyPasswordResetRoute = async (req: Request, res: Response) => {
   //# If user tried to verify email too many times and failed
   if (existingOtpCode.verificationAttemptsCount >= 10) {
     return sendError(res, new TOO_MANY_VERIFICATION_ATTEMPTS());
-  }
-
-  //# Case where code is expired
-  if (existingOtpCode.otpExpiresAt < Date.now()) {
-    return sendError(res, new OTP_EXPIRED());
   }
 
   //# Case where code is expired

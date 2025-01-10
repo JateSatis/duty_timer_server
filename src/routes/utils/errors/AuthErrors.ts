@@ -161,9 +161,20 @@ export class REQUEST_TOO_SOON extends ServerError {
     );
   }
 }
+
 export class OTP_NOT_FOUND extends ServerError {
   constructor() {
     super("OTP_NOT_FOUND", "No OTP was sent to this account", 404);
+  }
+}
+
+export class OTP_NOT_VERIFIED extends ServerError {
+  constructor() {
+    super(
+      "OTP_NOT_VERIFIED",
+      "Otp that was sent to this account was not verified",
+      403
+    );
   }
 }
 

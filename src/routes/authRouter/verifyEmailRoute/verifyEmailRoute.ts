@@ -39,6 +39,7 @@ import {
   TOO_MANY_VERIFICATION_ATTEMPTS,
 } from "../../utils/errors/AuthErrors";
 
+//# Swagger описание VerifyEmailRequestBody
 /**
  * @swagger
  * components:
@@ -56,6 +57,7 @@ import {
  *           example: 123456
  */
 
+//# Swagger описание VerifyEmailResponseBody
 /**
  * @swagger
  * components:
@@ -63,6 +65,7 @@ import {
  *     verifyEmailResponse:
  *       $ref: '#/components/schemas/refreshTokenResponse'
  */
+
 
 export const verifyEmailRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, verifyEmailRequestBodyProperties))

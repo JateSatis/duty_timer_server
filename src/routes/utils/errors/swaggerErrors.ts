@@ -448,6 +448,66 @@
  *         message: The provided login is already associated with an existing account. Please choose a different login or use the existing account to sign in.
  */
 
+//# Swagger описание СХЕМЫ ошибки TOO_MANY_VERIFICATION_ATTEMPTS
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     TOO_MANY_VERIFICATION_ATTEMPTS:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Название ошибки
+ *           example: TOO_MANY_VERIFICATION_ATTEMPTS
+ *         message:
+ *           type: string
+ *           description: Сообщение ошибки, описание ее сути
+ *           example: User tried to input too many incorrect OTP values
+ */
+
+//? Swagger описание ПРИМЕРА ошибки ACCOUNT_ALREADY_EXISTS
+/**
+ * @swagger
+ * components:
+ *   examples:
+ *     TOO_MANY_VERIFICATION_ATTEMPTS_EXAMPLE:
+ *       summary: Ошибка - аккаунт с предоставленной почтой уже существует
+ *       value:
+ *         name: TOO_MANY_VERIFICATION_ATTEMPTS
+ *         message: User tried to input too many incorrect OTP values
+ */
+
+//# Swagger описание СХЕМЫ ошибки TOO_MANY_VERIFICATION_ATTEMPTS
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     REQUEST_TOO_SOON:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Название ошибки
+ *           example: REQUEST_TOO_SOON
+ *         message:
+ *           type: string
+ *           description: Сообщение ошибки, описание ее сути
+ *           example: User tried to request a new email before the cooldown period of one minute had passed
+ */
+
+//? Swagger описание ПРИМЕРА ошибки ACCOUNT_ALREADY_EXISTS
+/**
+ * @swagger
+ * components:
+ *   examples:
+ *     REQUEST_TOO_SOON_EXAMPLE:
+ *       summary: Ошибка - аккаунт с предоставленной почтой уже существует
+ *       value:
+ *         name: REQUEST_TOO_SOON
+ *         message: User tried to request a new email before the cooldown period of one minute had passed
+ */
+
 //# Swagger описание СХЕМЫ ошибки AUTHORIZATION_HEADER_ABSENT
 /**
  * @swagger
@@ -866,6 +926,36 @@
  *       value:
  *         name: OTP_NOT_FOUND
  *         message: No OTP was sent to this account
+ */
+
+//# Swagger описание СХЕМЫ ошибки OTP_NOT_VERIFIED
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     OTP_NOT_VERIFIED:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Название ошибки
+ *           example: OTP_NOT_VERIFIED
+ *         message:
+ *           type: string
+ *           description: Сообщение ошибки, описание ее сути
+ *           example: Otp that was sent to this account was not verified
+ */
+
+//? Swagger описание ПРИМЕРА ошибки OTP_NOT_FOUND
+/**
+ * @swagger
+ * components:
+ *   examples:
+ *     OTP_NOT_VERIFIED_EXAMPLE:
+ *       summary: Ошибка - OTP был отправлен на почту, но не был подтвержден
+ *       value:
+ *         name: OTP_NOT_VERIFIED
+ *         message: Otp that was sent to this account was not verified
  */
 
 //# Swagger описание СХЕМЫ ошибки OTP_SENDING_UNAVAILABLE

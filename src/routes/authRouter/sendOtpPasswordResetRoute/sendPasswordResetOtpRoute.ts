@@ -39,16 +39,20 @@ export const sendPasswordResetOtp = async (req: Request, res: Response) => {
       }
     }
 
-    const passwordResetOtp = await prisma.otpCode.create({
-      data: {
-        otpHash: otp.hash,
-        otpSalt: otp.salt,
-        otpCreatedAt: otp.createdAt,
-        otpExpiresAt: otp.expiresAt,
-        purpose: "PASSWORD_RESET",
-        userId: user.id,
-      },
-    });
+    try {
+      await prisma.otpCode.create({
+        data: {
+          otpHash: otp.hash,
+          otpSalt: otp.salt,
+          otpCreatedAt: otp.createdAt,
+          otpExpiresAt: otp.expiresAt,
+          purpose: "PASSWORD_RESET",
+          userId: user.id,
+        },
+      });
+    } catch (error) {
+      sendError(res, new DATABASE_ERROR(error));
+    }
 
     return res.sendStatus(200);
   }

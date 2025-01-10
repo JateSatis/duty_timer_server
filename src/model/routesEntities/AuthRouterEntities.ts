@@ -15,11 +15,11 @@ export const signUpRequestBodyProperties = [
 ];
 
 //# --- SEND VERIFICATION OTP ---
-export type ResendVerificationOtpRequestBody = {
+export type SendVerificationOtpRequestBody = {
   email: string;
 };
 
-export const resendVerificationOtpRequestBodyProperties = ["email"];
+export const sendVerificationOtpRequestBodyProperties = ["email"];
 
 //# --- VERIFIY EMAIL REQUEST ---
 export type VerifyEmailRequestBody = {
@@ -68,9 +68,9 @@ export type VerifyPasswordResetRequestBody = {
 
 export const verifyPasswordResetRequestBodyProperties = ["otp"];
 
-//# --- CHANGE PASSWORD ---
-export type ChangePasswordRequestBody = {
+//# --- RESET PASSWORD ---
+export type ResetPasswordRequestBody = {
   password: string;
 };
 
-export const changePasswordRequestBodyProperties = ["password"];
+export const resetPasswordRequestBodyProperties = ["password"];

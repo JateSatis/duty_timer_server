@@ -919,7 +919,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/sendOtpVerificationRequest"
+                "$ref": "#/components/schemas/sendVerificationOtpRequest"
               }
             }
           }
@@ -1238,6 +1238,242 @@
           }
         }
       }
+    },
+    "/auth/send-password-reset-otp": {
+      "post": {
+        "summary": "Отправка кода для измены пароля на почту пользователя",
+        "description": "Используется при изменении пароля для того, чтобы отправить код подтверждения на почту пользователя",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Код подтверждения успешно отправлен на почту пользователя"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/REQUEST_TOO_SOON"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/DATABASE_ERROR"
+                    },
+                    {
+                      "$ref": "#/components/schemas/UNKNOWN_ERROR"
+                    }
+                  ],
+                  "examples": {
+                    "DATABASE_ERROR": {
+                      "$ref": "#/components/examples/DATABASE_ERROR_EXAMPLE"
+                    },
+                    "UNKNOWN_ERROR": {
+                      "$ref": "#/components/examples/UNKNOWN_ERROR_EXAMPLE"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/verify-password-reset": {
+      "post": {
+        "summary": "Подтверждение почты при изменении пароля",
+        "description": "Используется при изменении пароля; сюда пользователь вводит код, пришедший ему на почту",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/verifyPasswordResetRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Код подтверждения верен, можно переносить пользователя на экран замены пароля"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/MISSING_REQUEST_FIELD"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EMPTY_FIELD"
+                    },
+                    {
+                      "$ref": "#/components/schemas/INVALID_INPUT_FORMAT"
+                    },
+                    {
+                      "$ref": "#/components/schemas/OTP_EXPIRED"
+                    },
+                    {
+                      "$ref": "#/components/schemas/NOT_VALID_OTP"
+                    }
+                  ]
+                },
+                "examples": {
+                  "MISSING_REQUEST_FIELD": {
+                    "$ref": "#/components/examples/MISSING_REQUEST_FIELD_EXAMPLE"
+                  },
+                  "EMPTY_FIELD": {
+                    "$ref": "#/components/examples/EMPTY_FIELD_EXAMPLE"
+                  },
+                  "INVALID_INPUT_FORMAT": {
+                    "$ref": "#/components/examples/INVALID_INPUT_FORMAT_EXAMPLE"
+                  },
+                  "OTP_EXPIRED": {
+                    "$ref": "#/components/examples/OTP_EXPIRED_EXAMPLE"
+                  },
+                  "NOT_VALID_OTP": {
+                    "$ref": "#/components/examples/NOT_VALID_OTP_EXAMPLE"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATA_NOT_FOUND"
+                }
+              }
+            }
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TOO_MANY_VERIFICATION_ATTEMPTS"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATABASE_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/reset-password": {
+      "post": {
+        "summary": "Изменение пароля на новый",
+        "description": "Используется при изменении пароля; сюда пользователь вводит новый пароль после того, как подтвердил почту",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/resetPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Пароль успешно изменен"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/MISSING_REQUEST_FIELD"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EMPTY_FIELD"
+                    },
+                    {
+                      "$ref": "#/components/schemas/INVALID_INPUT_FORMAT"
+                    }
+                  ]
+                },
+                "examples": {
+                  "MISSING_REQUEST_FIELD": {
+                    "$ref": "#/components/examples/MISSING_REQUEST_FIELD_EXAMPLE"
+                  },
+                  "EMPTY_FIELD": {
+                    "$ref": "#/components/examples/EMPTY_FIELD_EXAMPLE"
+                  },
+                  "INVALID_INPUT_FORMAT": {
+                    "$ref": "#/components/examples/INVALID_INPUT_FORMAT_EXAMPLE"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OTP_NOT_VERIFIED"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OTP_NOT_FOUND"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DATABASE_ERROR"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1467,6 +1703,36 @@
           }
         }
       },
+      "TOO_MANY_VERIFICATION_ATTEMPTS": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "TOO_MANY_VERIFICATION_ATTEMPTS"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "User tried to input too many incorrect OTP values"
+          }
+        }
+      },
+      "REQUEST_TOO_SOON": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "REQUEST_TOO_SOON"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "User tried to request a new email before the cooldown period of one minute had passed"
+          }
+        }
+      },
       "AUTHORIZATION_HEADER_ABSENT": {
         "type": "object",
         "properties": {
@@ -1674,6 +1940,21 @@
             "type": "string",
             "description": "Сообщение ошибки, описание ее сути",
             "example": "No OTP was sent to this account"
+          }
+        }
+      },
+      "OTP_NOT_VERIFIED": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Название ошибки",
+            "example": "OTP_NOT_VERIFIED"
+          },
+          "message": {
+            "type": "string",
+            "description": "Сообщение ошибки, описание ее сути",
+            "example": "Otp that was sent to this account was not verified"
           }
         }
       },
@@ -1939,6 +2220,26 @@
           }
         }
       },
+      "resetPasswordRequest": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "Новый пароль, который ввел пользователь",
+            "example": "Vanya2004"
+          }
+        }
+      },
+      "sendVerificationOtpRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "descritption": "Email, который пользователь ввел при регистрации",
+            "example": "default_user@gmail.com"
+          }
+        }
+      },
       "signInRequest": {
         "type": "object",
         "properties": {
@@ -1974,6 +2275,11 @@
             "type": "string",
             "description": "Никнейм, которай пользователь ввел при регистрации",
             "example": "soldat2004"
+          },
+          "userType": {
+            "type": "string",
+            "description": "Тип пользователя, может принимать значения 'SOLDIER', 'WAITING_FOR_SOLDIER', 'OTHER'",
+            "example": "SOLDIER"
           }
         }
       },
@@ -1994,6 +2300,16 @@
       },
       "verifyEmailResponse": {
         "$ref": "#/components/schemas/refreshTokenResponse"
+      },
+      "verifyPasswordResetRequest": {
+        "type": "object",
+        "properties": {
+          "otp": {
+            "type": "number",
+            "descritption": "Код подтверждения, который ввел пользователь",
+            "example": 745113
+          }
+        }
       }
     },
     "examples": {
@@ -2102,6 +2418,20 @@
           "message": "The provided login is already associated with an existing account. Please choose a different login or use the existing account to sign in."
         }
       },
+      "TOO_MANY_VERIFICATION_ATTEMPTS_EXAMPLE": {
+        "summary": "Ошибка - аккаунт с предоставленной почтой уже существует",
+        "value": {
+          "name": "TOO_MANY_VERIFICATION_ATTEMPTS",
+          "message": "User tried to input too many incorrect OTP values"
+        }
+      },
+      "REQUEST_TOO_SOON_EXAMPLE": {
+        "summary": "Ошибка - аккаунт с предоставленной почтой уже существует",
+        "value": {
+          "name": "REQUEST_TOO_SOON",
+          "message": "User tried to request a new email before the cooldown period of one minute had passed"
+        }
+      },
       "AUTHORIZATION_HEADER_ABSENT_EXAMPLE": {
         "summary": "Ошибка - отсутствует заголовок Authorization",
         "value": {
@@ -2198,6 +2528,13 @@
         "value": {
           "name": "OTP_NOT_FOUND",
           "message": "No OTP was sent to this account"
+        }
+      },
+      "OTP_NOT_VERIFIED_EXAMPLE": {
+        "summary": "Ошибка - OTP был отправлен на почту, но не был подтвержден",
+        "value": {
+          "name": "OTP_NOT_VERIFIED",
+          "message": "Otp that was sent to this account was not verified"
         }
       },
       "OTP_SENDING_UNAVAILABLE_EXAMPLE": {

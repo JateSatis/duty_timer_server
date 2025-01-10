@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import {
-  ResendVerificationOtpRequestBody,
-  resendVerificationOtpRequestBodyProperties,
+  SendVerificationOtpRequestBody,
+  sendVerificationOtpRequestBodyProperties,
 } from "../../../model/routesEntities/AuthRouterEntities";
 import { missingRequestField } from "../../utils/validation/missingRequestField";
 import { emptyField } from "../../utils/validation/emptyField";
@@ -18,13 +18,27 @@ import { generateOtp } from "../generateOtp";
 import { REQUEST_TOO_SOON } from "../../utils/errors/AuthErrors";
 import { sendEmailPython } from "../sendEmail";
 
+//# Swagger описание SendVerificationOtpRequestBody
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     sendVerificationOtpRequest:
+ *       type: object
+ *       properties:
+ *         email:
+ *           type: string
+ *           descritption: Email, который пользователь ввел при регистрации
+ *           example: default_user@gmail.com
+ */
+
 export const resendVerificationOtp = async (req: Request, res: Response) => {
-  if (missingRequestField(req, res, resendVerificationOtpRequestBodyProperties))
+  if (missingRequestField(req, res, sendVerificationOtpRequestBodyProperties))
     return res;
 
-  if (emptyField(req, res, resendVerificationOtpRequestBodyProperties))
+  if (emptyField(req, res, sendVerificationOtpRequestBodyProperties))
     return res;
-  const resendVerificationOtpRequestBody: ResendVerificationOtpRequestBody =
+  const resendVerificationOtpRequestBody: SendVerificationOtpRequestBody =
     req.body;
 
   if (invalidInputFormat(res, resendVerificationOtpRequestBody)) return res;
@@ -107,8 +121,8 @@ export const resendVerificationOtp = async (req: Request, res: Response) => {
               otpHash: otp.hash,
               otpSalt: otp.salt,
               otpCreatedAt: otp.createdAt,
-							otpExpiresAt: otp.expiresAt,
-							verificationAttemptsCount: 0
+              otpExpiresAt: otp.expiresAt,
+              verificationAttemptsCount: 0,
             },
           },
         },

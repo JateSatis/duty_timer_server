@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { ChangePasswordRequestBody } from "../../../model/routesEntities/AuthRouterEntities";
+import { ResetPasswordRequestBody } from "../../../model/routesEntities/AuthRouterEntities";
 import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
 
 const passwordFormat =
@@ -7,7 +7,7 @@ const passwordFormat =
 
 export const invalidInputFormat = (
   res: Response,
-  changePasswordRequestBody: ChangePasswordRequestBody
+  changePasswordRequestBody: ResetPasswordRequestBody
 ): boolean => {
   const { password } = changePasswordRequestBody;
 

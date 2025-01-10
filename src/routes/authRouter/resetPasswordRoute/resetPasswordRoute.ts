@@ -1,29 +1,39 @@
 import { Request, Response } from "express";
 import {
-  ChangePasswordRequestBody,
-  changePasswordRequestBodyProperties,
+  ResetPasswordRequestBody,
+  resetPasswordRequestBodyProperties,
 } from "../../../model/routesEntities/AuthRouterEntities";
 import { emptyField } from "../../utils/validation/emptyField";
 import { missingRequestField } from "../../utils/validation/missingRequestField";
 import { invalidInputFormat } from "./invalidInputFormat";
 import { prisma } from "../../../model/config/prismaClient";
 import { User } from "@prisma/client";
-import {
-  DATA_NOT_FOUND,
-  DATABASE_ERROR,
-  sendError,
-} from "../../utils/errors/GlobalErrors";
-import { OTP_NOT_FOUND } from "../../utils/errors/AuthErrors";
+import { DATABASE_ERROR, sendError } from "../../utils/errors/GlobalErrors";
+import { OTP_NOT_FOUND, OTP_NOT_VERIFIED } from "../../utils/errors/AuthErrors";
 import { generatePasswordHash } from "../../../auth/jwt/passwordHandler";
+
+//# Swagger описание ResetPasswordRequestBody
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     resetPasswordRequest:
+ *       type: object
+ *       properties:
+ *         password:
+ *           type: string
+ *           description: Новый пароль, который ввел пользователь
+ *           example: Vanya2004
+ */
 
 export const resetPasswordRoute = async (req: Request, res: Response) => {
   const user: User = req.body.user;
 
-  if (missingRequestField(req, res, changePasswordRequestBodyProperties))
+  if (missingRequestField(req, res, resetPasswordRequestBodyProperties))
     return res;
 
-  if (emptyField(req, res, changePasswordRequestBodyProperties)) return res;
-  const changePasswordRequestBody: ChangePasswordRequestBody = req.body;
+  if (emptyField(req, res, resetPasswordRequestBodyProperties)) return res;
+  const changePasswordRequestBody: ResetPasswordRequestBody = req.body;
 
   if (invalidInputFormat(res, changePasswordRequestBody)) return res;
 
@@ -36,15 +46,15 @@ export const resetPasswordRoute = async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    return sendError(res, error);
+    return sendError(res, new DATABASE_ERROR(error));
   }
 
   if (!existingOtpCode) {
-    return sendError(res, new DATA_NOT_FOUND("OtpCode", `userId = ${user.id}`));
+    return sendError(res, new OTP_NOT_FOUND());
   }
 
   if (!existingOtpCode.isVerified) {
-    return sendError(res, new OTP_NOT_FOUND());
+    return sendError(res, new OTP_NOT_VERIFIED());
   }
 
   const newPassword = generatePasswordHash(changePasswordRequestBody.password);
