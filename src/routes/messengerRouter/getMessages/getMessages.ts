@@ -4,6 +4,7 @@ import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
+  sendError,
 } from "../../utils/errors/GlobalErrors";
 import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
 import { getDirectMessages } from "./getDirectMessages";

@@ -122,3 +122,101 @@ export const transformMessageForResponse = async (
   };
   return messageResponseBody;
 };
+
+export const transformGlobalMessageForResponseUnregistered = async (
+  messageId: string
+) => {
+  let message;
+  try {
+    message = await prisma.message.findFirst({
+      where: {
+        id: messageId,
+      },
+      include: {
+        attachments: true,
+        sender: true,
+      },
+    });
+  } catch (error) {
+    throw new DATABASE_ERROR(error);
+  }
+
+  if (!message) {
+    throw new DATA_NOT_FOUND("message", `id = ${messageId}`);
+  }
+
+  let chat;
+  try {
+    chat = await prisma.chat.findFirst({
+      where: {
+        chatType: "GLOBAL",
+      },
+    });
+  } catch (error) {
+    throw new DATABASE_ERROR(error);
+  }
+
+  if (!chat) {
+    throw new DATA_NOT_FOUND("chat", `id = ${messageId}`);
+  }
+
+  let repliedMessage;
+  if (message.replyToId) {
+    try {
+      repliedMessage = await prisma.message.findFirst({
+        where: {
+          id: message.replyToId,
+        },
+        include: {
+          sender: {
+            select: {
+              nickname: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw new DATABASE_ERROR(error);
+    }
+  }
+
+  const attachmentNames = message.attachments.map(
+    (attachment) => attachment.name
+  );
+  const attachmentLinks: string[] = [];
+  try {
+    await Promise.all(
+      attachmentNames.map(async (attachmentName) => {
+        const attachmentLink = await S3DataSource.getImageUrlFromS3(
+          attachmentName
+        );
+        attachmentLinks.push(attachmentLink);
+      })
+    );
+  } catch (error) {
+    throw new S3_STORAGE_ERROR(error);
+  }
+
+  const { timeFormat, dateFormat } = formatDateForMessage(
+    Number(message.creationTime)
+  );
+
+  const messageResponseBody: GroupMessageResponseBody = {
+    messageId: message.id,
+    chatId: chat.id,
+    senderId: message.sender.id,
+    senderNickname: message.sender.nickname,
+    senderAvatarLink: null,
+    text: message.text,
+    attachmentLinks,
+    creationDate: dateFormat,
+    creationTime: timeFormat,
+    isRead: message.isRead,
+    isEdited: message.isEdited,
+    isSender: false,
+    repliedMessageId: repliedMessage?.id || null,
+    repliedMessageText: repliedMessage?.text || null,
+    repliedMessageSender: repliedMessage?.sender.nickname || null,
+  };
+  return messageResponseBody;
+};
