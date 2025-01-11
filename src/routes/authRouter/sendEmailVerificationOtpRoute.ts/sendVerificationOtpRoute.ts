@@ -32,7 +32,7 @@ import { sendEmailPython } from "../sendEmail";
  *           example: default_user@gmail.com
  */
 
-export const resendVerificationOtp = async (req: Request, res: Response) => {
+export const sendEmailVerificationOtp = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, sendVerificationOtpRequestBodyProperties))
     return res;
 

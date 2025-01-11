@@ -14,11 +14,11 @@ import { logOutRoute } from "./logOutRoute/logOutRoute";
 import { refreshTokenRoute } from "./refreshTokenRoute/refreshTokenRoute";
 import { deleteAccountRoute } from "./deleteAccountRoute/deleteAccountRoute";
 import { verifyEmailRoute } from "./verifyEmailRoute/verifyEmailRoute";
-import { resendVerificationOtp } from "./sendVerificationOtpRoute.ts/sendVerificationOtpRoute";
+import { sendEmailVerificationOtp } from "./sendEmailVerificationOtpRoute.ts/sendVerificationOtpRoute";
 
 // # --- ERRORS ---
 import { err, RATE_LIMIT_EXCEEDED } from "../utils/errors/GlobalErrors";
-import { sendPasswordResetOtp } from "./sendOtpPasswordResetRoute/sendPasswordResetOtpRoute";
+import { sendPasswordResetOtp } from "./sendPasswordResetOtpRoute/sendPasswordResetOtpRoute";
 import { verifyPasswordResetRoute } from "./verifyPasswordResetRoute/verifyPasswordResetRoute";
 import { resetPasswordRoute } from "./resetPasswordRoute/resetPasswordRoute";
 
@@ -191,10 +191,10 @@ authRouter.post("/sign-up", signUpRoute);
  */
 authRouter.post("/sign-in", signInRoute);
 
-//# Swagger описание запроса sendOtpVerification
+//# Swagger описание запроса sendEmailVerificationOtp
 /**
  * @swagger
- * /auth/send-otp-verification:
+ * /auth/send-email-verification-otp:
  *   post:
  *     summary: Отправить код на почту
  *     description: Используется для отправки одноразового кода подтверждения на почту нового пользователя
@@ -242,7 +242,7 @@ authRouter.post("/sign-in", signInRoute);
  *             schema:
  *               $ref: '#/components/schemas/OTP_SENDING_UNAVAILABLE'
  */
-authRouter.post("/send-email-verification-otp", resendVerificationOtp);
+authRouter.post("/send-email-verification-otp", sendEmailVerificationOtp);
 
 //# Swagger описание запроса verifyEmailRoute
 /**

@@ -10,12 +10,12 @@ import {
 import { generateOtp } from "../generateOtp";
 import { REQUEST_TOO_SOON } from "../../utils/errors/AuthErrors";
 import { sendEmail, sendEmailPython } from "../sendEmail";
-import { missingRequestField } from "../../../routes/utils/validation/missingRequestField";
+import { missingRequestField } from "../../utils/validation/missingRequestField";
 import {
   SendPasswordResetOtpRequestBody,
   sendPasswordResetOtpRequestBodyProperties,
 } from "../../../model/routesEntities/AuthRouterEntities";
-import { emptyField } from "../../../routes/utils/validation/emptyField";
+import { emptyField } from "../../utils/validation/emptyField";
 import { invalidInputFormat } from "./invalidInputFormat";
 
 //# Swagger описание SendPasswordResetOtp
