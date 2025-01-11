@@ -12,6 +12,19 @@ import {
   sendError,
 } from "../../../routes/utils/errors/GlobalErrors";
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     setUserTypeRequest:
+ *       type: object
+ *       properties:
+ *         userType:
+ *           type: string
+ *           description: Тип пользователя
+ *           example: SOLDIER | WAITING_FOR_SOLDIER | OTHER
+ */
+
 export const setUserType = async (req: Request, res: Response) => {
   const user = req.body.user;
 

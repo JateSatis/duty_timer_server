@@ -15,8 +15,11 @@ import { WebSocketChatsMapValue } from "../model/routesEntities/WebSocketRouterE
 import { User } from "@prisma/client";
 import { prisma } from "../model/config/prismaClient";
 import { DATA_NOT_FOUND } from "../routes/utils/errors/GlobalErrors";
+import { WebScopeType } from "aws-sdk/clients/bedrockagent";
 
 // TODO: Check if maps works correctly after users connect and disconnect.
+
+export const unregisteredUsers = new Set<WebSocket>();
 
 //# Содержит чатрумы и их пользователей. В качестве ключа используется уникальный ключ чата
 //# в качестве значения используется список подключенных к данному чату пользователей
@@ -27,7 +30,7 @@ export const webSocketOnConnection = async (
   ws: WebSocket,
   req: IncomingMessage
 ) => {
-  let user: User;
+  let user: User | null;
   try {
     user = await authenticateSocket(req);
   } catch (error) {
@@ -36,24 +39,32 @@ export const webSocketOnConnection = async (
     return;
   }
 
-  await connectToFriends(user.id, ws);
-  const chatIds = await connectToChatrooms(user.id, ws);
+  if (!user) {
+    unregisteredUsers.add(ws);
 
-  ws.on("error", console.error);
+    ws.on("error", console.error);
 
-  ws.on("message", async (data) => {
-    const message = JSON.parse(data.toString());
-    if (message.type === "status") {
-      sendStatusMessage(data);
-    } else if (message.type === "chat") {
-      sendChatMessage(data, ws);
-    }
-  });
+    ws.on("close", () => unregisteredUsers.delete(ws));
+  } else {
+    await connectToFriends(user.id, ws);
+    const chatIds = await connectToChatrooms(user.id, ws);
 
-  ws.on("close", () => {
-    disconnectFromFriends(user);
-    disconnectFromChatrooms(chatIds, user);
-  });
+    ws.on("error", console.error);
+
+    ws.on("message", async (data) => {
+      const message = JSON.parse(data.toString());
+      if (message.type === "status") {
+        sendStatusMessage(data);
+      } else if (message.type === "chat") {
+        sendChatMessage(data, ws);
+      }
+    });
+
+    ws.on("close", () => {
+      disconnectFromFriends(user);
+      disconnectFromChatrooms(chatIds, user);
+    });
+  }
 };
 
 const connectToFriends = async (userId: string, ws: WebSocket) => {
@@ -206,5 +217,10 @@ const sendChatMessage = async (data: Data, ws: WebSocket) => {
   connectedUsers.forEach((userSocket) => {
     if (userSocket.socket != ws)
       userSocket.socket.send(JSON.stringify(webSocketChatMessage));
+  });
+
+  //! Это решение на время, потом нужно будет исправлять
+  unregisteredUsers.forEach((socket) => {
+    socket.send(JSON.stringify(webSocketChatMessage));
   });
 };

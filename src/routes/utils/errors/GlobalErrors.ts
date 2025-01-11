@@ -144,6 +144,16 @@ export class FORBIDDEN_ACCESS extends ServerError {
   }
 }
 
+export class BANNED_ACCOUNT extends ServerError {
+  constructor() {
+    super(
+      "BANNED_ACCOUNT",
+      `This account has been banned. You no longer can send any requests to the server`,
+      403
+    );
+  }
+}
+
 export class DATA_NOT_FOUND extends ServerError {
   constructor(entitieName: string, criteria: any) {
     const message = `The data (${entitieName}) with these parameters: ${criteria} doesn't exist. Please check that values you're providing are correct.`;

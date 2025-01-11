@@ -16,11 +16,12 @@ import { emptyParam } from "../../utils/validation/emptyParam";
 
 //# --- ERRORS ---
 import {
+  DATA_NOT_FOUND,
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
   S3_STORAGE_ERROR,
-	sendError,
+  sendError,
 } from "../../utils/errors/GlobalErrors";
 import { webSocketChatsMap } from "../../../sockets/socketsConfig";
 import { S3DataSource } from "../../../model/config/imagesConfig";
@@ -36,7 +37,6 @@ export const deleteMessageRoute = async (req: Request, res: Response) => {
     message = await prisma.message.findFirst({
       where: {
         id: messageId,
-        senderId: user.id,
       },
       include: {
         chat: {
@@ -52,7 +52,13 @@ export const deleteMessageRoute = async (req: Request, res: Response) => {
   }
 
   if (!message) {
-    return res.status(400).json(err(new FORBIDDEN_ACCESS()));
+    return res
+      .status(400)
+      .json(err(new DATA_NOT_FOUND("Message", `id = ${messageId}`)));
+  }
+
+  if (message.senderId !== user.id && !user.isAdmin) {
+    return sendError(res, new FORBIDDEN_ACCESS());
   }
 
   const attachmentNames = message.attachments.map(

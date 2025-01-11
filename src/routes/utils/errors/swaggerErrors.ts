@@ -328,6 +328,36 @@
  *         message: You do not have permission to modify this data. Please ensure you have the appropriate access rights or contact support for assistance.
  */
 
+//# Swagger описание СХЕМЫ ошибки BANNED_ACCOUNT
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     BANNED_ACCOUNT:
+ *       type: object
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Название ошибки
+ *           example: BANNED_ACCOUNT
+ *         message:
+ *           type: string
+ *           description: Сообщение ошибки, описание ее сути
+ *           example: This account has been banned. You no longer can send any requests to the server
+ */
+
+//? Swagger описание ПРИМЕРА ошибки BANNED_ACCOUNT
+/**
+ * @swagger
+ * components:
+ *   examples:
+ *     BANNED_ACCOUNT_EXAMPLE:
+ *       summary: Ошибка - аккаунт пользователя был забанен. Он больше не может отправлять запросы на сервер
+ *       value:
+ *         name: BANNED_ACCOUNT
+ *         message: This account has been banned. You no longer can send any requests to the server
+ */
+
 //# Swagger описание СХЕМЫ ошибки DATA_NOT_FOUND
 /**
  * @swagger

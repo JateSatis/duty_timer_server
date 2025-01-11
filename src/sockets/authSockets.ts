@@ -23,12 +23,12 @@ const PUB_ACCESS_KEY = fs.readFileSync(pathToPublicAccessKey);
 
 export const authenticateSocket = async (
   req: IncomingMessage
-): Promise<User> => {
+): Promise<User | null> => {
   const authorization = url.parse(req.url!!, true).query.token as string;
 
   //# Проверяем есть ли в запросе header под названием authorization
   if (!authorization || authorization.length === 0) {
-    throw new INCORRECT_AUTHORIZATION_HEADER();
+    return null;
   }
 
   const tokenBearer = authorization.split(" ")[0];

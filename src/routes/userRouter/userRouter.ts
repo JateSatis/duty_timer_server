@@ -23,6 +23,8 @@ import { uploadBackgroundImage } from "./uploadBackgroundImage/uploadBackgroundI
 import { err, RATE_LIMIT_EXCEEDED } from "../utils/errors/GlobalErrors";
 import { deleteBackgroundImage } from "./deleteBackgroundImage/deleteBackgroundImage";
 import { setUserType } from "./setUserType/setUserType";
+import { banUser } from "./banUser/banUser";
+import { unbanUser } from "./unbanUser/unbanUser";
 
 const rateLimitExceededHandler: RateLimitExceededEventHandler = (
   req: Request,
@@ -190,7 +192,7 @@ userRouter.get("/id/:foreignUserId", auth, getUserById);
 //# Swagger описание запроса getUsersByNickname
 /**
  * @swagger
- * /user/id/{userNickname}:
+ * /user/nickname/{userNickname}:
  *   get:
  *     summary: Получение списка пользователей по никнейму
  *     description: По данному запросу можно получить список пользователей, чей никнейм соответствует переданной строке
@@ -518,4 +520,145 @@ userRouter.post(
  */
 userRouter.delete("/background-image", auth, deleteBackgroundImage);
 
+//# Swagger описание запроса SetUserType
+/**
+ * @swagger
+ * /user/user-type:
+ *   put:
+ *     summary: Обновление типа пользователя
+ *     description: По данному запросу можно установить новый тип пользователя (userType)
+ *     tags: [User]
+ *     security:
+ *       - Bearer: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/setUserTypeRequest'
+ *     responses:
+ *       200:
+ *         description: Тип пользователя успешно обновлен
+ *       400:
+ *         description: Ошибка при получении данных от клиента
+ *         content:
+ *           application/json:
+ *             schema:
+ *               oneOf:
+ *                 - $ref: '#/components/schemas/MISSING_REQUEST_FIELD'
+ *                 - $ref: '#/components/schemas/EMPTY_FIELD'
+ *                 - $ref: '#/components/schemas/INVALID_INPUT_FORMAT'
+ *             examples:
+ *               MISSING_REQUEST_FIELD:
+ *                 $ref: '#/components/examples/MISSING_REQUEST_FIELD_EXAMPLE'
+ *               EMPTY_FIELD:
+ *                 $ref: '#/components/examples/EMPTY_FIELD_EXAMPLE'
+ *               INVALID_INPUT_FORMAT:
+ *                 $ref: '#/components/examples/INVALID_INPUT_FORMAT_EXAMPLE'
+ *       500:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DATABASE_ERROR'
+ */
 userRouter.put("/user-type", auth, setUserType);
+
+//# Swagger описание запроса BanUser
+/**
+ * @swagger
+ * /user/ban-user/{userId}:
+ *   get:
+ *     summary: Бан пользователя админом
+ *     description: По данному запросу пользователь с правами админа может забанить другого пользователя
+ *     tags: [User]
+ *     parameters:
+ *       - name: userId
+ *         description: Id другого пользователя
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Пользователь успешно забанен
+ *       400:
+ *         description: Параметр не был передан
+ *         content:
+ *           application/json:
+ *             schema:
+ *               oneOf:
+ *                 - $ref: '#/components/schemas/INVALID_PARAMETER_FORMAT'
+ *                 - $ref: '#/components/schemas/EMPTY_PARAMETER'
+ *             examples:
+ *               INVALID_PARAMETER_FORMAT:
+ *                 $ref: '#/components/examples/INVALID_PARAMETER_FORMAT_EXAMPLE'
+ *               EMPTY_PARAMETER:
+ *                 $ref: '#/components/examples/EMPTY_PARAMETER_EXAMPLE'
+ *       403:
+ *         description: Доступ запрещен
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/FORBIDDEN_ACCESS'
+ *       404:
+ *         description: Необходимые данные не найдены в базе данных
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DATA_NOT_FOUND'
+ *       500:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DATABASE_ERROR'
+ */
+userRouter.put("/ban-user/:userId", auth, banUser);
+
+//# Swagger описание запроса UnbanUser
+/**
+ * @swagger
+ * /user/unban-user/{userId}:
+ *   get:
+ *     summary: Разбан пользователя админом
+ *     description: По данному запросу пользователь с правами админа может разбанить другого пользователя
+ *     tags: [User]
+ *     parameters:
+ *       - name: userId
+ *         description: Id другого пользователя
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Пользователь успешно разбанен
+ *       400:
+ *         description: Параметр не был передан
+ *         content:
+ *           application/json:
+ *             schema:
+ *               oneOf:
+ *                 - $ref: '#/components/schemas/INVALID_PARAMETER_FORMAT'
+ *                 - $ref: '#/components/schemas/EMPTY_PARAMETER'
+ *             examples:
+ *               INVALID_PARAMETER_FORMAT:
+ *                 $ref: '#/components/examples/INVALID_PARAMETER_FORMAT_EXAMPLE'
+ *               EMPTY_PARAMETER:
+ *                 $ref: '#/components/examples/EMPTY_PARAMETER_EXAMPLE'
+ *       403:
+ *         description: Доступ запрещен
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/FORBIDDEN_ACCESS'
+ *       404:
+ *         description: Необходимые данные не найдены в базе данных
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DATA_NOT_FOUND'
+ *       500:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/DATABASE_ERROR'
+ */
+userRouter.put("/unban-user/:userId", auth, unbanUser);

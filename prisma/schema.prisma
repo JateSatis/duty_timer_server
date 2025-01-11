@@ -45,6 +45,8 @@ model User {
   passwordSalt     String
   isOnline         Boolean             @default(false)
   lastSeenOnline   BigInt
+  isAdmin          Boolean             @default(false)
+  isBanned         Boolean             @default(false)
   events           Event[]
   sentRequests     FriendshipRequest[] @relation("sender")
   recievedRequests FriendshipRequest[] @relation("reciever")

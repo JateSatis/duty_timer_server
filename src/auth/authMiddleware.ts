@@ -98,7 +98,7 @@ const authMiddleware = async (
               .status(404)
               .json(err(new DATA_NOT_FOUND("user", `id = ${userId}`)));
 
-          if (!user) {
+          if (user.isBanned) {
             return res.status(404).json(err(new ACCOUNT_NOT_VERIFIED()));
           }
 
