@@ -8,7 +8,7 @@ import { missingRequestField } from "../../utils/validation/missingRequestField"
 import { invalidInputFormat } from "./invalidInputFormat";
 import { prisma } from "../../../model/config/prismaClient";
 import { User } from "@prisma/client";
-import { DATABASE_ERROR, sendError } from "../../utils/errors/GlobalErrors";
+import { DATA_NOT_FOUND, DATABASE_ERROR, sendError } from "../../utils/errors/GlobalErrors";
 import { OTP_NOT_FOUND, OTP_NOT_VERIFIED } from "../../utils/errors/AuthErrors";
 import { generatePasswordHash } from "../../../auth/jwt/passwordHandler";
 
@@ -24,11 +24,13 @@ import { generatePasswordHash } from "../../../auth/jwt/passwordHandler";
  *           type: string
  *           description: Новый пароль, который ввел пользователь
  *           example: Vanya2004
+ *         email:
+ *           type: string
+ *           description: Email пользователя, пароль от которого он пытается поменять
+ *           example: test_user@gmail.com
  */
 
 export const resetPasswordRoute = async (req: Request, res: Response) => {
-  const user: User = req.body.user;
-
   if (missingRequestField(req, res, resetPasswordRequestBodyProperties))
     return res;
 
@@ -36,6 +38,24 @@ export const resetPasswordRoute = async (req: Request, res: Response) => {
   const changePasswordRequestBody: ResetPasswordRequestBody = req.body;
 
   if (invalidInputFormat(res, changePasswordRequestBody)) return res;
+
+  let user;
+  try {
+    user = await prisma.user.findFirst({
+      where: {
+        email: changePasswordRequestBody.email,
+      },
+    });
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
+  }
+
+  if (!user) {
+    return sendError(
+      res,
+      new DATA_NOT_FOUND("User", `email = ${changePasswordRequestBody.email}`)
+    );
+  }
 
   let existingOtpCode;
   try {

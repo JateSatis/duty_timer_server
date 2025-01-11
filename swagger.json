@@ -1246,6 +1246,16 @@
         "tags": [
           "Auth"
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/sendPasswordResetOtpRequest"
+              }
+            }
+          }
+        },
         "security": [
           {
             "Bearer": []
@@ -2227,6 +2237,21 @@
             "type": "string",
             "description": "Новый пароль, который ввел пользователь",
             "example": "Vanya2004"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email пользователя, пароль от которого он пытается поменять",
+            "example": "test_user@gmail.com"
+          }
+        }
+      },
+      "sendPasswordResetOtpRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email пользователя, пароль от которого он пытается поменять",
+            "example": "test_user@gmail.com"
           }
         }
       },
@@ -2303,6 +2328,11 @@
             "type": "number",
             "descritption": "Код подтверждения, который ввел пользователь",
             "example": 745113
+          },
+          "email": {
+            "type": "string",
+            "description": "Email пользователя, пароль от которого он пытается поменять",
+            "example": "test_user@gmail.com"
           }
         }
       }

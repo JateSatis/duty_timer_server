@@ -406,6 +406,12 @@ authRouter.get("/refresh-token", refreshAuth, refreshTokenRoute);
  *     summary: Отправка кода для измены пароля на почту пользователя
  *     description: Используется при изменении пароля для того, чтобы отправить код подтверждения на почту пользователя
  *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/sendPasswordResetOtpRequest'
  *     security:
  *       - Bearer: []
  *     responses:
@@ -430,7 +436,7 @@ authRouter.get("/refresh-token", refreshAuth, refreshTokenRoute);
  *                   $ref: '#/components/examples/UNKNOWN_ERROR_EXAMPLE'
  *
  */
-authRouter.post("/send-password-reset-otp", auth, sendPasswordResetOtp);
+authRouter.post("/send-password-reset-otp", sendPasswordResetOtp);
 
 //# Swagger описание запроса verifyPasswordReset
 /**
@@ -489,7 +495,7 @@ authRouter.post("/send-password-reset-otp", auth, sendPasswordResetOtp);
  *               $ref: '#/components/schemas/DATABASE_ERROR'
  *
  */
-authRouter.post("/verify-password-reset", auth, verifyPasswordResetRoute);
+authRouter.post("/verify-password-reset", verifyPasswordResetRoute);
 
 //# Swagger описание запроса resetPassword
 /**
@@ -542,4 +548,4 @@ authRouter.post("/verify-password-reset", auth, verifyPasswordResetRoute);
  *               $ref: '#/components/schemas/DATABASE_ERROR'
  *
  */
-authRouter.post("/reset-password", auth, resetPasswordRoute);
+authRouter.post("/reset-password", resetPasswordRoute);

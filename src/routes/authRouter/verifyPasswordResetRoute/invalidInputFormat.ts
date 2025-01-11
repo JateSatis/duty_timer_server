@@ -3,14 +3,20 @@ import { VerifyPasswordResetRequestBody } from "../../../model/routesEntities/Au
 import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
 
 const integerFormat = /^-?\d+$/;
+const emailFormat = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
 export const invalidInputFormat = (
   res: Response,
   verifyPasswordResetRequestBody: VerifyPasswordResetRequestBody
 ): boolean => {
-  const { otp } = verifyPasswordResetRequestBody;
+  const { otp, email } = verifyPasswordResetRequestBody;
 
-  if (integerFormat.test(otp.toString()) && otp.toString().length === 6) {
+  if (
+    integerFormat.test(otp.toString()) &&
+    otp.toString().length === 6 &&
+    emailFormat.test(email) &&
+    email.length <= 254
+  ) {
     return false;
   }
 

@@ -33,11 +33,13 @@ import {
  *           type: number
  *           descritption: Код подтверждения, который ввел пользователь
  *           example: 745113
+ *         email:
+ *           type: string
+ *           description: Email пользователя, пароль от которого он пытается поменять
+ *           example: test_user@gmail.com
  */
 
 export const verifyPasswordResetRoute = async (req: Request, res: Response) => {
-  const user: User = req.body.user;
-
   if (missingRequestField(req, res, verifyPasswordResetRequestBodyProperties))
     return res;
 
@@ -47,6 +49,27 @@ export const verifyPasswordResetRoute = async (req: Request, res: Response) => {
     req.body;
 
   if (invalidInputFormat(res, verifyPasswordResetRequestBody)) return res;
+
+  let user;
+  try {
+    user = await prisma.user.findFirst({
+      where: {
+        email: verifyPasswordResetRequestBody.email,
+      },
+    });
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
+  }
+
+  if (!user) {
+    return sendError(
+      res,
+      new DATA_NOT_FOUND(
+        "User",
+        `email = ${verifyPasswordResetRequestBody.email}`
+      )
+    );
+  }
 
   let existingOtpCode;
   try {

@@ -53,8 +53,16 @@ export type RefreshTokenResponseBody = {
   refreshTokenExpiresAt: number;
 };
 
+//# --- SEND PASSWORD RESET OTP ---
+export type SendPasswordResetOtpRequestBody = {
+  email: string;
+};
+
+export const sendPasswordResetOtpRequestBodyProperties = ["email"];
+
 //# --- VERIFY PASSWORD RESET ---
 export type VerifyPasswordResetRequestBody = {
+  email: string;
   otp: number;
 };
 
@@ -62,6 +70,7 @@ export const verifyPasswordResetRequestBodyProperties = ["otp"];
 
 //# --- RESET PASSWORD ---
 export type ResetPasswordRequestBody = {
+  email: string;
   password: string;
 };
 
