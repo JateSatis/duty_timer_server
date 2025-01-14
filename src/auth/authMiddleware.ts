@@ -40,7 +40,11 @@ const authMiddleware = async (
   }
 
   const tokenBearer = authorization.split(" ")[0];
-  const token = authorization.split(" ")[1];
+	const token = authorization.split(" ")[1];
+	
+	if (!tokenBearer || !token) {
+    return res.status(401).json(err(new AUTHORIZATION_HEADER_ABSENT()));
+	}
 
   //# Проверяем является ли наполнение authorization токеном
   if (tokenBearer != "Bearer" || !token.match(/\S+.\S+.\S+/)) {

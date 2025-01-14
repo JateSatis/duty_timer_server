@@ -1132,7 +1132,7 @@
         }
       }
     },
-    "/auth/send-otp-verification": {
+    "/auth/send-email-verification-otp": {
       "post": {
         "summary": "Отправить код на почту",
         "description": "Используется для отправки одноразового кода подтверждения на почту нового пользователя",
@@ -2495,16 +2495,6 @@
           }
         }
       },
-      "sendPasswordResetOtpRequest": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "type": "string",
-            "description": "Email пользователя, пароль от которого он пытается поменять",
-            "example": "test_user@gmail.com"
-          }
-        }
-      },
       "sendVerificationOtpRequest": {
         "type": "object",
         "properties": {
@@ -2512,6 +2502,16 @@
             "type": "string",
             "descritption": "Email, который пользователь ввел при регистрации",
             "example": "default_user@gmail.com"
+          }
+        }
+      },
+      "sendPasswordResetOtpRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email пользователя, пароль от которого он пытается поменять",
+            "example": "test_user@gmail.com"
           }
         }
       },
