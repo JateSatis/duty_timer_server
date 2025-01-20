@@ -15,6 +15,7 @@ export type GetUserInfoResponseBody = {
   login: string;
   avatarLink: string | null;
   userType: string;
+  isAdmin: boolean;
 };
 
 export type GetUserByIdResponseBody = ForeignUserInfoResponseBody;

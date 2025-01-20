@@ -9,7 +9,7 @@ import {
 } from "../../utils/errors/GlobalErrors";
 import { generateOtp } from "../generateOtp";
 import { REQUEST_TOO_SOON } from "../../utils/errors/AuthErrors";
-import { sendEmail, sendEmailPython } from "../sendEmail";
+import { sendEmail } from "../sendEmail";
 import { missingRequestField } from "../../utils/validation/missingRequestField";
 import {
   SendPasswordResetOtpRequestBody,
@@ -80,7 +80,7 @@ export const sendPasswordResetOtp = async (req: Request, res: Response) => {
 
   if (!existingPasswordResetOtp) {
     try {
-      await sendEmailPython(user.email, otp.value);
+      await sendEmail(user.email, otp.value);
     } catch (error) {
       if (error instanceof ServerError) {
         return sendError(res, error);
@@ -110,7 +110,7 @@ export const sendPasswordResetOtp = async (req: Request, res: Response) => {
   const oneMinute = BigInt(60 * 1000);
   if (existingPasswordResetOtp.otpCreatedAt + oneMinute < Date.now()) {
     try {
-      await sendEmailPython(user.email, otp.value);
+      await sendEmail(user.email, otp.value);
     } catch (error) {
       if (error instanceof ServerError) {
         return sendError(res, error);

@@ -16,7 +16,7 @@ import {
 } from "../../utils/errors/GlobalErrors";
 import { generateOtp } from "../generateOtp";
 import { REQUEST_TOO_SOON } from "../../utils/errors/AuthErrors";
-import { sendEmailPython } from "../sendEmail";
+import { sendEmail } from "../sendEmail";
 
 //# Swagger описание SendVerificationOtpRequestBody
 /**
@@ -71,7 +71,7 @@ export const sendEmailVerificationOtp = async (req: Request, res: Response) => {
 
   if (!pendingUser.otpCode) {
     try {
-      await sendEmailPython(resendVerificationOtpRequestBody.email, otp.value);
+      await sendEmail(resendVerificationOtpRequestBody.email, otp.value);
     } catch (error) {
       if (error instanceof ServerError) {
         return sendError(res, error);
@@ -101,7 +101,7 @@ export const sendEmailVerificationOtp = async (req: Request, res: Response) => {
   const oneMinute = BigInt(60 * 1000);
   if (pendingUser.otpCode.otpCreatedAt + oneMinute < Date.now()) {
     try {
-      await sendEmailPython(resendVerificationOtpRequestBody.email, otp.value);
+      await sendEmail(resendVerificationOtpRequestBody.email, otp.value);
     } catch (error) {
       if (error instanceof ServerError) {
         return sendError(res, error);

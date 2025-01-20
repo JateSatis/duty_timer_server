@@ -30,7 +30,7 @@ import {
   UNKNOWN_ERROR,
 } from "../../utils/errors/GlobalErrors";
 import { generateOtp } from "../generateOtp";
-import { sendEmail, sendEmailPython } from "../sendEmail";
+import { sendEmail } from "../sendEmail";
 
 //# Swagger описание SignUpRequestBody
 /**
@@ -92,7 +92,7 @@ export const signUpRoute = async (req: Request, res: Response) => {
     const password = generatePasswordHash(signUpRequestBody.password);
 
     try {
-      await sendEmailPython(signUpRequestBody.login, otp.value);
+      await sendEmail(signUpRequestBody.login, otp.value);
     } catch (error) {
       if (error instanceof ServerError) {
         return sendError(res, error);
@@ -130,13 +130,14 @@ export const signUpRoute = async (req: Request, res: Response) => {
     return res.sendStatus(200);
   }
 
+  // TODO: Check if password and nickname are the same here as when he first signed up
   //# If pendingUser already exists
   const currentTime = BigInt(Date.now());
   const oneMinute = BigInt(60 * 1000);
   //# If one minute has passed from sending the otp, we can send a new one
   if (existingPendingUser.otpCode.otpCreatedAt + oneMinute > currentTime) {
     try {
-      await sendEmailPython(signUpRequestBody.login, otp.value);
+      await sendEmail(signUpRequestBody.login, otp.value);
     } catch (err) {
       if (err instanceof ServerError) {
         return res.status(err.code).json(err.toString());

@@ -2399,6 +2399,11 @@
             "type": "string",
             "description": "Тип пользователя, который он выбрал при регистрации",
             "example": "SOLDIER"
+          },
+          "isAdmin": {
+            "type": "boolean",
+            "description": "Булево значение, показывающее пользователь админ или нет",
+            "example": false
           }
         }
       },

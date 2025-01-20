@@ -45,6 +45,10 @@ import { DATA_NOT_FOUND } from "../../utils/errors/GlobalErrors";
  *           type: string
  *           description: Тип пользователя, который он выбрал при регистрации
  *           example: SOLDIER
+ *         isAdmin:
+ *           type: boolean
+ *           description: Булево значение, показывающее пользователь админ или нет
+ *           example: false
  */
 
 export const getUserInfo = async (req: Request, res: Response) => {
@@ -83,6 +87,7 @@ export const getUserInfo = async (req: Request, res: Response) => {
     login: user.email,
     avatarLink,
     userType: user.userType,
+    isAdmin: user.isAdmin,
   };
   return res.status(200).json(getUserInfoResponseBody);
 };
