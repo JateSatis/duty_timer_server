@@ -32,10 +32,7 @@ RUN apt-get update -y && \
     apt-get install -y \
     openssl \
     bash \
-    curl \
-    python3 \
-    python3-pip && \
-    ln -s /usr/bin/python3 /usr/bin/python  # Ensure 'python' command points to Python 3
+    curl
 
 # Install Prisma CLI globally
 RUN npm install -g prisma
