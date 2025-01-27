@@ -66,7 +66,7 @@ export type VerifyPasswordResetRequestBody = {
   otp: number;
 };
 
-export const verifyPasswordResetRequestBodyProperties = ["otp"];
+export const verifyPasswordResetRequestBodyProperties = ["email", "otp"];
 
 //# --- RESET PASSWORD ---
 export type ResetPasswordRequestBody = {
@@ -74,4 +74,4 @@ export type ResetPasswordRequestBody = {
   password: string;
 };
 
-export const resetPasswordRequestBodyProperties = ["password"];
+export const resetPasswordRequestBodyProperties = ["email", "password"];
