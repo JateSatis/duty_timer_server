@@ -64,7 +64,7 @@ export const getGlobalChat = async (req: Request, res: Response) => {
 
   let getGlobalChatResponseBody: ChatResponseBody;
   if (messages.length > 0) {
-    const lastMessage = messages[messages.length - 1];
+    const lastMessage = messages[0];
 
     const { dateFormat, timeFormat } = formatDateForMessage(
       Number(lastMessage.creationTime)
