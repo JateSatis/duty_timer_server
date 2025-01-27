@@ -48,25 +48,35 @@ export const sendEmail = async (email: string, otp: string) => {
     throw error;
   }
 
+  // const transporter = nodemailer.createTransport({
+  //   service: "gmail",
+  //   port: 465,
+  //   secure: true,
+  //   auth: {
+  //     type: "OAuth2",
+  //     user: process.env.OAUTH2_EMAIL_ADRESS,
+  //     clientId: process.env.OAUTH2_EMAIL_CLIENT_ID,
+  //     clientSecret: process.env.OAUTH2_EMAIL_CLIENT_SECRET,
+  //     refreshToken: process.env.OAUTH2_EMAIL_REFRESH_TOKEN,
+  //     accessToken: accessToken,
+  //   },
+  // });
+
   const transporter = nodemailer.createTransport({
-    service: "gmail",
-    port: 465,
-    secure: true,
+    host: "smtp.timeweb.ru", // Проверь в панели управления
+    port: 465, // Часто используется 587 (TLS) или 465 (SSL)
+    secure: true, // true для 465, false для других портов
     auth: {
-      type: "OAuth2",
-      user: process.env.OAUTH2_EMAIL_ADRESS,
-      clientId: process.env.OAUTH2_EMAIL_CLIENT_ID,
-      clientSecret: process.env.OAUTH2_EMAIL_CLIENT_SECRET,
-      refreshToken: process.env.OAUTH2_EMAIL_REFRESH_TOKEN,
-      accessToken: accessToken,
+      user: process.env.TIMEWEB_EMAIL,
+      pass: process.env.TIMEWEB_EMAIl_PASSWORD, // Обычно создается отдельно в панели хостинга
     },
   });
 
   const mailOptions = {
-    from: process.env.OAUTH2_EMAIL_ADRESS,
-    subject: "Your verification code",
+    from: "no-reply@timer-dmb.ru",
+    subject: "Код подтверждения ДМБ Таймер",
     to: email,
-    text: `Code: ${otp}`,
+    text: `Код: ${otp}`,
   };
 
   try {
