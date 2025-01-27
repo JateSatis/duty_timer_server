@@ -8,7 +8,11 @@ import { missingRequestField } from "../../utils/validation/missingRequestField"
 import { invalidInputFormat } from "./invalidInputFormat";
 import { prisma } from "../../../model/config/prismaClient";
 import { User } from "@prisma/client";
-import { DATA_NOT_FOUND, DATABASE_ERROR, sendError } from "../../utils/errors/GlobalErrors";
+import {
+  DATA_NOT_FOUND,
+  DATABASE_ERROR,
+  sendError,
+} from "../../utils/errors/GlobalErrors";
 import { OTP_NOT_FOUND, OTP_NOT_VERIFIED } from "../../utils/errors/AuthErrors";
 import { generatePasswordHash } from "../../../auth/jwt/passwordHandler";
 
@@ -43,7 +47,10 @@ export const resetPasswordRoute = async (req: Request, res: Response) => {
   try {
     user = await prisma.user.findFirst({
       where: {
-        email: changePasswordRequestBody.email,
+        email: {
+          contains: changePasswordRequestBody.email,
+          mode: "insensitive",
+        },
       },
     });
   } catch (error) {

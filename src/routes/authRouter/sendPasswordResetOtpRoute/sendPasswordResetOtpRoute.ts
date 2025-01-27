@@ -47,7 +47,10 @@ export const sendPasswordResetOtp = async (req: Request, res: Response) => {
   try {
     user = await prisma.user.findFirst({
       where: {
-        email: sendPasswordResetOtpRequestBody.email,
+        email: {
+          contains: sendPasswordResetOtpRequestBody.email,
+          mode: "insensitive",
+        },
       },
     });
   } catch (error) {

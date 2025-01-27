@@ -54,7 +54,10 @@ export const verifyPasswordResetRoute = async (req: Request, res: Response) => {
   try {
     user = await prisma.user.findFirst({
       where: {
-        email: verifyPasswordResetRequestBody.email,
+        email: {
+          contains: verifyPasswordResetRequestBody.email,
+          mode: "insensitive",
+        },
       },
     });
   } catch (error) {

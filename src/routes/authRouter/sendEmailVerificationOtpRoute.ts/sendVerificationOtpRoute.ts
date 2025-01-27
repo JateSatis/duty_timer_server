@@ -47,7 +47,10 @@ export const sendEmailVerificationOtp = async (req: Request, res: Response) => {
   try {
     pendingUser = await prisma.pendingUser.findFirst({
       where: {
-        email: resendVerificationOtpRequestBody.email,
+        email: {
+          contains: resendVerificationOtpRequestBody.email,
+          mode: "insensitive",
+        },
       },
       include: {
         otpCode: true,

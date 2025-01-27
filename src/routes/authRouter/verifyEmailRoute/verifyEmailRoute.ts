@@ -66,7 +66,6 @@ import {
  *       $ref: '#/components/schemas/refreshTokenResponse'
  */
 
-
 export const verifyEmailRoute = async (req: Request, res: Response) => {
   if (missingRequestField(req, res, verifyEmailRequestBodyProperties))
     return res;
@@ -80,7 +79,10 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
   try {
     existingUser = await prisma.user.findFirst({
       where: {
-        email: verifyEmailRequestBody.email,
+        email: {
+          contains: verifyEmailRequestBody.email,
+          mode: "insensitive",
+        },
       },
     });
   } catch (error) {
@@ -98,7 +100,10 @@ export const verifyEmailRoute = async (req: Request, res: Response) => {
   try {
     pendingUser = await prisma.pendingUser.findFirst({
       where: {
-        email: verifyEmailRequestBody.email,
+        email: {
+          contains: verifyEmailRequestBody.email,
+          mode: "insensitive",
+        },
       },
       include: {
         otpCode: {

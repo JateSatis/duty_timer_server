@@ -77,7 +77,10 @@ export const signUpRoute = async (req: Request, res: Response) => {
   try {
     existingPendingUser = await prisma.pendingUser.findFirst({
       where: {
-        email: signUpRequestBody.login,
+        email: {
+          contains: signUpRequestBody.login,
+          mode: "insensitive",
+        },
       },
       include: {
         otpCode: true,
@@ -150,8 +153,8 @@ export const signUpRoute = async (req: Request, res: Response) => {
     try {
       await prisma.pendingUser.update({
         where: {
-          email: signUpRequestBody.login,
-        },
+          id: existingPendingUser.id,
+				},
         data: {
           otpCode: {
             update: {

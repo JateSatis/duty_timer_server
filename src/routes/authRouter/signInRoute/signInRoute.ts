@@ -71,7 +71,10 @@ export const signInRoute = async (req: Request, res: Response) => {
   try {
     user = await prisma.user.findFirst({
       where: {
-        email: signInRequestBody.login,
+        email: {
+					contains: signInRequestBody.login,
+					mode: "insensitive"
+        },
       },
       include: {
         refreshToken: true,
