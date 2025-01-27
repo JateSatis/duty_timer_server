@@ -28,7 +28,7 @@ import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-	sendError,
+  sendError,
 } from "../../utils/errors/GlobalErrors";
 import { User } from "@prisma/client";
 import { prisma } from "../../../model/config/prismaClient";
@@ -86,6 +86,7 @@ export const editMessageRoute = async (req: Request, res: Response) => {
       },
       data: {
         text: editMessageRequestBody.text,
+        isEdited: true,
       },
     });
   } catch (error) {
