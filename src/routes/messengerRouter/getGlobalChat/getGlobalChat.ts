@@ -42,6 +42,9 @@ export const getGlobalChat = async (req: Request, res: Response) => {
       where: {
         chatId: chat.id,
       },
+      orderBy: {
+        creationTime: "desc",
+      },
     });
   } catch (error) {
     const databaseError = new DATABASE_ERROR(error);
