@@ -35,30 +35,31 @@ model PendingUser {
 }
 
 model User {
-  id               String              @id @default(uuid())
-  createdAt        BigInt
-  email            String
-  nickname         String              @unique
-  avatarImageName  String?
-  userType         UserType            @default(DEFAULT)
-  passwordHash     String
-  passwordSalt     String
-  isOnline         Boolean             @default(false)
-  lastSeenOnline   BigInt
-  isAdmin          Boolean             @default(false)
-  isBanned         Boolean             @default(false)
-  events           Event[]
-  sentRequests     FriendshipRequest[] @relation("sender")
-  recievedRequests FriendshipRequest[] @relation("reciever")
-  friends          Frienship[]         @relation("user1")
-  friendOf         Frienship[]         @relation("user2")
-  messages         Message[]
-  refreshToken     RefreshToken?
-  settings         Settings?
-  subscription     Subscription?
-  timer            Timer?
-  chats            Chat[]
-  otpCode          OtpCode?
+  id                              String              @id @default(uuid())
+  createdAt                       BigInt
+  email                           String
+  nickname                        String              @unique
+  avatarImageName                 String?
+  userType                        UserType            @default(DEFAULT)
+  passwordHash                    String
+  passwordSalt                    String
+  isOnline                        Boolean             @default(false)
+  lastSeenOnline                  BigInt
+  isAdmin                         Boolean             @default(false)
+  isBanned                        Boolean             @default(false)
+  globalChatUnreadMessagesCounter Int                 @default(0)
+  events                          Event[]
+  sentRequests                    FriendshipRequest[] @relation("sender")
+  recievedRequests                FriendshipRequest[] @relation("reciever")
+  friends                         Frienship[]         @relation("user1")
+  friendOf                        Frienship[]         @relation("user2")
+  messages                        Message[]
+  refreshToken                    RefreshToken?
+  settings                        Settings?
+  subscription                    Subscription?
+  timer                           Timer?
+  chats                           Chat[]
+  otpCode                         OtpCode?
 }
 
 model RefreshToken {

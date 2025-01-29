@@ -228,6 +228,24 @@ export const createMessageRoute = async (req: Request, res: Response) => {
     return sendError(res, new DATABASE_ERROR(error));
   }
 
+  //# Update counter of every user connected to the global chat, except for the one that've sent it
+  try {
+    await prisma.user.updateMany({
+      where: {
+        NOT: {
+          id: user.id,
+        },
+      },
+      data: {
+        globalChatUnreadMessagesCounter: {
+          increment: 1,
+        },
+      },
+    });
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
+  }
+
   let avatarLink = null;
   if (user.avatarImageName) {
     avatarLink = await S3DataSource.getImageUrlFromS3(user.avatarImageName);

@@ -19,7 +19,7 @@ import {
   DATABASE_ERROR,
   err,
   FORBIDDEN_ACCESS,
-	sendError,
+  sendError,
 } from "../../utils/errors/GlobalErrors";
 
 //# --- UTILS ---
@@ -72,6 +72,19 @@ export const updateAllUnreadMessagesRoute = async (
       },
       data: {
         isRead: true,
+      },
+    });
+  } catch (error) {
+    return sendError(res, new DATABASE_ERROR(error));
+  }
+
+  try {
+    await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        globalChatUnreadMessagesCounter: 0,
       },
     });
   } catch (error) {
