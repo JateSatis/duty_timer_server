@@ -15,7 +15,6 @@ import { WebSocketChatsMapValue } from "../model/routesEntities/WebSocketRouterE
 import { User } from "@prisma/client";
 import { prisma } from "../model/config/prismaClient";
 import { DATA_NOT_FOUND } from "../routes/utils/errors/GlobalErrors";
-import { WebScopeType } from "aws-sdk/clients/bedrockagent";
 
 // TODO: Check if maps works correctly after users connect and disconnect.
 
