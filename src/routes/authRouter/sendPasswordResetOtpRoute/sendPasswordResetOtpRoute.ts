@@ -88,7 +88,7 @@ export const sendPasswordResetOtp = async (req: Request, res: Response) => {
       if (error instanceof ServerError) {
         return sendError(res, error);
       } else {
-        return sendError(res, new UNKNOWN_ERROR(error));
+        return sendError(res, new UNKNOWN_ERROR(error, "sendPasswordResetOptRoute.ts"));
       }
     }
 
@@ -118,7 +118,10 @@ export const sendPasswordResetOtp = async (req: Request, res: Response) => {
       if (error instanceof ServerError) {
         return sendError(res, error);
       } else {
-        return sendError(res, new UNKNOWN_ERROR(error));
+        return sendError(
+          res,
+          new UNKNOWN_ERROR(error, "sendPasswordResetOptRoute.ts")
+        );
       }
     }
 

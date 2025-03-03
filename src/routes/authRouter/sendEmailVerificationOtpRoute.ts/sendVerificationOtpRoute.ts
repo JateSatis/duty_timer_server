@@ -79,7 +79,7 @@ export const sendEmailVerificationOtp = async (req: Request, res: Response) => {
       if (error instanceof ServerError) {
         return sendError(res, error);
       } else {
-        return sendError(res, new UNKNOWN_ERROR(error));
+        return sendError(res, new UNKNOWN_ERROR(error, "sendVerificationOtpRoute.ts"));
       }
     }
 
@@ -109,7 +109,7 @@ export const sendEmailVerificationOtp = async (req: Request, res: Response) => {
       if (error instanceof ServerError) {
         return sendError(res, error);
       } else {
-        return sendError(res, new UNKNOWN_ERROR(error));
+        return sendError(res, new UNKNOWN_ERROR(error, "sendVerificationOtpRoute.ts"));
       }
     }
 

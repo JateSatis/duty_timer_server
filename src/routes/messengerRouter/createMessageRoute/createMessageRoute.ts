@@ -263,7 +263,7 @@ export const createMessageRoute = async (req: Request, res: Response) => {
     if (error instanceof ServerError) {
       return res.status(error.code).json(error.toString());
     } else {
-      const err = new UNKNOWN_ERROR(error);
+      const err = new UNKNOWN_ERROR(error, "createMessageRoute.ts");
       return res.status(err.code).json(err.toString());
     }
   }

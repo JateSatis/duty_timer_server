@@ -33,7 +33,7 @@ export const getDirectMessages = async (req: Request, res: Response) => {
     if (error instanceof ServerError) {
       return res.status(400).json(err(error));
     } else {
-      return res.status(400).json(err(new UNKNOWN_ERROR(error)));
+      return res.status(400).json(err(new UNKNOWN_ERROR(error, "getDirectMessages.ts")));
     }
   }
 

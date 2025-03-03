@@ -80,7 +80,7 @@ export const getDirectChatInfo = async (req: Request, res: Response) => {
     if (err instanceof ServerError) {
       return res.status(err.code).json(err.toString());
     } else {
-      const error = new UNKNOWN_ERROR(err);
+      const error = new UNKNOWN_ERROR(err,"getDirectChatInfo.ts");
       return res.status(error.code).json(error.toString());
     }
   }

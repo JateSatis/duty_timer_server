@@ -51,8 +51,12 @@ export class RATE_LIMIT_EXCEEDED extends ServerError {
 }
 
 export class UNKNOWN_ERROR extends ServerError {
-  constructor(message: string) {
-    super("UNKNOWN_ERROR", `Unknown error occured. Error: ${message}`, 500);
+  constructor(message: string, file: string) {
+    super(
+      "UNKNOWN_ERROR",
+      `Unknown error occured in file: ${file}. Error: ${message}`,
+      500
+    );
   }
 }
 

@@ -75,7 +75,7 @@ export const getUserById = async (req: Request, res: Response) => {
     if (error instanceof ServerError) {
       return res.status(error.code).json(error.toString());
     } else {
-      const unknownError = new UNKNOWN_ERROR(error);
+      const unknownError = new UNKNOWN_ERROR(error, "getUserById.ts");
       return res.status(unknownError.code).json(unknownError.toString());
     }
   }

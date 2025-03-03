@@ -111,7 +111,7 @@ export const sendEmailPython = async (email: string, otp: string) => {
     if (error instanceof ServerError) {
       throw error;
     } else {
-      throw new UNKNOWN_ERROR(error);
+      throw new UNKNOWN_ERROR(error, "sendEmail.ts");
     }
   }
 };

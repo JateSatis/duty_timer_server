@@ -100,7 +100,7 @@ export const signUpRoute = async (req: Request, res: Response) => {
       if (error instanceof ServerError) {
         return sendError(res, error);
       } else {
-        return sendError(res, new UNKNOWN_ERROR(error));
+        return sendError(res, new UNKNOWN_ERROR(error, "signUpRoute.ts"));
       }
     }
 
@@ -145,7 +145,7 @@ export const signUpRoute = async (req: Request, res: Response) => {
       if (err instanceof ServerError) {
         return res.status(err.code).json(err.toString());
       } else {
-        const error = new UNKNOWN_ERROR(err);
+        const error = new UNKNOWN_ERROR(err, "signUpRoute.ts");
         return res.status(error.code).json(error.toString());
       }
     }
