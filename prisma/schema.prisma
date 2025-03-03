@@ -54,12 +54,21 @@ model User {
   friends                         Frienship[]         @relation("user1")
   friendOf                        Frienship[]         @relation("user2")
   messages                        Message[]
+  device                          Device?
   refreshToken                    RefreshToken?
   settings                        Settings?
   subscription                    Subscription?
   timer                           Timer?
   chats                           Chat[]
   otpCode                         OtpCode?
+}
+
+model Device {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  platform    Platform
+  deviceToken String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model RefreshToken {
@@ -159,6 +168,11 @@ model Message {
   sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
   replyTo      Message?     @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
   isRepliedBy  Message[]    @relation("MessageReplies")
+}
+
+enum Platform {
+  IOS
+  ANDROID
 }
 
 enum OtpPurpose {

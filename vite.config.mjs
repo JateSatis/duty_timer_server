@@ -16,7 +16,7 @@ export default defineConfig({
     // Copy static assets like .pem keys and .py files during build
     viteStaticCopy({
       targets: [
-        { src: "src/keys/*.pem", dest: "keys" },
+        { src: "src/keys/*", dest: "keys" },
         { src: "src/python/sendEmail.py", dest: "python" },
         { src: "src/views/*.html", dest: "views" },
         { src: "swagger.json", dest: "." },

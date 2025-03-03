@@ -20,6 +20,7 @@ import { WebSocketServer } from "ws";
 import { connectWithRetry, prisma } from "./model/config/prismaClient";
 import { ChatType } from "@prisma/client";
 import { logsController } from "./routes/controllers/logsController";
+import { pushNotificationsRouter } from "./routes/pushNotificationsRouter/pushNotificationsRouter";
 
 dotenv.config();
 
@@ -67,6 +68,7 @@ app.use("/timer", timerRouter);
 app.use("/messenger", messengerRouter);
 app.use("/privacy-policy", documentsRouter);
 app.use("/logs", logsController);
+app.use("/push-notifications", pushNotificationsRouter);
 
 const seed = async () => {
   const globalChat = await prisma.chat.findFirst({
