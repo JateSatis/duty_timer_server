@@ -1,9 +1,12 @@
 import * as apn from "apn";
+import path from "path";
+
+const pathToKey = path.join(__dirname, "/keys/AuthKey_446RHJM4H9.p8");
 
 // Конфигурация APNs
 const options: apn.ProviderOptions = {
   token: {
-    key: "./keys/AuthKey_446RHJM4H9.p8", // Путь к вашему AuthKey файлу
+    key: pathToKey, // Путь к вашему AuthKey файлу
     keyId: "446RHJM4H9", // Key ID
     teamId: "TK8B7U943D", // Замените на ваш Team ID
   },
