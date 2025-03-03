@@ -1,7 +1,7 @@
 import { Platform } from "@prisma/client";
 import { INVALID_INPUT_FORMAT } from "../../../routes/utils/errors/AuthErrors";
 import { Response } from "express";
-import { AddDeviceRequestBody } from "../../../model/routesEntities/pushNotificationsEntities";
+import { AddDeviceRequestBody } from "../../../model/routesEntities/PushNotificationsEntities";
 
 export const invalidInputFormat = (
   res: Response,
