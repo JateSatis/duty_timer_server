@@ -3,9 +3,9 @@ import * as apn from "apn";
 // Конфигурация APNs
 const options: apn.ProviderOptions = {
   token: {
-    key: "./path/to/AuthKey_446RHJM4H9.p8", // Путь к вашему AuthKey файлу
+    key: "./keys/AuthKey_446RHJM4H9.p8", // Путь к вашему AuthKey файлу
     keyId: "446RHJM4H9", // Key ID
-    teamId: "YOUR_TEAM_ID", // Замените на ваш Team ID
+    teamId: "TK8B7U943D", // Замените на ваш Team ID
   },
   production: false, // Используйте false для тестового окружения, true для продакшна
 };
@@ -23,6 +23,9 @@ export const sendApplePushNotification = async (
   message: string
 ): Promise<void> => {
   try {
+    console.log(`deviceTekon: ${deviceToken}`);
+    console.log(`message: ${message}`);
+
     // Создание объекта уведомления
     const notification = new apn.Notification();
     notification.expiry = Math.floor(Date.now() / 1000) + 3600; // Установка срока действия уведомления (1 час)
