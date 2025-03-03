@@ -43,6 +43,9 @@ import {
 import { transformMessageForResponse } from "../transformMessageForResponse";
 import { prisma } from "../../../model/config/prismaClient";
 import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
+import { sendApplePushNotification } from "../../../routes/pushNotificationsRouter/sendApplePushNotification";
+import { send } from "process";
+import { Device } from "@prisma/client";
 
 /**
  * @swagger
@@ -300,7 +303,57 @@ export const createMessageRoute = async (req: Request, res: Response) => {
     return sendError(res, new DATABASE_ERROR(error));
   }
 
+  try {
+    sendPushNotification(replyToMessageId, createMessageRequestBody.data);
+  } catch (error) {
+    if (error instanceof ServerError) {
+      return sendError(res, error);
+    } else {
+      return sendError(res, new UNKNOWN_ERROR(error.message, "createMessageRoute"));
+    }
+  }
+
   const createMessageResponseBody: CreateMessageResponseBody =
     messageResponseBody;
   return res.status(200).json(createMessageResponseBody);
+};
+
+const sendPushNotification = async (
+  replyToMessageId: string | null,
+  message: string
+) => {
+  if (!replyToMessageId) return;
+
+  let replyToMessage = null;
+  try {
+    replyToMessage = await prisma.message.findFirst({
+      where: {
+        id: replyToMessageId,
+      },
+      include: {
+        sender: true,
+      },
+    });
+  } catch (error) {
+    throw new DATABASE_ERROR(error);
+  }
+
+  if (!replyToMessage) return;
+
+  let devices: Device[] = [];
+  try {
+    devices = await prisma.device.findMany({
+      where: {
+        userId: replyToMessage.sender.id,
+      },
+    });
+  } catch (error) {
+    throw new DATABASE_ERROR(error);
+  }
+
+  for (let device of devices) {
+    if (device.platform === "IOS") {
+      sendApplePushNotification(device.deviceToken, message);
+    }
+  }
 };

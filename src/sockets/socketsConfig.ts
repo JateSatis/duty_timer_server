@@ -18,6 +18,9 @@ import { DATA_NOT_FOUND } from "../routes/utils/errors/GlobalErrors";
 
 // TODO: Check if maps works correctly after users connect and disconnect.
 
+// TODO: If a user isn't connected to the websocker, even if he/she sends a message 
+// TODO: it will not be updated for others
+
 export const unregisteredUsers = new Set<WebSocket>();
 
 //# Содержит чатрумы и их пользователей. В качестве ключа используется уникальный ключ чата
@@ -64,6 +67,8 @@ export const webSocketOnConnection = async (
       disconnectFromChatrooms(chatIds, user);
     });
   }
+
+  console.log(JSON.stringify(webSocketChatsMap));
 };
 
 const connectToFriends = async (userId: string, ws: WebSocket) => {
@@ -214,6 +219,7 @@ const sendChatMessage = async (data: Data, ws: WebSocket) => {
   }
 
   connectedUsers.forEach((userSocket) => {
+    console.log(`Sending message to ${userSocket.userId}`);
     if (userSocket.socket != ws)
       userSocket.socket.send(JSON.stringify(webSocketChatMessage));
   });
