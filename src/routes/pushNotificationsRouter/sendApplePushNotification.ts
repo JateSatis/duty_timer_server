@@ -1,7 +1,7 @@
 import * as apn from "apn";
 import path from "path";
 
-const pathToKey = path.join(__dirname, "/keys/AuthKey_446RHJM4H9.p8");
+const pathToKey = path.join(__dirname, "/keys/ApplePushNotificationsKey.p8");
 
 // Конфигурация APNs
 const options: apn.ProviderOptions = {

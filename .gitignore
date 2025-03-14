@@ -5,7 +5,7 @@ DB_SCHEMA.txt
 
 private_key.pem
 public_key.pem
-AuthKey_446RHJM4H9.p8
+ApplePushNotificationsKey.p8
 
 dist
 
