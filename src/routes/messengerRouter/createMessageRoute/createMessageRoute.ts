@@ -46,6 +46,7 @@ import { INVALID_INPUT_FORMAT } from "../../utils/errors/AuthErrors";
 import { sendApplePushNotification } from "../../../routes/pushNotificationsRouter/sendApplePushNotification";
 import { send } from "process";
 import { Device } from "@prisma/client";
+import { sendAndroidPushNotification } from "../../../routes/pushNotificationsRouter/sendAndroidPushNotification";
 
 /**
  * @swagger
@@ -309,7 +310,10 @@ export const createMessageRoute = async (req: Request, res: Response) => {
     if (error instanceof ServerError) {
       return sendError(res, error);
     } else {
-      return sendError(res, new UNKNOWN_ERROR(error.message, "createMessageRoute"));
+      return sendError(
+        res,
+        new UNKNOWN_ERROR(error.message, "createMessageRoute")
+      );
     }
   }
 
@@ -354,6 +358,12 @@ const sendPushNotification = async (
   for (let device of devices) {
     if (device.platform === "IOS") {
       sendApplePushNotification(device.deviceToken, message);
+    } else if ((device.platform = "ANDROID")) {
+      sendAndroidPushNotification(
+        device.deviceToken,
+        "Ответ на ваше сообщение",
+        message
+      );
     }
   }
 };
