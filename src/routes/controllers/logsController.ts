@@ -12,11 +12,7 @@ const iosFilePath = path.join(__dirname, "../requests_ios.log");
 // Маршрут для отображения логов
 logsController.get("/", async (req: Request, res: Response) => {
   try {
-    res.download(backendFilePath, "requests.log", (err) => {
-      if (err) {
-        res.status(500).send(err);
-      }
-    });
+    res.download(backendFilePath, "requests.log");
   } catch (err) {
     res.status(500).send(err);
   }
